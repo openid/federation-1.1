@@ -52,9 +52,11 @@ jobs:
       - name: Run the build process with Docker
         run: |     
             docker run -v `pwd`:/data danielfett/markdown2rfc openid-federation-1_1.md
+      - name: List generated files
+        run: ls -la *.html || echo "No HTML files found"
       - name: rename
         run: |
-            mv ./openid-federation-1_1*.html ./html/$BRANCH_NAME.html
+            mv ./federation-1.1*.html ./html/$BRANCH_NAME.html
 
       - name: Deploy to GitHub Pages
         if: success()
