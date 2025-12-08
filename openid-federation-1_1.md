@@ -1,13 +1,13 @@
 %%%
-title = "OpenID Federation 1.1"
-abbrev = "openid-federation-1.1"
+title = "OpenID Connect Federation 1.1"
+abbrev = "federation-1.1"
 ipr = "none"
 workgroup = "OpenID Connect Working Group"
 keyword = ["OpenID", "OpenID Connect", "Federation", "Multilateral Federation", "Federation Entity", "Federation Operator", "Trust Anchor", "Trust Chain", "Trust Establishment", "Trust Mark"]
 
 [seriesInfo]
 name = "Internet-Draft"
-value = "openid-federation-1.1"
+value = "federation-1.1"
 status = "standard"
 
 [[author]]
@@ -64,831 +64,6 @@ organization="Connect2id"
 
 # Introduction
 
-*[Content conversion from XML to markdown would go here]*
-
-{mainmatter}
-
-
-
-
-A federation can be expressed as an agreement between parties that trust each other. In bilateral federations, direct trust can be established between two organizations belonging to the same federation. In a multilateral federation, bilateral agreements might not be practical, in which case, trust can be mediated by a third party. That is the model used in this specification.
-
-An Entity in the federation must be able to trust that other Entities it interacts with belong to the same federation. It must also be able to trust that the information the other Entities publish about themselves has not been tampered with during transport and that it adheres to the federation's policies.
-
-This specification defines basic components to build multilateral federations. It also defines how to apply them in the contexts of OpenID Connect and OAuth 2.0. These components can be used by other application protocols for the purpose of establishing trust.
-
-
-
-
-
-
-
-- 
-  [1](#section-1){.auto .internal .xref}.  [Introduction](#name-introduction){.internal .xref}
-
-  - 
-    [1.1](#section-1.1){.auto .internal .xref}.  [Requirements Notation and Conventions](#name-requirements-notation-and-c){.internal .xref}
-    
-
-  - 
-    [1.2](#section-1.2){.auto .internal .xref}.  [Terminology](#name-terminology){.internal .xref}
-    
-  
-
-- 
-  [2](#section-2){.auto .internal .xref}.  [Overall Architecture](#name-overall-architecture){.internal .xref}
-
-  - 
-    [2.1](#section-2.1){.auto .internal .xref}.  [Cryptographic Trust Mechanism](#name-cryptographic-trust-mechani){.internal .xref}
-    
-  
-
-- 
-  [3](#section-3){.auto .internal .xref}.  [Entity Statement](#name-entity-statement){.internal .xref}
-
-  - 
-    [3.1](#section-3.1){.auto .internal .xref}.  [Claims that MUST or MAY appear in both Entity Configurations and Subordinate Statements](#name-claims-that-must-or-may-app){.internal .xref}
-    
-
-  - 
-    [3.2](#section-3.2){.auto .internal .xref}.  [Claims that MUST or MAY appear in Entity Configurations but not Subordinate Statements](#name-claims-that-must-or-may-appe){.internal .xref}
-    
-
-  - 
-    [3.3](#section-3.3){.auto .internal .xref}.  [Claims that MUST or MAY appear in Subordinate Statements but not Entity Configurations](#name-claims-that-must-or-may-appea){.internal .xref}
-    
-
-  - 
-    [3.4](#section-3.4){.auto .internal .xref}.  [Claims Specific to Explicit Registration Responses](#name-claims-specific-to-explicit){.internal .xref}
-    
-
-  - 
-    [3.5](#section-3.5){.auto .internal .xref}.  [Entity Statement Validation](#name-entity-statement-validation){.internal .xref}
-    
-
-  - 
-    [3.6](#section-3.6){.auto .internal .xref}.  [Entity Statement Examples](#name-entity-statement-examples){.internal .xref}
-    
-  
-
-- 
-  [4](#section-4){.auto .internal .xref}.  [Trust Chain](#name-trust-chain){.internal .xref}
-
-  - 
-    [4.1](#section-4.1){.auto .internal .xref}.  [Beginning and Ending Trust Chains](#name-beginning-and-ending-trust-){.internal .xref}
-    
-
-  - 
-    [4.2](#section-4.2){.auto .internal .xref}.  [Trust Chain Example](#name-trust-chain-example){.internal .xref}
-    
-
-  - 
-    [4.3](#section-4.3){.auto .internal .xref}.  [Trust Chain Header Parameter](#name-trust-chain-header-paramete){.internal .xref}
-    
-  
-
-- 
-  [5](#section-5){.auto .internal .xref}.  [Metadata](#name-metadata){.internal .xref}
-
-  - 
-    [5.1](#section-5.1){.auto .internal .xref}.  [Entity Type Identifiers](#name-entity-type-identifiers){.internal .xref}
-
-    - 
-      [5.1.1](#section-5.1.1){.auto .internal .xref}.  [Federation Entity](#name-federation-entity){.internal .xref}
-      
-
-    - 
-      [5.1.2](#section-5.1.2){.auto .internal .xref}.  [OpenID Connect Relying Party](#name-openid-connect-relying-part){.internal .xref}
-      
-
-    - 
-      [5.1.3](#section-5.1.3){.auto .internal .xref}.  [OpenID Connect OpenID Provider](#name-openid-connect-openid-provi){.internal .xref}
-      
-
-    - 
-      [5.1.4](#section-5.1.4){.auto .internal .xref}.  [OAuth Authorization Server](#name-oauth-authorization-server){.internal .xref}
-      
-
-    - 
-      [5.1.5](#section-5.1.5){.auto .internal .xref}.  [OAuth Client](#name-oauth-client){.internal .xref}
-      
-
-    - 
-      [5.1.6](#section-5.1.6){.auto .internal .xref}.  [OAuth Protected Resource](#name-oauth-protected-resource){.internal .xref}
-      
-    
-
-  - 
-    [5.2](#section-5.2){.auto .internal .xref}.  [Common Metadata Parameters](#name-common-metadata-parameters){.internal .xref}
-
-    - 
-      [5.2.1](#section-5.2.1){.auto .internal .xref}.  [Extensions for JWK Sets in Entity Metadata](#name-extensions-for-jwk-sets-in-){.internal .xref}
-
-      - 
-        [5.2.1.1](#section-5.2.1.1){.auto .internal .xref}.  [Usage of jwks, jwks_uri, and signed_jwks_uri in Entity Metadata](#name-usage-of-jwks-jwks_uri-and-){.internal .xref}
-        
-      
-
-    - 
-      [5.2.2](#section-5.2.2){.auto .internal .xref}.  [Informational Metadata Extensions](#name-informational-metadata-exte){.internal .xref}
-      
-    
-  
-
-- 
-  [6](#section-6){.auto .internal .xref}.  [Federation Policy](#name-federation-policy){.internal .xref}
-
-  - 
-    [6.1](#section-6.1){.auto .internal .xref}.  [Metadata Policy](#name-metadata-policy){.internal .xref}
-
-    - 
-      [6.1.1](#section-6.1.1){.auto .internal .xref}.  [Principles](#name-principles){.internal .xref}
-      
-
-    - 
-      [6.1.2](#section-6.1.2){.auto .internal .xref}.  [Structure](#name-structure){.internal .xref}
-      
-
-    - 
-      [6.1.3](#section-6.1.3){.auto .internal .xref}.  [Operators](#name-operators){.internal .xref}
-
-      - 
-        [6.1.3.1](#section-6.1.3.1){.auto .internal .xref}.  [Standard Operators](#name-standard-operators){.internal .xref}
-
-        - 
-          [6.1.3.1.1](#section-6.1.3.1.1){.auto .internal .xref}.  [value](#name-value){.internal .xref}
-          
-
-        - 
-          [6.1.3.1.2](#section-6.1.3.1.2){.auto .internal .xref}.  [add](#name-add){.internal .xref}
-          
-
-        - 
-          [6.1.3.1.3](#section-6.1.3.1.3){.auto .internal .xref}.  [default](#name-default){.internal .xref}
-          
-
-        - 
-          [6.1.3.1.4](#section-6.1.3.1.4){.auto .internal .xref}.  [one_of](#name-one_of){.internal .xref}
-          
-
-        - 
-          [6.1.3.1.5](#section-6.1.3.1.5){.auto .internal .xref}.  [subset_of](#name-subset_of){.internal .xref}
-          
-
-        - 
-          [6.1.3.1.6](#section-6.1.3.1.6){.auto .internal .xref}.  [superset_of](#name-superset_of){.internal .xref}
-          
-
-        - 
-          [6.1.3.1.7](#section-6.1.3.1.7){.auto .internal .xref}.  [essential](#name-essential){.internal .xref}
-          
-
-        - 
-          [6.1.3.1.8](#section-6.1.3.1.8){.auto .internal .xref}.  [Notes on Operators](#name-notes-on-operators){.internal .xref}
-          
-        
-
-      - 
-        [6.1.3.2](#section-6.1.3.2){.auto .internal .xref}.  [Additional Operators](#name-additional-operators){.internal .xref}
-        
-      
-
-    - 
-      [6.1.4](#section-6.1.4){.auto .internal .xref}.  [Enforcement](#name-enforcement){.internal .xref}
-
-      - 
-        [6.1.4.1](#section-6.1.4.1){.auto .internal .xref}.  [Resolution](#name-resolution){.internal .xref}
-        
-
-      - 
-        [6.1.4.2](#section-6.1.4.2){.auto .internal .xref}.  [Application](#name-application){.internal .xref}
-        
-      
-
-    - 
-      [6.1.5](#section-6.1.5){.auto .internal .xref}.  [Metadata Policy Example](#name-metadata-policy-example){.internal .xref}
-      
-    
-
-  - 
-    [6.2](#section-6.2){.auto .internal .xref}.  [Constraints](#name-constraints){.internal .xref}
-
-    - 
-      [6.2.1](#section-6.2.1){.auto .internal .xref}.  [Max Path Length](#name-max-path-length){.internal .xref}
-      
-
-    - 
-      [6.2.2](#section-6.2.2){.auto .internal .xref}.  [Naming Constraints](#name-naming-constraints){.internal .xref}
-      
-
-    - 
-      [6.2.3](#section-6.2.3){.auto .internal .xref}.  [Entity Type Constraints](#name-entity-type-constraints){.internal .xref}
-      
-    
-  
-
-- 
-  [7](#section-7){.auto .internal .xref}.  [Trust Marks](#name-trust-marks){.internal .xref}
-
-  - 
-    [7.1](#section-7.1){.auto .internal .xref}.  [Trust Mark Claims](#name-trust-mark-claims){.internal .xref}
-    
-
-  - 
-    [7.2](#section-7.2){.auto .internal .xref}.  [Trust Mark Delegation](#name-trust-mark-delegation){.internal .xref}
-
-    - 
-      [7.2.1](#section-7.2.1){.auto .internal .xref}.  [Trust Mark Delegation JWT](#name-trust-mark-delegation-jwt){.internal .xref}
-      
-
-    - 
-      [7.2.2](#section-7.2.2){.auto .internal .xref}.  [Validating a Trust Mark Delegation](#name-validating-a-trust-mark-del){.internal .xref}
-      
-    
-
-  - 
-    [7.3](#section-7.3){.auto .internal .xref}.  [Validating a Trust Mark](#name-validating-a-trust-mark){.internal .xref}
-    
-
-  - 
-    [7.4](#section-7.4){.auto .internal .xref}.  [Trust Mark Examples](#name-trust-mark-examples){.internal .xref}
-    
-
-  - 
-    [7.5](#section-7.5){.auto .internal .xref}.  [Trust Mark Delegation Example](#name-trust-mark-delegation-examp){.internal .xref}
-    
-  
-
-- 
-  [8](#section-8){.auto .internal .xref}.  [Federation Endpoints](#name-federation-endpoints){.internal .xref}
-
-  - 
-    [8.1](#section-8.1){.auto .internal .xref}.  [Fetching a Subordinate Statement](#name-fetching-a-subordinate-stat){.internal .xref}
-
-    - 
-      [8.1.1](#section-8.1.1){.auto .internal .xref}.  [Fetch Subordinate Statement Request](#name-fetch-subordinate-statement){.internal .xref}
-      
-
-    - 
-      [8.1.2](#section-8.1.2){.auto .internal .xref}.  [Fetch Subordinate Statement Response](#name-fetch-subordinate-statement-){.internal .xref}
-      
-    
-
-  - 
-    [8.2](#section-8.2){.auto .internal .xref}.  [Subordinate Listings](#name-subordinate-listings){.internal .xref}
-
-    - 
-      [8.2.1](#section-8.2.1){.auto .internal .xref}.  [Subordinate Listing Request](#name-subordinate-listing-request){.internal .xref}
-      
-
-    - 
-      [8.2.2](#section-8.2.2){.auto .internal .xref}.  [Subordinate Listing Response](#name-subordinate-listing-respons){.internal .xref}
-      
-    
-
-  - 
-    [8.3](#section-8.3){.auto .internal .xref}.  [Resolve Entity](#name-resolve-entity){.internal .xref}
-
-    - 
-      [8.3.1](#section-8.3.1){.auto .internal .xref}.  [Resolve Request](#name-resolve-request){.internal .xref}
-      
-
-    - 
-      [8.3.2](#section-8.3.2){.auto .internal .xref}.  [Resolve Response](#name-resolve-response){.internal .xref}
-      
-
-    - 
-      [8.3.3](#section-8.3.3){.auto .internal .xref}.  [Trust Considerations](#name-trust-considerations){.internal .xref}
-      
-    
-
-  - 
-    [8.4](#section-8.4){.auto .internal .xref}.  [Trust Mark Status](#name-trust-mark-status){.internal .xref}
-
-    - 
-      [8.4.1](#section-8.4.1){.auto .internal .xref}.  [Trust Mark Status Request](#name-trust-mark-status-request){.internal .xref}
-      
-
-    - 
-      [8.4.2](#section-8.4.2){.auto .internal .xref}.  [Trust Mark Status Response](#name-trust-mark-status-response){.internal .xref}
-      
-    
-
-  - 
-    [8.5](#section-8.5){.auto .internal .xref}.  [Trust Marked Entities Listing](#name-trust-marked-entities-listi){.internal .xref}
-
-    - 
-      [8.5.1](#section-8.5.1){.auto .internal .xref}.  [Trust Marked Entities Listing Request](#name-trust-marked-entities-listin){.internal .xref}
-      
-
-    - 
-      [8.5.2](#section-8.5.2){.auto .internal .xref}.  [Trust Marked Entities Listing Response](#name-trust-marked-entities-listing-){.internal .xref}
-      
-    
-
-  - 
-    [8.6](#section-8.6){.auto .internal .xref}.  [Trust Mark Endpoint](#name-trust-mark-endpoint){.internal .xref}
-
-    - 
-      [8.6.1](#section-8.6.1){.auto .internal .xref}.  [Trust Mark Request](#name-trust-mark-request){.internal .xref}
-      
-
-    - 
-      [8.6.2](#section-8.6.2){.auto .internal .xref}.  [Trust Mark Response](#name-trust-mark-response){.internal .xref}
-      
-    
-
-  - 
-    [8.7](#section-8.7){.auto .internal .xref}.  [Federation Historical Keys Endpoint](#name-federation-historical-keys-){.internal .xref}
-
-    - 
-      [8.7.1](#section-8.7.1){.auto .internal .xref}.  [Federation Historical Keys Request](#name-federation-historical-keys-r){.internal .xref}
-      
-
-    - 
-      [8.7.2](#section-8.7.2){.auto .internal .xref}.  [Federation Historical Keys Response](#name-federation-historical-keys-res){.internal .xref}
-      
-
-    - 
-      [8.7.3](#section-8.7.3){.auto .internal .xref}.  [Federation Historical Keys Revocation Reasons](#name-federation-historical-keys-rev){.internal .xref}
-      
-
-    - 
-      [8.7.4](#section-8.7.4){.auto .internal .xref}.  [Rationale for the Federation Historical Keys Endpoint](#name-rationale-for-the-federatio){.internal .xref}
-      
-    
-
-  - 
-    [8.8](#section-8.8){.auto .internal .xref}.  [Client Authentication at Federation Endpoints](#name-client-authentication-at-fe){.internal .xref}
-
-    - 
-      [8.8.1](#section-8.8.1){.auto .internal .xref}.  [Client Authentication Metadata for Federation Endpoints](#name-client-authentication-metad){.internal .xref}
-      
-    
-
-  - 
-    [8.9](#section-8.9){.auto .internal .xref}.  [Error Responses](#name-error-responses){.internal .xref}
-    
-  
-
-- 
-  [9](#section-9){.auto .internal .xref}.  [Obtaining Federation Entity Configuration Information](#name-obtaining-federation-entity){.internal .xref}
-
-  - 
-    [9.1](#section-9.1){.auto .internal .xref}.  [Federation Entity Configuration Request](#name-federation-entity-configura){.internal .xref}
-    
-
-  - 
-    [9.2](#section-9.2){.auto .internal .xref}.  [Federation Entity Configuration Response](#name-federation-entity-configurat){.internal .xref}
-    
-  
-
-- 
-  [10](#section-10){.auto .internal .xref}. [Resolving the Trust Chain and Metadata](#name-resolving-the-trust-chain-a){.internal .xref}
-
-  - 
-    [10.1](#section-10.1){.auto .internal .xref}.  [Fetching Entity Statements to Establish a Trust Chain](#name-fetching-entity-statements-){.internal .xref}
-    
-
-  - 
-    [10.2](#section-10.2){.auto .internal .xref}.  [Validating a Trust Chain](#name-validating-a-trust-chain){.internal .xref}
-    
-
-  - 
-    [10.3](#section-10.3){.auto .internal .xref}.  [Choosing One of the Valid Trust Chains](#name-choosing-one-of-the-valid-t){.internal .xref}
-    
-
-  - 
-    [10.4](#section-10.4){.auto .internal .xref}.  [Calculating the Expiration Time of a Trust Chain](#name-calculating-the-expiration-){.internal .xref}
-    
-
-  - 
-    [10.5](#section-10.5){.auto .internal .xref}.  [Transient Trust Chain Validation Errors](#name-transient-trust-chain-valid){.internal .xref}
-    
-
-  - 
-    [10.6](#section-10.6){.auto .internal .xref}.  [Resolving the Trust Chain and Metadata with a Resolver](#name-resolving-the-trust-chain-an){.internal .xref}
-    
-  
-
-- 
-  [11](#section-11){.auto .internal .xref}. [Updating Metadata, Key Rollover, and Revocation](#name-updating-metadata-key-rollo){.internal .xref}
-
-  - 
-    [11.1](#section-11.1){.auto .internal .xref}.  [Protocol Key Rollover](#name-protocol-key-rollover){.internal .xref}
-    
-
-  - 
-    [11.2](#section-11.2){.auto .internal .xref}.  [Key Rollover for a Trust Anchor](#name-key-rollover-for-a-trust-an){.internal .xref}
-    
-
-  - 
-    [11.3](#section-11.3){.auto .internal .xref}.  [Redundant Retrieval of Trust Anchor Keys](#name-redundant-retrieval-of-trus){.internal .xref}
-    
-
-  - 
-    [11.4](#section-11.4){.auto .internal .xref}.  [Revocation](#name-revocation){.internal .xref}
-    
-  
-
-- 
-  [12](#section-12){.auto .internal .xref}. [OpenID Connect Client Registration](#name-openid-connect-client-regis){.internal .xref}
-
-  - 
-    [12.1](#section-12.1){.auto .internal .xref}.  [Automatic Registration](#name-automatic-registration){.internal .xref}
-
-    - 
-      [12.1.1](#section-12.1.1){.auto .internal .xref}.  [Authentication Request](#name-authentication-request){.internal .xref}
-
-      - 
-        [12.1.1.1](#section-12.1.1.1){.auto .internal .xref}.  [Using a Request Object](#name-using-a-request-object){.internal .xref}
-
-        - 
-          [12.1.1.1.1](#section-12.1.1.1.1){.auto .internal .xref}.  [Authorization Request with a Trust Chain](#name-authorization-request-with-){.internal .xref}
-          
-
-        - 
-          [12.1.1.1.2](#section-12.1.1.1.2){.auto .internal .xref}.  [Processing the Authentication Request](#name-processing-the-authenticati){.internal .xref}
-          
-        
-
-      - 
-        [12.1.1.2](#section-12.1.1.2){.auto .internal .xref}.  [Using Pushed Authorization](#name-using-pushed-authorization){.internal .xref}
-
-        - 
-          [12.1.1.2.1](#section-12.1.1.2.1){.auto .internal .xref}.  [Processing the Pushed Authentication Request](#name-processing-the-pushed-authe){.internal .xref}
-          
-        
-      
-
-    - 
-      [12.1.2](#section-12.1.2){.auto .internal .xref}.  [Successful Authentication Response](#name-successful-authentication-r){.internal .xref}
-      
-
-    - 
-      [12.1.3](#section-12.1.3){.auto .internal .xref}.  [Authentication Error Response](#name-authentication-error-respon){.internal .xref}
-      
-
-    - 
-      [12.1.4](#section-12.1.4){.auto .internal .xref}.  [Automatic Registration and Client Authentication](#name-automatic-registration-and-){.internal .xref}
-      
-
-    - 
-      [12.1.5](#section-12.1.5){.auto .internal .xref}.  [Possible Other Uses of Automatic Registration](#name-possible-other-uses-of-auto){.internal .xref}
-      
-    
-
-  - 
-    [12.2](#section-12.2){.auto .internal .xref}.  [Explicit Registration](#name-explicit-registration){.internal .xref}
-
-    - 
-      [12.2.1](#section-12.2.1){.auto .internal .xref}.  [Explicit Client Registration Request](#name-explicit-client-registratio){.internal .xref}
-      
-
-    - 
-      [12.2.2](#section-12.2.2){.auto .internal .xref}.  [Processing Explicit Client Registration Request by OP](#name-processing-explicit-client-){.internal .xref}
-      
-
-    - 
-      [12.2.3](#section-12.2.3){.auto .internal .xref}.  [Successful Explicit Client Registration Response](#name-successful-explicit-client-){.internal .xref}
-      
-
-    - 
-      [12.2.4](#section-12.2.4){.auto .internal .xref}.  [Explicit Client Registration Error Response](#name-explicit-client-registration){.internal .xref}
-      
-
-    - 
-      [12.2.5](#section-12.2.5){.auto .internal .xref}.  [Processing Explicit Client Registration Response by RP](#name-processing-explicit-client-r){.internal .xref}
-      
-
-    - 
-      [12.2.6](#section-12.2.6){.auto .internal .xref}.  [After an Explicit Client Registration](#name-after-an-explicit-client-re){.internal .xref}
-      
-    
-
-  - 
-    [12.3](#section-12.3){.auto .internal .xref}.  [Registration Validity and Trust Reevaluation](#name-registration-validity-and-t){.internal .xref}
-    
-
-  - 
-    [12.4](#section-12.4){.auto .internal .xref}.  [Differences between Automatic Registration and Explicit Registration](#name-differences-between-automat){.internal .xref}
-    
-
-  - 
-    [12.5](#section-12.5){.auto .internal .xref}.  [Rationale for the Trust Chain in the Request](#name-rationale-for-the-trust-cha){.internal .xref}
-    
-  
-
-- 
-  [13](#section-13){.auto .internal .xref}. [General-Purpose JWT Claims](#name-general-purpose-jwt-claims){.internal .xref}
-
-  - 
-    [13.1](#section-13.1){.auto .internal .xref}.  ["jwks" (JSON Web Key Set) Claim](#name-jwks-json-web-key-set-claim){.internal .xref}
-    
-
-  - 
-    [13.2](#section-13.2){.auto .internal .xref}.  ["metadata" Claim](#name-metadata-claim){.internal .xref}
-    
-
-  - 
-    [13.3](#section-13.3){.auto .internal .xref}.  ["constraints" Claim](#name-constraints-claim){.internal .xref}
-    
-
-  - 
-    [13.4](#section-13.4){.auto .internal .xref}.  ["crit" (Critical) Claim](#name-crit-critical-claim){.internal .xref}
-    
-
-  - 
-    [13.5](#section-13.5){.auto .internal .xref}.  ["ref" (Reference) Claim](#name-ref-reference-claim){.internal .xref}
-    
-
-  - 
-    [13.6](#section-13.6){.auto .internal .xref}.  ["delegation" Claim](#name-delegation-claim){.internal .xref}
-    
-
-  - 
-    [13.7](#section-13.7){.auto .internal .xref}.  ["logo_uri" (Logo URI) Claim](#name-logo_uri-logo-uri-claim){.internal .xref}
-    
-  
-
-- 
-  [14](#section-14){.auto .internal .xref}. [Claims Languages and Scripts](#name-claims-languages-and-script){.internal .xref}
-  
-
-- 
-  [15](#section-15){.auto .internal .xref}. [Media Types](#name-media-types){.internal .xref}
-
-  - 
-    [15.1](#section-15.1){.auto .internal .xref}.  ["application/entity-statement+jwt" Media Type](#name-application-entity-statemen){.internal .xref}
-    
-
-  - 
-    [15.2](#section-15.2){.auto .internal .xref}.  ["application/trust-mark+jwt" Media Type](#name-application-trust-markjwt-m){.internal .xref}
-    
-
-  - 
-    [15.3](#section-15.3){.auto .internal .xref}.  ["application/resolve-response+jwt" Media Type](#name-application-resolve-respons){.internal .xref}
-    
-
-  - 
-    [15.4](#section-15.4){.auto .internal .xref}.  ["application/trust-chain+json" Media Type](#name-application-trust-chainjson){.internal .xref}
-    
-
-  - 
-    [15.5](#section-15.5){.auto .internal .xref}.  ["application/trust-mark-delegation+jwt" Media Type](#name-application-trust-mark-dele){.internal .xref}
-    
-
-  - 
-    [15.6](#section-15.6){.auto .internal .xref}.  ["application/jwk-set+jwt" Media Type](#name-application-jwk-setjwt-medi){.internal .xref}
-    
-
-  - 
-    [15.7](#section-15.7){.auto .internal .xref}.  ["application/explicit-registration-response+jwt" Media Type](#name-application-explicit-regist){.internal .xref}
-    
-
-  - 
-    [15.8](#section-15.8){.auto .internal .xref}.  ["application/trust-mark-status-response+jwt" Media Type](#name-application-trust-mark-stat){.internal .xref}
-    
-  
-
-- 
-  [16](#section-16){.auto .internal .xref}. [String Operations](#name-string-operations){.internal .xref}
-  
-
-- 
-  [17](#section-17){.auto .internal .xref}. [Implementation Considerations](#name-implementation-consideratio){.internal .xref}
-
-  - 
-    [17.1](#section-17.1){.auto .internal .xref}.  [Federation Topologies](#name-federation-topologies){.internal .xref}
-    
-
-  - 
-    [17.2](#section-17.2){.auto .internal .xref}.  [Federation Discovery and Trust Chain Resolution Patterns](#name-federation-discovery-and-tr){.internal .xref}
-
-    - 
-      [17.2.1](#section-17.2.1){.auto .internal .xref}.  [Top-Down Discovery](#name-top-down-discovery){.internal .xref}
-      
-
-    - 
-      [17.2.2](#section-17.2.2){.auto .internal .xref}.  [Bottom-Up Trust Chain Resolution](#name-bottom-up-trust-chain-resol){.internal .xref}
-      
-
-    - 
-      [17.2.3](#section-17.2.3){.auto .internal .xref}.  [Single Point of Trust Resolution](#name-single-point-of-trust-resol){.internal .xref}
-      
-    
-
-  - 
-    [17.3](#section-17.3){.auto .internal .xref}.  [Trust Anchors and Resolvers Go Together](#name-trust-anchors-and-resolvers){.internal .xref}
-    
-
-  - 
-    [17.4](#section-17.4){.auto .internal .xref}.  [One Entity, One Service](#name-one-entity-one-service){.internal .xref}
-    
-
-  - 
-    [17.5](#section-17.5){.auto .internal .xref}.  [Trust Mark Policies](#name-trust-mark-policies){.internal .xref}
-    
-  
-
-- 
-  [18](#section-18){.auto .internal .xref}. [Security Considerations](#name-security-considerations){.internal .xref}
-
-  - 
-    [18.1](#section-18.1){.auto .internal .xref}.  [Denial-of-Service Attack Prevention](#name-denial-of-service-attack-pr){.internal .xref}
-    
-
-  - 
-    [18.2](#section-18.2){.auto .internal .xref}.  [Unsigned Error Messages](#name-unsigned-error-messages){.internal .xref}
-    
-  
-
-- 
-  [19](#section-19){.auto .internal .xref}. [Privacy Considerations](#name-privacy-considerations){.internal .xref}
-  
-
-- 
-  [20](#section-20){.auto .internal .xref}. [IANA Considerations](#name-iana-considerations){.internal .xref}
-
-  - 
-    [20.1](#section-20.1){.auto .internal .xref}.  [OAuth Authorization Server Metadata Registration](#name-oauth-authorization-server-){.internal .xref}
-
-    - 
-      [20.1.1](#section-20.1.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents){.internal .xref}
-      
-    
-
-  - 
-    [20.2](#section-20.2){.auto .internal .xref}.  [OAuth Dynamic Client Registration Metadata Registration](#name-oauth-dynamic-client-regist){.internal .xref}
-
-    - 
-      [20.2.1](#section-20.2.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-2){.internal .xref}
-      
-    
-
-  - 
-    [20.3](#section-20.3){.auto .internal .xref}.  [OAuth Extensions Error Registration](#name-oauth-extensions-error-regi){.internal .xref}
-
-    - 
-      [20.3.1](#section-20.3.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-3){.internal .xref}
-      
-    
-
-  - 
-    [20.4](#section-20.4){.auto .internal .xref}.  [Media Type Registration](#name-media-type-registration){.internal .xref}
-
-    - 
-      [20.4.1](#section-20.4.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-4){.internal .xref}
-      
-    
-
-  - 
-    [20.5](#section-20.5){.auto .internal .xref}.  [OAuth Parameters Registration](#name-oauth-parameters-registrati){.internal .xref}
-
-    - 
-      [20.5.1](#section-20.5.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-5){.internal .xref}
-      
-    
-
-  - 
-    [20.6](#section-20.6){.auto .internal .xref}.  [JSON Web Signature and Encryption Header Parameters Registration](#name-json-web-signature-and-encr){.internal .xref}
-
-    - 
-      [20.6.1](#section-20.6.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-6){.internal .xref}
-      
-    
-
-  - 
-    [20.7](#section-20.7){.auto .internal .xref}.  [JSON Web Token Claims Registration](#name-json-web-token-claims-regis){.internal .xref}
-
-    - 
-      [20.7.1](#section-20.7.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-7){.internal .xref}
-      
-    
-
-  - 
-    [20.8](#section-20.8){.auto .internal .xref}.  [JSON Web Key Parameters Registration](#name-json-web-key-parameters-reg){.internal .xref}
-
-    - 
-      [20.8.1](#section-20.8.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-8){.internal .xref}
-      
-    
-
-  - 
-    [20.9](#section-20.9){.auto .internal .xref}.  [Well-Known URI Registry](#name-well-known-uri-registry){.internal .xref}
-
-    - 
-      [20.9.1](#section-20.9.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-9){.internal .xref}
-      
-    
-
-  - 
-    [20.10](#section-20.10){.auto .internal .xref}. [OAuth Protected Resource Metadata Registration](#name-oauth-protected-resource-me){.internal .xref}
-
-    - 
-      [20.10.1](#section-20.10.1){.auto .internal .xref}.  [Registry Contents](#name-registry-contents-10){.internal .xref}
-      
-    
-  
-
-- 
-  [21](#section-21){.auto .internal .xref}. [References](#name-references){.internal .xref}
-
-  - 
-    [21.1](#section-21.1){.auto .internal .xref}.  [Normative References](#name-normative-references){.internal .xref}
-    
-
-  - 
-    [21.2](#section-21.2){.auto .internal .xref}.  [Informative References](#name-informative-references){.internal .xref}
-    
-  
-
-- 
-  [Appendix A](#appendix-A){.auto .internal .xref}.  [Example OpenID Provider Information Discovery and Client Registration](#name-example-openid-provider-inf){.internal .xref}
-
-  - 
-    [A.1](#appendix-A.1){.auto .internal .xref}.  [Setting Up a Federation](#name-setting-up-a-federation){.internal .xref}
-    
-
-  - 
-    [A.2](#appendix-A.2){.auto .internal .xref}.  [The LIGO Wiki Discovers the OP's Metadata](#name-the-ligo-wiki-discovers-the){.internal .xref}
-
-    - 
-      [A.2.1](#appendix-A.2.1){.auto .internal .xref}.  [Entity Configuration for https://op.umu.se](#name-entity-configuration-for-ht){.internal .xref}
-      
-
-    - 
-      [A.2.2](#appendix-A.2.2){.auto .internal .xref}.  [Entity Configuration for https://umu.se](#name-entity-configuration-for-htt){.internal .xref}
-      
-
-    - 
-      [A.2.3](#appendix-A.2.3){.auto .internal .xref}.  [Subordinate Statement Published by https://umu.se about https://op.umu.se](#name-subordinate-statement-publi){.internal .xref}
-      
-
-    - 
-      [A.2.4](#appendix-A.2.4){.auto .internal .xref}.  [Entity Configuration for https://swamid.se](#name-entity-configuration-for-http){.internal .xref}
-      
-
-    - 
-      [A.2.5](#appendix-A.2.5){.auto .internal .xref}.  [Subordinate Statement Published by https://swamid.se about https://umu.se](#name-subordinate-statement-publis){.internal .xref}
-      
-
-    - 
-      [A.2.6](#appendix-A.2.6){.auto .internal .xref}.  [Entity Configuration for https://edugain.geant.org](#name-entity-configuration-for-https){.internal .xref}
-      
-
-    - 
-      [A.2.7](#appendix-A.2.7){.auto .internal .xref}.  [Subordinate Statement Published by https://edugain.geant.org about https://swamid.se](#name-subordinate-statement-publish){.internal .xref}
-      
-
-    - 
-      [A.2.8](#appendix-A.2.8){.auto .internal .xref}.  [Verified Metadata for https://op.umu.se](#name-verified-metadata-for-https){.internal .xref}
-      
-    
-
-  - 
-    [A.3](#appendix-A.3){.auto .internal .xref}.  [Examples of the Two Ways of Doing Client Registration](#name-examples-of-the-two-ways-of){.internal .xref}
-
-    - 
-      [A.3.1](#appendix-A.3.1){.auto .internal .xref}.  [RP Sends Authentication Request (Automatic Client Registration)](#name-rp-sends-authentication-req){.internal .xref}
-
-      - 
-        [A.3.1.1](#appendix-A.3.1.1){.auto .internal .xref}.  [OP Fetches Entity Statements](#name-op-fetches-entity-statement){.internal .xref}
-        
-
-      - 
-        [A.3.1.2](#appendix-A.3.1.2){.auto .internal .xref}.  [OP Evaluates the RP Metadata](#name-op-evaluates-the-rp-metadat){.internal .xref}
-        
-      
-
-    - 
-      [A.3.2](#appendix-A.3.2){.auto .internal .xref}.  [RP Starts with Client Registration (Explicit Client Registration)](#name-rp-starts-with-client-regis){.internal .xref}
-      
-    
-  
-
-- 
-  [Appendix B](#appendix-B){.auto .internal .xref}.  [Notices](#name-notices){.internal .xref}
-  
-
-- 
-  [Appendix C](#appendix-C){.auto .internal .xref}.  [Document History](#name-document-history){.internal .xref}
-  
-
-- 
-  [](#appendix-D){.auto .internal .xref}[Acknowledgements](#name-acknowledgements){.internal .xref}
-  
-
-- 
-  [](#appendix-E){.auto .internal .xref}[Authors' Addresses](#name-authors-addresses){.internal .xref}
-  
-
-
-
-
-
-## [1.](#section-1){.section-number .selfRef} [Introduction](#name-introduction){.section-name .selfRef} {#name-introduction}
-
 This specification describes how two Entities that would like to interact can establish trust between them by means of a trusted third party called a Trust Anchor. A Trust Anchor is an Entity whose main purpose is to issue statements about Entities. An identity federation can be realized using this specification using one or more levels of authorities. Examples of authorities are federation operators, organizations, departments within organizations, and individual sites. This specification provides the basic technical trust infrastructure building blocks needed to create a dynamic and distributed trust network, such as a federation.
 
 Note that this specification only concerns itself with how Entities in a federation get to know about each other. An organization MAY be represented by more than one Entity in a federation. An Entity MAY also belong to more than one federation. Determining that two Entities belong to the same federation is the basis for establishing trust between them in this specification.
@@ -899,43 +74,44 @@ Below is an example of two federations rooted at two different Trust Anchors wit
 
 []{#name-two-coexisting-federations-}
 
-<figure id="figure-1">
-<div id="section-1-5.1" class="alignLeft art-text artwork">
-<pre><code>.-----------------.            .-----------------.
+
+
+``` figure
+.-----------------.            .-----------------.
 |  Trust Anchor A |            |  Trust Anchor B |
-&#39;------.--.-------&#39;            &#39;----.--.--.------&#39;
+'------.--.-------'            '----.--.--.------'
        |  |                         |  |  |
-    .--&#39;  &#39;---. .-------------------&#39;  |  |
+    .--'  '---. .-------------------'  |  |
     |         | |                      |  |
-.---v.  .-----v-v------.   .-----------&#39;  |
+.---v.  .-----v-v------.   .-----------'  |
 | OP |  | Intermediate |   |              |
-&#39;----&#39;  &#39;--.--.--.-----&#39;   |    .---------v----.
+'----'  '--.--.--.-----'   |    .---------v----.
            |  |  |         |    | Intermediate |
-   .-------&#39;  |  &#39;------.  |    &#39;---.--.--.----&#39;
+   .-------'  |  '------.  |    '---.--.--.----'
    |          |         |  |        |  |  |
-.--v-.      .-v--.     .v--v.   .---&#39;  |  &#39;----.
+.--v-.      .-v--.     .v--v.   .---'  |  '----.
 | RP |      | RS |     | OP |   |      |       |
-&#39;----&#39;      &#39;----&#39;     &#39;----&#39;   |   .--v-.   .-v--.
+'----'      '----'     '----'   |   .--v-.   .-v--.
                                 |   | RP |   | RP |
-                                |   &#39;----&#39;   &#39;----&#39;
+                                |   '----'   '----'
                                 |
                         .-------v------.
                         | Intermediate |
-                        &#39;----.--.--.---&#39;
+                        '----.--.--.---'
                              |  |  |
-                       .-----&#39;  |  &#39;----.
+                       .-----'  |  '----.
                        |        |       |
                     .--v-.   .--v-.   .-v--.
                     | OP |   | RP |   | AS |
-                    &#39;----&#39;   &#39;----&#39;   &#39;----&#39;
-</code></pre>
-</div>
-<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>: <a href="#name-two-coexisting-federations-" class="selfRef">Two Coexisting Federations with Some Members in Common</a></figcaption>
-</figure>
+                    '----'   '----'   '----'
+
+```
+Figure 1: Two Coexisting Federations with Some Members in Common
 
 
 
-### [1.1.](#section-1.1){.section-number .selfRef} [Requirements Notation and Conventions](#name-requirements-notation-and-c){.section-name .selfRef} {#name-requirements-notation-and-c}
+
+# Requirements Notation and Conventions
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in BCP 14 [[RFC2119](#RFC2119){.cite .xref}] [[RFC8174](#RFC8174){.cite .xref}] when, and only when, they appear in all capitals, as shown here.
 
@@ -945,7 +121,7 @@ All uses of JSON Web Signature (JWS) [[RFC7515](#RFC7515){.cite .xref}] and JSON
 
 
 
-### [1.2.](#section-1.2){.section-number .selfRef} [Terminology](#name-terminology){.section-name .selfRef} {#name-terminology}
+# Terminology
 
 This specification uses the terms "Claim", "Claim Name", "Claim Value", "JSON Web Token (JWT)", and "JWT Claims Set" defined by [JSON Web Token (JWT)](#RFC7519){.internal .xref} [[RFC7519](#RFC7519){.cite .xref}], the terms "OpenID Provider (OP)" and "Relying Party (RP)" defined by [OpenID Connect Core 1.0](#OpenID.Core){.internal .xref} [[OpenID.Core](#OpenID.Core){.cite .xref}], and the terms "Authorization Endpoint", "Authorization Server", "Client", "Client Authentication", "Client Identifier", "Client Secret", "Grant Type", "Protected Resource", "Redirection URI", "Refresh Token", and "Token Endpoint" defined by [OAuth 2.0](#RFC6749){.internal .xref} [[RFC6749](#RFC6749){.cite .xref}].
 
@@ -955,95 +131,72 @@ This specification also defines the following terms:
 
 Entity
 :   Something that has a separate and distinct existence and that can be identified in a context.
-:   
 
 Entity Identifier
 :   A globally unique string identifier that is bound to one Entity. All Entity Identifiers defined by this specification are URLs that use the `https` scheme, have a host component, and MAY contain port and path components. It MUST NOT contain query parameter or fragment components. Profiles of this specification MAY define other kinds of Entity Identifiers and processing rules that accompany them.
-:   
 
 Trust Anchor
 :   An Entity that represents a trusted third party.
-:   
 
 Federation Entity
 :   An Entity for which it is possible to construct a Trust Chain from the Entity to a Trust Anchor.
-:   
 
 Entity Statement
 :   A signed JWT that contains the information needed for an Entity to participate in federation(s), including metadata about itself and policies that apply to other Entities for which it is authoritative.
-:   
 
 Entity Configuration
 :   An Entity Statement issued by an Entity about itself. It contains the Entity's signing keys and further data used to control the Trust Chain resolution process, such as authority hints.
-:   
 
 Subordinate Statement
 :   An Entity Statement issued by a Superior Entity about an Entity that is its Immediate Subordinate.
-:   
 
 Entity Type
 :   A role and function that an Entity plays within a federation. An Entity MUST be of at least one type and MAY be of many types. For example, an Entity can be both an OpenID Provider and Relying Party at the same time.
-:   
 
 Entity Type Identifier
 :   String identifier for an Entity Type.
-:   
 
 Federation Operator
 :   An organization that is authoritative for a federation. A federation operator administers the Trust Anchor(s) for Entities in its federation.
-:   
 
 Intermediate Entity
 :   An Entity that issues an Entity Statement appearing somewhere in between those issued by the Trust Anchor and the subject of a Trust Chain (which is typically a Leaf Entity). The terms Intermediate Entity and Intermediate are used interchangeably in this specification.
-:   
 
 Leaf Entity
 :   An Entity with no Subordinate Entities. Leaf Entities typically play a protocol role, such as an OpenID Connect Relying Party or OpenID Provider. The terms Leaf Entity and Leaf are used interchangeably in this specification.
-:   
 
 Subordinate Entity
 :   An Entity that is somewhere below a Superior Entity (a Trust Anchor or Intermediate) in the trust hierarchy, possibly with Intermediates between them. The terms Subordinate Entity and Subordinate are used interchangeably in this specification.
-:   
 
 Superior Entity
 :   An Entity that is somewhere above one or more Entities (a Leaf or Intermediate) in the trust hierarchy, possibly with Intermediates between them. The terms Superior Entity and Superior are used interchangeably in this specification.
-:   
 
 Immediate Subordinate Entity
 :   An Entity that is immediately below a Superior Entity in the trust hierarchy, with no Intermediates between them. The terms Immediate Subordinate Entity and Immediate Subordinate are used interchangeably in this specification.
-:   
 
 Immediate Superior Entity
 :   An Entity that is immediately above one or more Subordinate Entities in the trust hierarchy, with no Intermediates between them. The terms Immediate Superior Entity and Immediate Superior are used interchangeably in this specification.
-:   
 
 Federation Entity Discovery
 :   A process that starts with the Entity Identifier for the subject of the Trust Chain and collects Entity Statements until the chosen Trust Anchor is reached. From the collected Entity Statements, a Trust Chain is constructed and verified. The result of the Federation Entity Discovery is that the metadata for the Trust Chain subject is constructed from the Trust Chain.
-:   
 
 Trust Chain
 :   A sequence of Entity Statements that represents a chain starting at an Entity Configuration that is the subject of the chain (typically of a Leaf Entity) and ending in a Trust Anchor.
-:   
 
 Trust Mark
 :   Statement of conformance to a well-scoped set of trust and/or interoperability requirements as determined by an accreditation authority. Each Trust Mark has a Trust Mark type identifier.
-:   
 
 Trust Mark Issuer
 :   A Federation Entity that issues Trust Marks.
-:   
 
 Trust Mark Owner
 :   An Entity that owns the right to a Trust Mark type identifier.
-:   
 
 Federation Entity Keys
 :   Keys used for the cryptographic signatures required by the trust mechanisms defined in this specification. Every participant in a Federation publishes its public Federation Entity Keys in its Entity Configuration.
-:   
 
 Resolved Metadata
 :   The metadata that results from applying the metadata policy in the Trust Chain to the metadata in the Entity Configuration for the subject of the Trust Chain. The Resolved Metadata is the metadata that is used when interacting with the Entity.
-:   
 
 
 
@@ -1051,7 +204,7 @@ Resolved Metadata
 
 
 
-## [2.](#section-2){.section-number .selfRef} [Overall Architecture](#name-overall-architecture){.section-name .selfRef} {#name-overall-architecture}
+# Overall Architecture
 
 The basic component is the Entity Statement, which is a cryptographically signed [JSON Web Token (JWT)](#RFC7519){.internal .xref} [[RFC7519](#RFC7519){.cite .xref}]. A set of Entity Statements can form a path from an Entity (typically a Leaf Entity) to a Trust Anchor. Entity Configurations issued by Entities about themselves control the Trust Chain resolution process.
 
@@ -1069,7 +222,7 @@ OpenID Connect is used in many of the examples in this specification, however th
 
 
 
-### [2.1.](#section-2.1){.section-number .selfRef} [Cryptographic Trust Mechanism](#name-cryptographic-trust-mechani){.section-name .selfRef} {#name-cryptographic-trust-mechani}
+## Cryptographic Trust Mechanism
 
 The objects defined by this specification that are used to establish cryptographic trust between participants are secured as signed JWTs using public key cryptography. In particular, the keys used for securing these objects are managed by the Entities controlling those objects, with the public keys securing them being distributed through those objects themselves. This kind of trust mechanism has been utilized by research and academic federations for over a decade.
 
@@ -1081,7 +234,7 @@ Note that this cryptographic trust mechanism intentionally does not rely on Web 
 
 
 
-## [3.](#section-3){.section-number .selfRef} [Entity Statement](#name-entity-statement){.section-name .selfRef} {#name-entity-statement}
+# Entity Statement
 
 An Entity Statement contains the information needed for the Entity that is the subject of the Entity Statement to participate in federation(s). An Entity Statement is a signed JWT. The subject of the JWT is the Entity itself. The issuer of the JWT is the party that issued the Entity Statement. All Entities in a federation publish an Entity Statement about themselves called an Entity Configuration. Superior Entities in a federation publish Entity Statements about their Immediate Subordinate Entities called Subordinate Statements.
 
@@ -1095,25 +248,21 @@ The claims in an Entity Statement are listed below. Applications and protocols u
 
 
 
-### [3.1.](#section-3.1){.section-number .selfRef} [Claims that MUST or MAY appear in both Entity Configurations and Subordinate Statements](#name-claims-that-must-or-may-app){.section-name .selfRef} {#name-claims-that-must-or-may-app}
+## Claims that MUST or MAY appear in both Entity Configurations and Subordinate Statements
 
 []{.break}
 
 iss
 :   REQUIRED. The Entity Identifier of the issuer of the Entity Statement. If the `iss` and the `sub` are identical, the issuer is making an Entity Statement about itself called an Entity Configuration.
-:   
 
 sub
 :   REQUIRED. The Entity Identifier of the subject.
-:   
 
 iat
 :   REQUIRED. Number. Time when this statement was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 exp
 :   REQUIRED. Number. Expiration time after which the statement MUST NOT be accepted for processing. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 jwks
 
@@ -1121,7 +270,6 @@ jwks
 
     These Federation Entity Keys SHOULD NOT be used in other protocols. (Keys to be used in other protocols, such as OpenID Connect, are conveyed in the `metadata` elements for the protocol's Entity Type Identifiers, such as the metadata under the `openid_provider` and `openid_relying_party` Entity Type Identifiers.)
 
-:   
 
 metadata
 
@@ -1131,107 +279,81 @@ metadata
 
     An Immediate Superior MAY provide selected or all metadata parameters for an Immediate Subordinate, by using the `metadata` claim in a Subordinate Statement. When `metadata` is used in a Subordinate Statement, it applies only to those Entity Types that are present in the subject's Entity Configuration. Furthermore, the metadata applies only to the subject of the Subordinate Statement and has no effect on the subject's Subordinates. Metadata parameters in a Subordinate Statement have precedence and override identically named parameters under the same Entity Type in the subject's Entity Configuration. If both `metadata` and `metadata_policy` appear in a Subordinate Statement, then the stated `metadata` MUST be applied before the `metadata_policy`, as described in [Section 6.1.4.2](#metadata_policy_application){.auto .internal .xref}.
 
-:   
 
 crit
 :   OPTIONAL. Entity Statements require that the `crit` (critical) claim defined in [Section 13.4](#critClaim){.auto .internal .xref} be understood and processed. Claims in the Entity Statement whose claim names are in the array that is the value of this claim MUST be understood and processed. Claims specified for use in Entity Statements by this specification MUST NOT be included in the list.
-:   
 
 
 
 
 
-### [3.2.](#section-3.2){.section-number .selfRef} [Claims that MUST or MAY appear in Entity Configurations but not Subordinate Statements](#name-claims-that-must-or-may-appe){.section-name .selfRef} {#name-claims-that-must-or-may-appe}
+## Claims that MUST or MAY appear in Entity Configurations but not Subordinate Statements
 
 []{.break}
 
 authority_hints
 
-:   
     OPTIONAL. An array of strings representing the Entity Identifiers of Intermediate Entities or Trust Anchors that are Immediate Superiors of the Entity. This claim is REQUIRED in Entity Configurations of the Entities that have at least one Superior above them, such as Leaf and Intermediate Entities. Its value MUST contain the Entity Identifiers of its Immediate Superiors and MUST NOT be the empty array `[]`. This claim MUST NOT be present in Entity Configurations of Trust Anchors with no Superiors.
     
 
-:   
 
 trust_marks
 
-:   OPTIONAL. An array of JSON objects, each representing a Trust Mark.
+:   OPTIONAL. An array of JSON objects, each representing a Trust Mark. Trust Marks are described in [Section 7](#trust_marks){.auto .internal .xref}. Each object in the array contains the following members:
 
-    []{.break}
+    -   `trust_mark_type`: REQUIRED. Identifier for the type of the Trust Mark. The value of this claim MUST be the same as the value of the `trust_mark_type` claim contained in the Trust Mark JWT that is the value of the `trust_mark` claim in this object.
 
-    trust_mark_type
-    :   REQUIRED. Identifier for the type of the Trust Mark. The value of this claim MUST be the same as the value of the `trust_mark_type` claim contained in the Trust Mark JWT that is the value of the `trust_mark` claim in this object.
-    :   
+    -   `trust_mark`: REQUIRED. A signed JSON Web Token that represents a Trust Mark.
 
-    trust_mark
-    :   REQUIRED. A signed JSON Web Token that represents a Trust Mark.
-    :   
-
-    Trust Marks are described in [Section 7](#trust_marks){.auto .internal .xref}.
-
-:   
 
 trust_mark_issuers
 :   OPTIONAL. A Trust Anchor MAY use this claim to tell which combination of Trust Mark type identifiers and issuers are trusted by the federation. This claim MUST be ignored if present in an Entity Configuration for an Entity that is not a Trust Anchor. It is a JSON object with member names that are Trust Mark type identifiers and each corresponding value being an array of Entity Identifiers that are trusted to represent the accreditation authority for Trust Marks with that identifier. If the array following a Trust Mark type identifier is empty, anyone MAY issue Trust Marks with that identifier. Trust Marks are described in [Section 7](#trust_marks){.auto .internal .xref}.
-:   
 
 trust_mark_owners
 
 :   OPTIONAL. If a Federation Operator knows that a Trust Mark type identifier is owned by an Entity different from the Trust Mark Issuer, then that knowledge MUST be expressed in this claim. This claim MUST be ignored if present in an Entity Configuration for an Entity that is not a Trust Anchor. It is a JSON object with member names that are Trust Mark type identifiers and each corresponding value being a JSON object with these members:
 
-    []{.break}
+    -   `sub`: REQUIRED Identifier of the Trust Mark Owner.
 
-    sub
-    :   REQUIRED Identifier of the Trust Mark Owner.
-    :   
-
-    jwks
-    :   REQUIRED [JSON Web Key Set (JWKS)](#RFC7517){.internal .xref} [[RFC7517](#RFC7517){.cite .xref}] containing the owner's Federation Entity Keys used for signing.
-    :   
+    -   `jwks`: REQUIRED [JSON Web Key Set (JWKS)](#RFC7517){.internal .xref} [[RFC7517](#RFC7517){.cite .xref}] containing the owner's Federation Entity Keys used for signing.
 
     Other members MAY also be defined and used.
 
-:   
 
 
 
 
 
-### [3.3.](#section-3.3){.section-number .selfRef} [Claims that MUST or MAY appear in Subordinate Statements but not Entity Configurations](#name-claims-that-must-or-may-appea){.section-name .selfRef} {#name-claims-that-must-or-may-appea}
+## Claims that MUST or MAY appear in Subordinate Statements but not Entity Configurations
 
 []{.break}
 
 constraints
 :   OPTIONAL. JSON object that defines Trust Chain constraints, as described in [Section 6.2](#chain_constraints){.auto .internal .xref}. The constraints apply to the Entity that is the subject of this Subordinate Statement as well as to all Entities that are Subordinate to it.
-:   
 
 metadata_policy
 :   OPTIONAL. JSON object that defines a metadata policy, as described in [Section 6.1](#metadata_policy){.auto .internal .xref}. The metadata policy applies to the Entity that is the subject of this Subordinate Statement as well as to all Entities that are Subordinate to it. Applying to Subordinate Entities distinguishes `metadata_policy` from `metadata`, which only applies to the subject itself.
-:   
 
 metadata_policy_crit
 :   OPTIONAL. Array of strings specifying critical metadata policy operators other than the standard ones defined in [Section 6.1.3.1](#standard_metadata_policy_operators){.auto .internal .xref} that MUST be understood and processed. When included its value MUST NOT be the empty array `[]`. If any of the listed policy operators are not understood and supported, then the Subordinate Statement and thus the Trust Chain that includes it MUST be considered invalid.
-:   
 
 source_endpoint
 :   OPTIONAL. String containing the fetch endpoint URL from which the Entity Statement was issued, as specified in [Section 8.1](#fetch_endpoint){.auto .internal .xref}. This parameter enables an optimized refresh of the Subordinate Statements and hence the Trust Chain, by skipping the request to the Entity Configuration that is normally required to discover the `federation_fetch_endpoint` of the issuing authority. If an Entity Statement cannot be retrieved from the `source_endpoint`, which can occur if the endpoint URL has changed, the current `federation_fetch_endpoint` location can be determined by retrieving the Entity Configuration of the issuer.
-:   
 
 
 
 
-### [3.4.](#section-3.4){.section-number .selfRef} [Claims Specific to Explicit Registration Responses](#name-claims-specific-to-explicit){.section-name .selfRef} {#name-claims-specific-to-explicit}
+## Claims Specific to Explicit Registration Responses
 
 []{.break}
 
 trust_anchor
 :   OPTIONAL. Its value MUST be the Entity Identifier of the Trust Anchor that the OP selected to process the Explicit Registration request. This claim is specific to Explicit Registration responses and is not a general Entity Statement claim.
-:   
 
 
 
 
-### [3.5.](#section-3.5){.section-number .selfRef} [Entity Statement Validation](#name-entity-statement-validation){.section-name .selfRef} {#name-entity-statement-validation}
+### Entity Statement Validation
 
 Entity Statements MUST be validated in the following manner. These steps MAY be performed in a different order, provided that the result - accepting or rejecting the Entity Statement - is the same.
 
@@ -1333,108 +455,79 @@ If any of these validation steps fail, the Entity Statement MUST be rejected.
 
 
 
-### [3.6.](#section-3.6){.section-number .selfRef} [Entity Statement Examples](#name-entity-statement-examples){.section-name .selfRef} {#name-entity-statement-examples}
+### Entity Statement Examples
 
 The following is a non-normative example of the JWT Claims Set for an Entity Statement. The example contains a critical extension `jti` (JWT ID) to the Entity Statement and one critical extension to the policy language `regexp` (Regular expression).
 
 []{#name-example-entity-statement-jw}
 
-<figure id="figure-2">
-<div id="section-3.6-2.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://feide.no&quot;,
-  &quot;sub&quot;: &quot;https://ntnu.no&quot;,
-  &quot;iat&quot;: 1516239022,
-  &quot;exp&quot;: 1516298022,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+
+
+``` figure
+{
+  "iss": "https://feide.no",
+  "sub": "https://ntnu.no",
+  "iat": 1516239022,
+  "exp": 1516298022,
+  "jwks": {
+    "keys": [
       {
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;alg&quot;: &quot;RS256&quot;,
-        &quot;use&quot;: &quot;sig&quot;,
-        &quot;kid&quot;: &quot;NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs&quot;,
-        &quot;n&quot;: &quot;pnXBOusEANuug6ewezb9J_...&quot;,
-        &quot;e&quot;: &quot;AQAB&quot;
+        "kty": "RSA",
+        "alg": "RS256",
+        "use": "sig",
+        "kid": "NzbLsXh8uDCcd-6MNwXF4W_7noWXFZAfHkxZsRGC9Xs",
+        "n": "pnXBOusEANuug6ewezb9J_...",
+        "e": "AQAB"
       }
     ]
   },
-  &quot;metadata&quot;: {
-    &quot;openid_provider&quot;: {
-      &quot;issuer&quot;: &quot;https://ntnu.no&quot;,
-      &quot;organization_name&quot;: &quot;NTNU&quot;
+  "metadata": {
+    "openid_provider": {
+      "issuer": "https://ntnu.no",
+      "organization_name": "NTNU"
     },
-    &quot;oauth_client&quot;: {
-      &quot;organization_name&quot;: &quot;NTNU&quot;
+    "oauth_client": {
+      "organization_name": "NTNU"
     }
   },
-  &quot;metadata_policy&quot;: {
-    &quot;openid_provider&quot;: {
-      &quot;id_token_signing_alg_values_supported&quot;:
-        {&quot;subset_of&quot;: [&quot;RS256&quot;, &quot;RS384&quot;, &quot;RS512&quot;]},
-      &quot;op_policy_uri&quot;: {
-        &quot;regexp&quot;:
-          &quot;^https://[w-]+.example.com/[w-]+.html&quot;}
+  "metadata_policy": {
+    "openid_provider": {
+      "id_token_signing_alg_values_supported":
+        {"subset_of": ["RS256", "RS384", "RS512"]},
+      "op_policy_uri": {
+        "regexp":
+          "^https://[w-]+.example.com/[w-]+.html"}
     },
-    &quot;oauth_client&quot;: {
-      &quot;grant_types&quot;: {
-        &quot;one_of&quot;: [&quot;authorization_code&quot;, &quot;client_credentials&quot;]
+    "oauth_client": {
+      "grant_types": {
+        "one_of": ["authorization_code", "client_credentials"]
       }
     }
   },
-  &quot;constraints&quot;: {
-    &quot;max_path_length&quot;: 2
+  "constraints": {
+    "max_path_length": 2
   },
-  &quot;crit&quot;: [&quot;jti&quot;],
-  &quot;metadata_policy_crit&quot;: [&quot;regexp&quot;],
-  &quot;source_endpoint&quot;: &quot;https://feide.no/federation_api/fetch&quot;,
-  &quot;jti&quot;: &quot;7l2lncFdY6SlhNia&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>: <a href="#name-example-entity-statement-jw" class="selfRef">Example Entity Statement JWT Claims Set</a></figcaption>
-</figure>
+  "crit": ["jti"],
+  "metadata_policy_crit": ["regexp"],
+  "source_endpoint": "https://feide.no/federation_api/fetch",
+  "jti": "7l2lncFdY6SlhNia"
+}
+```
+Figure 2: Example Entity Statement JWT Claims Set
+
 
 The following is a non-normative example of a `trust_mark_owners` claim value:
 
 []{#name-example-trust_mark_owners-c}
 
-<figure id="figure-3">
-<div id="section-3.6-4.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf&quot;:
-    {
-      &quot;sub&quot;: &quot;https://refeds.org/sirtfi&quot;,
-      &quot;jwks&quot; : {
-        &quot;keys&quot;: [
-          {
-            &quot;alg&quot;: &quot;RS256&quot;,
-            &quot;e&quot;: &quot;AQAB&quot;,
-            &quot;kid&quot;: &quot;key1&quot;,
-            &quot;kty&quot;: &quot;RSA&quot;,
-            &quot;n&quot;: &quot;pnXBOusEANuug6ewezb9J_...&quot;,
-            &quot;use&quot;: &quot;sig&quot;
-          }
-        ]
-      }
-    }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>: <a href="#name-example-trust_mark_owners-c" class="selfRef">Example <code>trust_mark_owners</code> Claim Value</a></figcaption>
-</figure>
+
+
+
 
 The following is a non-normative example of a `trust_mark_issuers` claim value:
 
 []{#name-example-trust_mark_issuers-}
 
-<figure id="figure-4">
-<div id="section-3.6-6.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;https://openid.net/certification/op&quot;: [],
-  &quot;https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf&quot;:
-    [&quot;https://swamid.se&quot;]
-}</code></pre>
-</div>
-<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>: <a href="#name-example-trust_mark_issuers-" class="selfRef">Example <code>trust_mark_issuers</code> Claim Value</a></figcaption>
-</figure>
 
 
 
@@ -1442,7 +535,10 @@ The following is a non-normative example of a `trust_mark_issuers` claim value:
 
 
 
-## [4.](#section-4){.section-number .selfRef} [Trust Chain](#name-trust-chain){.section-name .selfRef} {#name-trust-chain}
+
+
+
+# Trust Chain
 
 Entities whose statements build a Trust Chain are categorized as:
 
@@ -1450,15 +546,12 @@ Entities whose statements build a Trust Chain are categorized as:
 
 Trust Anchor
 :   An Entity that represents a trusted third party.
-:   
 
 Leaf
 :   In an OpenID Connect identity federation, an RP or an OP, or in an OAuth 2.0 federation, a Client, Authorization Server, or Protected Resource.
-:   
 
 Intermediate
 :   Neither a Leaf Entity nor a Trust Anchor.
-:   
 
 A Trust Chain begins with an Entity Configuration that is the subject of the Trust Chain, which is typically a Leaf Entity. The Trust Chain has zero or more Subordinate Statements issued by Intermediates about their Immediate Subordinates, and includes the Subordinate Statement issued by the Trust Anchor about the top-most Intermediate (if there are Intermediates) or the Trust Chain subject (if there are no Intermediates). The Trust Chain logically always ends with the Entity Configuration of the Trust Anchor, even though it MAY be omitted from the JSON array representing the Trust Chain in some cases.
 
@@ -1504,7 +597,7 @@ The Trust Anchor's public keys are used to verify the signatures on ES[i] (the T
 
 
 
-### [4.1.](#section-4.1){.section-number .selfRef} [Beginning and Ending Trust Chains](#name-beginning-and-ending-trust-){.section-name .selfRef} {#name-beginning-and-ending-trust-}
+## Beginning and Ending Trust Chains
 
 A Trust Chain begins with the Entity Configuration of an Entity for which trust is being established. This is the subject of the Trust Chain. This Entity typically plays a protocol role, such as being an OpenID Provider or OpenID Relying Party.
 
@@ -1518,15 +611,16 @@ Thus, while it is typical for a Trust Chain to end with a Trust Anchor with no S
 
 
 
-### [4.2.](#section-4.2){.section-number .selfRef} [Trust Chain Example](#name-trust-chain-example){.section-name .selfRef} {#name-trust-chain-example}
+## Trust Chain Example
 
 The following is an example of a Trust Chain consisting of a Leaf's Entity Configuration and Subordinate Statements issued by an Intermediate Entity and a Trust Anchor. It shows the relationship between the three Entities, their Entity Configurations, and their Subordinate Statements. The Subordinate Statements are obtained from the `federation_fetch_endpoint` of the subject's Immediate Superior. The URL of the `federation_fetch_endpoint` is discovered in the Immediate Superior's Entity Configuration. Note that the first member of the Trust Chain (the Leaf) is depicted at the bottom of the diagram and that the last member (the Trust Anchor) is depicted at the top.
 
 []{#name-relationships-between-feder}
 
-<figure id="figure-5">
-<div id="section-4.2-2.1" class="alignLeft art-text artwork">
-<pre><code>.----------------.  .---------------------------.         .---------------------------.
+
+
+``` figure
+.----------------.  .---------------------------.         .---------------------------.
 | Role           |  | .well-known/              |         | Trust Chain               |
 |                |  | openid-federation         |         |                           |
 .----------------.  .---------------------------.         .---------------------------.
@@ -1534,10 +628,10 @@ The following is an example of a Trust Chain consisting of a Leaf's Entity Confi
 | |            | |  | | Entity Configuration  | |         | | Entity Configuration  | |
 | |Trust Anchor+-+--+-&gt;                       +-+---------+-&gt;                       | |
 | |            | |  | | Federation Entity Keys| |         | | Federation Entity Keys| |
-| &#39;-----.------&#39; |  | | Metadata              | |         | | Metadata              | |
+| '-----.------' |  | | Metadata              | |         | | Metadata              | |
 |       |        |  | | Trust Mark Issuers    | |         | | Trust Mark Issuers    | |
 |       |        |  | |                       | |         | |                       | |
-|       |        |  | &#39;-----------------------&#39; |         | &#39;-----------------------&#39; |
+|       |        |  | '-----------------------' |         | '-----------------------' |
 |       |        |  |                           |         |                           |
 |       |        |  |                           |Fetch    | .-----------------------. |
 |       |        |  |                           |Endpoint | | Subordinate Statement | |
@@ -1547,41 +641,41 @@ The following is an example of a Trust Chain consisting of a Leaf's Entity Confi
 |                |  |                           |         | | Metadata              | |
 |                |  |                           |         | | Constraints           | |
 |                |  |                           |         | |                       | |
-|                |  |                           |         | &#39;-----------.-----------&#39; |
+|                |  |                           |         | '-----------.-----------' |
 | .------------. |  | .-----------------------. |         |             |             |
 | |            | |  | | Entity Configuration  | |         |             |             |
 | |Intermediate+-+--+-&gt;                       | |         |             |sub and key  |
 | |            | |  | | Federation Entity Keys| |         |             | binding     |
-| &#39;------.-----&#39; |  | | Metadata              | |         | .-----------v-----------. |
+| '------.-----' |  | | Metadata              | |         | .-----------v-----------. |
 |        |       |  | | Trust Marks           | |         | | Subordinate Statement | |
 |        |       |  | |                       | |         | |                       | |
 |        |       |  | |                       | |         | | Federation Entity Keys| |
-|        |       |  | &#39;-----------------------&#39; |Fetch    | | Metadata Policy       | |
+|        |       |  | '-----------------------' |Fetch    | | Metadata Policy       | |
 |        |       |  |                           |Endpoint | | Metadata              | |
 |        +-------+--+---------------------------+---------+-&gt;                       | |
-|                |  |                           |         | &#39;-----------.-----------&#39; |
+|                |  |                           |         | '-----------.-----------' |
 |                |  |                           |         |             |sub and key  |
 |                |  |                           |         |             | binding     |
 | .------------. |  | .-----------------------. |         | .-----------v-----------. |
 | |            | |  | | Entity Configuration  | |         | | Entity Configuration  | |
 | | Leaf       +-+--+-&gt;                       +-+---------+-&gt;                       | |
 | |            | |  | | Federation Entity Keys| |         | | Federation Entity Keys| |
-| &#39;------------&#39; |  | | Metadata              | |         | | Metadata              | |
+| '------------' |  | | Metadata              | |         | | Metadata              | |
 |                |  | | Trust Marks           | |         | | Trust Marks           | |
 |                |  | |                       | |         | |                       | |
 |                |  | |                       | |         | |                       | |
-|                |  | &#39;-----------------------&#39; |         | &#39;-----------------------&#39; |
-&#39;----------------&#39;  &#39;---------------------------&#39;         &#39;---------------------------&#39;
-</code></pre>
-</div>
-<figcaption><a href="#figure-5" class="selfRef">Figure 5</a>: <a href="#name-relationships-between-feder" class="selfRef">Relationships between Federation Entities and Statements Issued in a Trust Chain</a></figcaption>
-</figure>
+|                |  | '-----------------------' |         | '-----------------------' |
+'----------------'  '---------------------------'         '---------------------------'
+
+```
+Figure 5: Relationships between Federation Entities and Statements Issued in a Trust Chain
 
 
 
 
 
-### [4.3.](#section-4.3){.section-number .selfRef} [Trust Chain Header Parameter](#name-trust-chain-header-paramete){.section-name .selfRef} {#name-trust-chain-header-paramete}
+
+## Trust Chain Header Parameter
 
 The `trust_chain` JWS header parameter is a JSON array containing the sequence of the statements that proves the trust relationship between the issuer of the [JWS](#RFC7515){.internal .xref} [[RFC7515](#RFC7515){.cite .xref}] and the selected Trust Anchor, sorted as shown in [Section 4](#trust_chain){.auto .internal .xref}. The Trust Chain contains the public key used to verify the [JWS](#RFC7515){.internal .xref} [[RFC7515](#RFC7515){.cite .xref}]. The issuer of the JWS SHOULD select the Trust Anchor that it has in common with the audience of the JWS. Otherwise, the issuer is free to select a Trust Anchor. Most signed JWTs MAY include the `trust_chain` JWS header parameter, with a few exceptions. Entity Configurations and Subordinate Statements MUST NOT contain the `trust_chain` header parameter, as they are integral components of a Trust Chain. Additionally, the Authorization Signed Request Object SHOULD NOT contain the `trust_chain` header parameter, because the `trust_chain` parameter is intended to be part of its JWS payload, as defined in [Section 12.1.1.1](#trust_chain_param){.auto .internal .xref}. Use of this header parameter is OPTIONAL.
 
@@ -1589,23 +683,6 @@ The following is a non-normative example of a JWS header with the `trust_chain` 
 
 []{#name-example-jws-header-with-a-t}
 
-<figure id="figure-6">
-<div id="section-4.3-3.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;typ&quot;: &quot;...&quot;,
-  &quot;alg&quot;: &quot;RS256&quot;,
-  &quot;kid&quot;: &quot;SUdtUndEWVY2cUFDeDV5NVlBWDhvOXJodVl2am1mNGNtR0pmd&quot;,
-  &quot;trust_chain&quot;: [
-    &quot;eyJ0eXAiOiJlbnRpdHktc3RhdGVtZW50K2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiVUdaSGF6aHVZalpoT0Y5amNUaHBWa05KU1VkWWQxVnlaR1JGVXpWd09FVXlSMDQwU2tjMk1XMXVPQSJ9.eyJtZXRhZGF0YSI6IHsib3BlbmlkX2NyZWRlbnRpYWxfaXNzdWVyIjogeyJqd2tzIjogeyJrZXlzIjogW3sia3R5IjogIlJTQSIsICJraWQiOiAiUjJSelJYQTBSVkJ5ZHpGT1ZHMWZkV1JUTVRaM1lUUm1ObkUxVjNGZk1FMW9NVVpMZWtsaVkxTllPQSIsICJlIjogIkFRQUIiLCAibiI6ICI1SF9YaDd4Z0RXVHhRVmJKcW1PR3Vyb2tFOGtyMmUxS2dNV2NZT0E3NE9fMVBYZDJ1Z2p5SXE5dDFtVlBTdXd4LXR5U2syUEtwanAtLVdySG4zQTRVS0prdVIxMXpobWRMQnNVOFRPQkJ1NU1aOGF0RHVqZlJ3SUxYZEtzRVhrbHZhQjZQTFQ0emRab2RnQ3MwNUt5MmU1c2I1ejZfQ2lEcWdVVm5XUG1KTE1rZ3BCdFota01kX2xiOVNvb1psbGZVR2xUa3NhdUoyX2dWUS1WcEZVTVhZam9Kak54OTdldWthWW5SRW9DQzNUYV8tOGJjUm9zbHgyeHJJYnVfVUdWcWlwZU4zTlAtbWVmZjlWVFpXWU0zZ21vbHd1cG5NQ1hYaWlrY1I1VVNMVmcwZV9nejZPZm9SVkdLQVdJcFJSTFR6MmFpcXVrVkhaZFpYOXRObXowbXcifV19fSwgImZlZGVyYXRpb25fZW50aXR5IjogeyJvcmdhbml6YXRpb25fbmFtZSI6ICJPcGVuSUQgQ3JlZGVudGlhbCBJc3N1ZXIgZXhhbXBsZSIsICJvcmdhbml6YXRpb25fdXJpIjogImh0dHBzOi8vY3JlZGVudGlhbF9pc3N1ZXIuZXhhbXBsZS5vcmcvaG9tZSIsICJwb2xpY3lfdXJpIjogImh0dHBzOi8vY3JlZGVudGlhbF9pc3N1ZXIuZXhhbXBsZS5vcmcvcG9saWN5IiwgImxvZ29fdXJpIjogImh0dHBzOi8vY3JlZGVudGlhbF9pc3N1ZXIuZXhhbXBsZS5vcmcvc3RhdGljL2xvZ28uc3ZnIiwgImNvbnRhY3RzIjogWyJ0ZWNoQGNyZWRlbnRpYWxfaXNzdWVyLmV4YW1wbGUub3JnIl19fSwgImF1dGhvcml0eV9oaW50cyI6IFsiaHR0cHM6Ly9pbnRlcm1lZGlhdGUuZWlkYXMuZXhhbXBsZS5vcmciXSwgImp3a3MiOiB7ImtleXMiOiBbeyJrdHkiOiAiUlNBIiwgImtpZCI6ICJNR281VVY4dGIwRkpha2xEVm10aFpuTmpZWE50V1hvd1J6aG9OVzQwTTBkTVJqTlRTRWd3TWpNeE9BIiwgIm4iOiAielVITzlvQWJUOXg4TWhGNEdTY0JPU3BkaVRoMGM3dWh0eFo3WG9vRFMxckZyQXRXVUNRLV9nUUFjVmVsMEFjcUIxdEoyQmFTaEdobkdsX1ZVYTlqSXE5WkJpc2xQZS1tZ01STFFYNm1HdnhKR19Gb0FRQ3BOUGNXRWRCT21uNUFkVGxXeTFoYk9mMlY5YV9TUzdKeUpnaVJJMXBodm43bmhyNVVmMFRUX1B2NzJsS0tBZ3drUmdEOXZtWVRSOFBTSzF3b2d6WVJSMFYwYVg2M3I5Xy0wb2ZZN3hRRXIwR2xVY2dqZlVyS0dzS0JJNWswalQtQlIxdXpxaWJVSHlsblQ5UXBNajhBQ0docmktYXRnb2t0Z1ZtNklUTmJXYTBCcnIyMWVLVUpKaHZ1eGVQTUxhUDVPdUoxRy1CanhxakNwOHJGaTB0bWJOU0pWanNiUlplQ3lRIiwgImUiOiAiQVFBQiJ9XX0sICJzdWIiOiAiaHR0cHM6Ly9jcmVkZW50aWFsX2lzc3Vlci5leGFtcGxlLm9yZyIsICJpc3MiOiAiaHR0cHM6Ly9pbnRlcm1lZGlhdGUuZWlkYXMuZXhhbXBsZS5vcmciLCAiaWF0IjogMTc1ODUyNzgxOCwgImV4cCI6IDE3NTg4Mjc4MTh9.W3fbv3JrAxcDsV0MHk00MzcgC1DddTrzkRN8vdT1IRwq3qy9NtsiC2532oInHoxxjlKBu7D8cqF9yG0Tb1v4gk_tejyUo0M9xJqyz32RU2iZP0lpbNHHUDrMxuGv1wPDap2mKisRgbb7pxm6dx_aaIrydhx0uKDM6EwX1RzpMxJeqNMeLK9992_xyCZvsi3kVGRCJDSqd-rXBS_2LFWKUViC1_5GcsWAkRABBgRDeARqQah3FvJVWiAcNv2Te2k6SMW1MNVCT7Q3uf3c2vVuaVA1OwY_wUTrkfFRjKEOmU1sgZ1TndxJKQW0XZZmTxcoJfmrjmCyxtteucYznESMnw&quot;,
-    &quot;eyJ0eXAiOiJlbnRpdHktc3RhdGVtZW50K2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiVUdaSGF6aHVZalpoT0Y5amNUaHBWa05KU1VkWWQxVnlaR1JGVXpWd09FVXlSMDQwU2tjMk1XMXVPQSJ9.eyJzdWIiOiAiaHR0cHM6Ly9jcmVkZW50aWFsX2lzc3Vlci5leGFtcGxlLm9yZyIsICJqd2tzIjogeyJrZXlzIjogW3sia3R5IjogIlJTQSIsICJraWQiOiAiTUdvNVVWOHRiMEZKYWtsRFZtdGhabk5qWVhOdFdYb3dSemhvTlc0ME0wZE1Sak5UU0Vnd01qTXhPQSIsICJuIjogInpVSE85b0FiVDl4OE1oRjRHU2NCT1NwZGlUaDBjN3VodHhaN1hvb0RTMXJGckF0V1VDUS1fZ1FBY1ZlbDBBY3FCMXRKMkJhU2hHaG5HbF9WVWE5aklxOVpCaXNsUGUtbWdNUkxRWDZtR3Z4SkdfRm9BUUNwTlBjV0VkQk9tbjVBZFRsV3kxaGJPZjJWOWFfU1M3SnlKZ2lSSTFwaHZuN25ocjVVZjBUVF9QdjcybEtLQWd3a1JnRDl2bVlUUjhQU0sxd29nellSUjBWMGFYNjNyOV8tMG9mWTd4UUVyMEdsVWNnamZVcktHc0tCSTVrMGpULUJSMXV6cWliVUh5bG5UOVFwTWo4QUNHaHJpLWF0Z29rdGdWbTZJVE5iV2EwQnJyMjFlS1VKSmh2dXhlUE1MYVA1T3VKMUctQmp4cWpDcDhyRmkwdG1iTlNKVmpzYlJaZUN5USIsICJlIjogIkFRQUIifV19LCAiaXNzIjogImh0dHBzOi8vaW50ZXJtZWRpYXRlLmVpZGFzLmV4YW1wbGUub3JnIiwgImlhdCI6IDE3NTg1Mjc4MTgsICJleHAiOiAxNzU4ODI3ODE4fQ.hF0ABpYlQBPzeMJrANe-5VOStDbZrEFdYVnNVwRgxphCMEMyoBfHDVv9kQceJtKqKbzFyFFCiO6QPY-GGt-eI37YxdzG5F8GCr9hBXfoUtTSiWaEop3B0AVXH0SelRO5zvN8W2SlR0rPTJ75kLv2vaVbgES_IzMhneteRvx2HGvCxOdvA4kermxkFT7MSP3YGyuNGJ4JAEvLXT6TmL9wiitGJ3SO34ImWZ4uI9zmSzWqvRIFKZ05dD2_RVybJbKQcOuRS3Th2yn0uq4YPzPw-Na2mw0FcYXMKQhq-SvdkI4Rt4eQMbIyyminMuTxrdIeQD6-rvSOxUTjF31sjnekvA&quot;,
-    &quot;eyJ0eXAiOiJlbnRpdHktc3RhdGVtZW50K2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiTjFsNWVWWTJhMmszU0ZCSGNtcFRjMVJJYkZGM1R6VmlZbkp2VTBNNGJuaE1ZMXBxTkdod01VcEZTUSJ9.eyJzdWIiOiAiaHR0cHM6Ly9pbnRlcm1lZGlhdGUuZWlkYXMuZXhhbXBsZS5vcmciLCAiandrcyI6IHsia2V5cyI6IFt7Imt0eSI6ICJSU0EiLCAia2lkIjogIlVHWkhhemh1WWpaaE9GOWpjVGhwVmtOSlNVZFlkMVZ5WkdSRlV6VndPRVV5UjA0MFNrYzJNVzF1T0EiLCAibiI6ICJvTlhGczdmajR5Q0k2TUotS3JSbDM0WkpBbGR1N2x3ZE5rdHk2N1FHTUx5Wmh6dFpkT0VYV2w3Z1ZRUldIeUM3M01kTGlhU1VJUFB0R2daak5iSVJEUDF0UDFJZWlObU52bmhWTnNCbWNiVjhLRUNkXy1GRGlYWDRTT0VNU0ItNXVhTGpsay1VTGpZajdwZGhPSjJqcWdIQ1dHMmFhMkozYXdUY25zSXc1NDF0YVdoc2NGZlZIT0ktMVZnbzVCTDdmRGdEakRLcGtpeGg4SE5PUVVQTXJrMWdZb2tiakt3V0RKZXphUndtamVNWldOczB1aTFvdmlFWW0xQzRfTVNSWW8wUEVOWHk0QmQ2QzVHLTVTanZyNU83U1dLN19GUWpsY09yZXhrUERyNmdQQWZHZVZnNW1CblJYOGp3b1l0TnlMal94SlpSRGZKMDdjTTRfNXl4cVEiLCAiZSI6ICJBUUFCIn1dfSwgImlzcyI6ICJodHRwczovL3RydXN0LWFuY2hvci5leGFtcGxlLm9yZyIsICJpYXQiOiAxNzU4NTI3ODE4LCAiZXhwIjogMTc1ODgyNzgxOH0.G3DP1Nqt8UTXwes0ozKzADd1KmAYl0K0DhyjQMJOKR7pgqYp_S91ObMKPrBJDh1Mnpy7mpHICUM23pUEMFt7v_-MdqjPTOG5ebrxqjFtemizFk6iHWvwhCcheQIsNMRXf-y64Ox6SgBVXP_JaKHtA_YInTQB9-_bdb-mWvwpOlvvGH-l5Hl7TQten_IoewT9bfC62UkOmKzn0L1VlVFtYn9R7sRFUtnfcqsvvRLIHNfJwaJi-lpODgNv2l7arHssS_FmfX5ZN-3WylJJbZhtkFku1ITKx7c4bvGsZSvEx9m_ixGJYunfD-iKWAmfE1suc6X-ywR7dgdp_BBpMvytlg&quot;,
-    &quot;eyJ0eXAiOiJlbnRpdHktc3RhdGVtZW50K2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiTjFsNWVWWTJhMmszU0ZCSGNtcFRjMVJJYkZGM1R6VmlZbkp2VTBNNGJuaE1ZMXBxTkdod01VcEZTUSJ9.eyJtZXRhZGF0YSI6IHsiZmVkZXJhdGlvbl9lbnRpdHkiOiB7ImZlZGVyYXRpb25fZmV0Y2hfZW5kcG9pbnQiOiAiaHR0cHM6Ly90cnVzdC1hbmNob3IuZXhhbXBsZS5vcmcvZmV0Y2giLCAiZmVkZXJhdGlvbl9yZXNvbHZlX2VuZHBvaW50IjogImh0dHBzOi8vdHJ1c3QtYW5jaG9yLmV4YW1wbGUub3JnL3Jlc29sdmUiLCAiZmVkZXJhdGlvbl9saXN0X2VuZHBvaW50IjogImh0dHBzOi8vdHJ1c3QtYW5jaG9yLmV4YW1wbGUub3JnL2xpc3QiLCAib3JnYW5pemF0aW9uX25hbWUiOiAiVEEgZXhhbXBsZSIsICJvcmdhbml6YXRpb25fdXJpIjogImh0dHBzOi8vdHJ1c3QtYW5jaG9yLmV4YW1wbGUub3JnL2hvbWUiLCAicG9saWN5X3VyaSI6ICJodHRwczovL3RydXN0LWFuY2hvci5leGFtcGxlLm9yZy9wb2xpY3kiLCAibG9nb191cmkiOiAiaHR0cHM6Ly90cnVzdC1hbmNob3IuZXhhbXBsZS5vcmcvc3RhdGljL2xvZ28uc3ZnIiwgImNvbnRhY3RzIjogWyJ0ZWNoQHRydXN0LWFuY2hvci5leGFtcGxlLm9yZyJdfX0sICJjb25zdHJhaW50cyI6IHsibWF4X3BhdGhfbGVuZ3RoIjogMX0sICJqd2tzIjogeyJrZXlzIjogW3sia3R5IjogIlJTQSIsICJraWQiOiAiTjFsNWVWWTJhMmszU0ZCSGNtcFRjMVJJYkZGM1R6VmlZbkp2VTBNNGJuaE1ZMXBxTkdod01VcEZTUSIsICJuIjogIm9pcm5UMEVjMkNva2JPZFJQT0VlbTI0SXc5LXhUeW5DcGwtOWx0cjBQclNUTEJXbHp6VW1IbzNBS25qemttNUg4MmxudVRMVTd1Skd3a0tqMjJaeklCMmFiMDIzendEX09rdDRaOXFyeW1kZUFYc0MtYXFhcVQ5RjZjZjFsbUJVczBvQXlwdWlTSnh1bU5WSVVucF9wbWhvbjlfR3NHUnlYcnJnT3lJclNKZ2hoX3p4RXREb3BnN0NQb3Q3Mmk3QlRpd0U1cXp0MFhGOHBnczM2VndYM0F3WnNMVkhpaGo0WVNUYXlYUUV3aUszMDUxRnhXXzVCbWNIRXJxM0J5WkU0UmZOSjBzbU96Z1NwMEtET0dkVjUwNHR5cTZJS1BjM04ybkhJd3hjUl9NbmczaWlfVWlFVXFYVEkwYkk5TlY4VHV4VWtrUldRcFZab0w5T3V2am9NUSIsICJlIjogIkFRQUIifV19LCAic3ViIjogImh0dHBzOi8vdHJ1c3QtYW5jaG9yLmV4YW1wbGUub3JnIiwgImlzcyI6ICJodHRwczovL3RydXN0LWFuY2hvci5leGFtcGxlLm9yZyIsICJpYXQiOiAxNzU4NTI3ODE4LCAiZXhwIjogMTc1ODgyNzgxOH0.lYDvz35LPE0V6nVUfO6Qwe8-AVQ9HBBeup-hg79HPAV-PqGa9dI9YX7GMiwb_khVGL8ASLfru4pFjlk4kjvgWj6u-ZXmWeElo48rAubCTtHKU8XOkHhvPXp04havTUevTCs3J0rBZKiJBLCBS9046yTrLPP8yN2hh_wR_3YExfW9O6w5tuEkghP4pQHZbWVZjE2pXTd-iIL5OFOWF_3050bAMTUQP_XUH5ZAPlj2-_qyDmARM9sh83SMDFwWkSqsDQDrOpWs1Uy7uT_iwqgPBuMSwUl9s4iRV-_CJy3IOdP0DCJOM3IyTWoHSlcMotEKGLmf4zTSnABr9PCPc5Bgrg&quot;
-  ]
-}
-</code></pre>
-</div>
-<figcaption><a href="#figure-6" class="selfRef">Figure 6</a>: <a href="#name-example-jws-header-with-a-t" class="selfRef">Example JWS Header with a <code>trust_chain</code> Parameter</a></figcaption>
-</figure>
 
 
 
@@ -1613,7 +690,10 @@ The following is a non-normative example of a JWS header with the `trust_chain` 
 
 
 
-## [5.](#section-5){.section-number .selfRef} [Metadata](#name-metadata){.section-name .selfRef} {#name-metadata}
+
+
+
+# Metadata
 
 This section defines how to represent and use metadata about Entities. It uses existing OpenID Connect and OAuth 2.0 metadata standards that are applicable to each Entity Type.
 
@@ -1623,7 +703,7 @@ Top-level JSON object members in the metadata data structures MAY use any JSON v
 
 
 
-### [5.1.](#section-5.1){.section-number .selfRef} [Entity Type Identifiers](#name-entity-type-identifiers){.section-name .selfRef} {#name-entity-type-identifiers}
+## Entity Type Identifiers
 
 The Entity Type Identifier uniquely identifies the Entity Type of a federation participant and the metadata format for that Entity Type. This section defines a `federation_entity` Entity Type Identifier as well as identifiers for OpenID Connect and OAuth 2.0 Federation Entities.
 
@@ -1631,7 +711,7 @@ Additional Entity Type Identifiers MAY be defined to support use cases outside O
 
 
 
-#### [5.1.1.](#section-5.1.1){.section-number .selfRef} [Federation Entity](#name-federation-entity){.section-name .selfRef} {#name-federation-entity}
+### Federation Entity
 
 The Entity Type Identifier is `federation_entity`.
 
@@ -1641,35 +721,27 @@ The Entities that contain any of Federation Entity properties defined below MUST
 
 federation_fetch_endpoint
 :   OPTIONAL. The fetch endpoint described in [Section 8.1](#fetch_endpoint){.auto .internal .xref}. This URL MUST use the `https` scheme and MAY contain port, path, and query parameter components; it MUST NOT contain a fragment component. Intermediate Entities and Trust Anchors MUST publish a `federation_fetch_endpoint`. Leaf Entities MUST NOT.
-:   
 
 federation_list_endpoint
 :   OPTIONAL. The list endpoint described in [Section 8.2](#entity_listing){.auto .internal .xref}. This URL MUST use the `https` scheme and MAY contain port, path, and query parameter components; it MUST NOT contain a fragment component. Intermediate Entities and Trust Anchors MUST publish a `federation_list_endpoint`. Leaf Entities MUST NOT.
-:   
 
 federation_resolve_endpoint
 :   OPTIONAL. The resolve endpoint described in [Section 8.3](#resolve){.auto .internal .xref}. This URL MUST use the `https` scheme and MAY contain port, path, and query parameter components; it MUST NOT contain a fragment component. Any federation Entity MAY publish a `federation_resolve_endpoint`.
-:   
 
 federation_trust_mark_status_endpoint
 :   OPTIONAL. The Trust Mark Status endpoint described in [Section 8.4](#status_endpoint){.auto .internal .xref}. Trust Mark Issuers SHOULD publish a `federation_trust_mark_status_endpoint`. This URL MUST use the `https` scheme and MAY contain port, path, and query parameter components; it MUST NOT contain a fragment component.
-:   
 
 federation_trust_mark_list_endpoint
 :   OPTIONAL. The endpoint described in [Section 8.5](#tm_listing){.auto .internal .xref}. This URL MUST use the `https` scheme and MAY contain port, path, and query parameter components; it MUST NOT contain a fragment component. Trust Mark Issuers MAY publish a `federation_trust_mark_list_endpoint`.
-:   
 
 federation_trust_mark_endpoint
 :   OPTIONAL. The endpoint described in [Section 8.6](#tm_endpoint){.auto .internal .xref}. This URL MUST use the `https` scheme and MAY contain port, path, and query parameter components; it MUST NOT contain a fragment component. Trust Mark Issuers MAY publish a `federation_trust_mark_endpoint`.
-:   
 
 federation_historical_keys_endpoint
 :   OPTIONAL. The endpoint described in [Section 8.7](#historical_keys){.auto .internal .xref}. This URL MUST use the `https` scheme and MAY contain port, path, and query parameter components; it MUST NOT contain a fragment component. All Federation Entities MAY publish a `federation_historical_keys_endpoint`.
-:   
 
 endpoint_auth_signing_alg_values_supported
 :   OPTIONAL. JSON array containing a list of the supported [JWS](#RFC7515){.internal .xref} [[RFC7515](#RFC7515){.cite .xref}] algorithms (`alg` values) for signing the [JWT](#RFC7519){.internal .xref} [[RFC7519](#RFC7519){.cite .xref}] used for `private_key_jwt` when authenticating to federation endpoints, as described in [Section 8.8](#ClientAuthentication){.auto .internal .xref}. No default algorithms are implied if this entry is omitted. Servers SHOULD support `RS256`. The value `none` MUST NOT be used.
-:   
 
 Additional Federation Entity properties MAY be defined and used.
 
@@ -1679,27 +751,15 @@ The following is a non-normative example of the `federation_entity` Entity Type:
 
 []{#name-example-of-federation_entit}
 
-<figure id="figure-7">
-<div id="section-5.1.1-7.1" class="alignLeft art-text artwork">
-<pre><code>&quot;federation_entity&quot;: {
-  &quot;federation_fetch_endpoint&quot;:
-    &quot;https://amanita.caesarea.example.com/federation_fetch&quot;,
-  &quot;federation_list_endpoint&quot;:
-    &quot;https://amanita.caesarea.example.com/federation_list&quot;,
-  &quot;federation_trust_mark_status_endpoint&quot;: &quot;https://amanita.caesarea.example.com/status&quot;,
-  &quot;federation_trust_mark_list_endpoint&quot;: &quot;https://amanita.caesarea.example.com/trust_marked_list&quot;,
-  &quot;organization_name&quot;: &quot;Ovulo Mushroom&quot;,
-  &quot;organization_uri&quot;: &quot;https://amanita.caesarea.example.com&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-7" class="selfRef">Figure 7</a>: <a href="#name-example-of-federation_entit" class="selfRef">Example of <code>federation_entity</code> Entity Type</a></figcaption>
-</figure>
 
 
 
 
 
-#### [5.1.2.](#section-5.1.2){.section-number .selfRef} [OpenID Connect Relying Party](#name-openid-connect-relying-part){.section-name .selfRef} {#name-openid-connect-relying-part}
+
+
+
+### OpenID Connect Relying Party
 
 The Entity Type Identifier is `openid_relying_party`.
 
@@ -1711,62 +771,62 @@ In addition, the following RP metadata parameter is defined:
 
 client_registration_types
 :   RECOMMENDED. An array of strings specifying the client registration types the RP supports. Values defined by this specification are `automatic` and `explicit`. Additional values MAY be defined and used, without restriction by this specification.
-:   
 
 The following is a non-normative example of the JWT Claims Set for an RP's Entity Configuration:
 
 []{#name-example-relying-party-entit}
 
-<figure id="figure-8">
-<div id="section-5.1.2-6.1" class="alignLeft art-text artwork">
-<pre><code>    {
-      &quot;iss&quot;: &quot;https://openid.sunet.se&quot;,
-      &quot;sub&quot;: &quot;https://openid.sunet.se&quot;,
-      &quot;iat&quot;: 1516239022,
-      &quot;exp&quot;: 1516298022,
-      &quot;metadata&quot;: {
-        &quot;openid_relying_party&quot;: {
-          &quot;application_type&quot;: &quot;web&quot;,
-          &quot;redirect_uris&quot;: [
-            &quot;https://openid.sunet.se/rp/callback&quot;
+
+
+``` figure
+    {
+      "iss": "https://openid.sunet.se",
+      "sub": "https://openid.sunet.se",
+      "iat": 1516239022,
+      "exp": 1516298022,
+      "metadata": {
+        "openid_relying_party": {
+          "application_type": "web",
+          "redirect_uris": [
+            "https://openid.sunet.se/rp/callback"
           ],
-          &quot;organization_name&quot;: &quot;SUNET&quot;,
-          &quot;logo_uri&quot;: &quot;https://www.sunet.se/sunet/images/32x32.png&quot;,
-          &quot;grant_types&quot;: [
-            &quot;authorization_code&quot;,
-            &quot;implicit&quot;
+          "organization_name": "SUNET",
+          "logo_uri": "https://www.sunet.se/sunet/images/32x32.png",
+          "grant_types": [
+            "authorization_code",
+            "implicit"
           ],
-          &quot;signed_jwks_uri&quot;:&quot;https://openid.sunet.se/rp/signed_jwks.jose&quot;,
-          &quot;jwks_uri&quot;: &quot;https://openid.sunet.se/rp/jwks.json&quot;,
-          &quot;client_registration_types&quot;: [&quot;automatic&quot;]
+          "signed_jwks_uri":"https://openid.sunet.se/rp/signed_jwks.jose",
+          "jwks_uri": "https://openid.sunet.se/rp/jwks.json",
+          "client_registration_types": ["automatic"]
         }
       },
-      &quot;jwks&quot;: {
-        &quot;keys&quot;: [
+      "jwks": {
+        "keys": [
           {
-            &quot;alg&quot;: &quot;RS256&quot;,
-            &quot;e&quot;: &quot;AQAB&quot;,
-            &quot;kid&quot;: &quot;key1&quot;,
-            &quot;kty&quot;: &quot;RSA&quot;,
-            &quot;n&quot;: &quot;pnXBOusEANuug6ewezb9J_...&quot;,
-            &quot;use&quot;: &quot;sig&quot;
+            "alg": "RS256",
+            "e": "AQAB",
+            "kid": "key1",
+            "kty": "RSA",
+            "n": "pnXBOusEANuug6ewezb9J_...",
+            "use": "sig"
           }
         ]
       },
-      &quot;authority_hints&quot;: [
-        &quot;https://edugain.org/federation&quot;
+      "authority_hints": [
+        "https://edugain.org/federation"
       ]
     }
-</code></pre>
-</div>
-<figcaption><a href="#figure-8" class="selfRef">Figure 8</a>: <a href="#name-example-relying-party-entit" class="selfRef">Example Relying Party Entity Configuration JWT Claims Set</a></figcaption>
-</figure>
+
+```
+Figure 8: Example Relying Party Entity Configuration JWT Claims Set
 
 
 
 
 
-#### [5.1.3.](#section-5.1.3){.section-number .selfRef} [OpenID Connect OpenID Provider](#name-openid-connect-openid-provi){.section-name .selfRef} {#name-openid-connect-openid-provi}
+
+### OpenID Connect OpenID Provider
 
 The Entity Type Identifier is `openid_provider`.
 
@@ -1780,94 +840,93 @@ In addition, the following OP metadata parameters are defined:
 
 client_registration_types_supported
 :   RECOMMENDED. An array of strings specifying the client registration types the OP supports. Values defined by this specification are `automatic` and `explicit`. Additional values MAY be defined and used, without restriction by this specification.
-:   
 
 federation_registration_endpoint
 :   OPTIONAL. URL of the OP's federation-specific Dynamic Client Registration Endpoint. If the OP supports Explicit Client Registration Endpoint this URL MUST use the `https` scheme and MAY contain port, path, and query parameter components; it MUST NOT contain a fragment component. If the OP supports Explicit Client Registration as described in [Section 12.2](#explicit){.auto .internal .xref}, then this claim is REQUIRED.
-:   
 
 The following is a non-normative example of the JWT Claims Set for an OP's Entity Configuration:
 
 []{#name-example-openid-provider-ent}
 
-<figure id="figure-9">
-<div id="section-5.1.3-7.1" class="alignLeft art-text artwork">
-<pre><code>{
-   &quot;iss&quot;:&quot;https://op.umu.se&quot;,
-   &quot;sub&quot;:&quot;https://op.umu.se&quot;,
-   &quot;exp&quot;:1568397247,
-   &quot;iat&quot;:1568310847,
-   &quot;metadata&quot;:{
-      &quot;openid_provider&quot;:{
-         &quot;issuer&quot;:&quot;https://op.umu.se&quot;,
-         &quot;signed_jwks_uri&quot;:&quot;https://op.umu.se/openid/signed_jwks.jose&quot;,
-         &quot;authorization_endpoint&quot;:&quot;https://op.umu.se/openid/authorization&quot;,
-         &quot;client_registration_types_supported&quot;:[
-            &quot;automatic&quot;,
-            &quot;explicit&quot;
+
+
+``` figure
+{
+   "iss":"https://op.umu.se",
+   "sub":"https://op.umu.se",
+   "exp":1568397247,
+   "iat":1568310847,
+   "metadata":{
+      "openid_provider":{
+         "issuer":"https://op.umu.se",
+         "signed_jwks_uri":"https://op.umu.se/openid/signed_jwks.jose",
+         "authorization_endpoint":"https://op.umu.se/openid/authorization",
+         "client_registration_types_supported":[
+            "automatic",
+            "explicit"
          ],
-         &quot;grant_types_supported&quot;:[
-            &quot;authorization_code&quot;,
-            &quot;implicit&quot;,
-            &quot;urn:ietf:params:oauth:grant-type:jwt-bearer&quot;
+         "grant_types_supported":[
+            "authorization_code",
+            "implicit",
+            "urn:ietf:params:oauth:grant-type:jwt-bearer"
          ],
-         &quot;id_token_signing_alg_values_supported&quot;:[
-            &quot;ES256&quot;,
-            &quot;RS256&quot;
+         "id_token_signing_alg_values_supported":[
+            "ES256",
+            "RS256"
          ],
-         &quot;logo_uri&quot;:&quot;https://www.umu.se/img/umu-logo-left-neg-SE.svg&quot;,
-         &quot;op_policy_uri&quot;:&quot;https://www.umu.se/en/legal-information/&quot;,
-         &quot;response_types_supported&quot;:[
-            &quot;code&quot;,
-            &quot;code id_token&quot;,
-            &quot;token&quot;
+         "logo_uri":"https://www.umu.se/img/umu-logo-left-neg-SE.svg",
+         "op_policy_uri":"https://www.umu.se/en/legal-information/",
+         "response_types_supported":[
+            "code",
+            "code id_token",
+            "token"
          ],
-         &quot;subject_types_supported&quot;:[
-            &quot;pairwise&quot;,
-            &quot;public&quot;
+         "subject_types_supported":[
+            "pairwise",
+            "public"
          ],
-         &quot;token_endpoint&quot;:&quot;https://op.umu.se/openid/token&quot;,
-         &quot;federation_registration_endpoint&quot;:&quot;https://op.umu.se/openid/fedreg&quot;,
-         &quot;token_endpoint_auth_methods_supported&quot;:[
-            &quot;client_secret_post&quot;,
-            &quot;client_secret_basic&quot;,
-            &quot;client_secret_jwt&quot;,
-            &quot;private_key_jwt&quot;
+         "token_endpoint":"https://op.umu.se/openid/token",
+         "federation_registration_endpoint":"https://op.umu.se/openid/fedreg",
+         "token_endpoint_auth_methods_supported":[
+            "client_secret_post",
+            "client_secret_basic",
+            "client_secret_jwt",
+            "private_key_jwt"
          ],
-         &quot;pushed_authorization_request_endpoint&quot;:&quot;https://op.umu.se/openid/par&quot;,
-         &quot;request_object_signing_alg_values_supported&quot;: [
-            &quot;ES256&quot;,
-            &quot;RS256&quot;
+         "pushed_authorization_request_endpoint":"https://op.umu.se/openid/par",
+         "request_object_signing_alg_values_supported": [
+            "ES256",
+            "RS256"
          ],
-         &quot;token_endpoint_auth_signing_alg_values_supported&quot;: [
-            &quot;ES256&quot;,
-            &quot;RS256&quot;
+         "token_endpoint_auth_signing_alg_values_supported": [
+            "ES256",
+            "RS256"
          ]
       }
    },
-   &quot;authority_hints&quot;:[
-      &quot;https://umu.se&quot;
+   "authority_hints":[
+      "https://umu.se"
    ],
-   &quot;jwks&quot;:{
-      &quot;keys&quot;:[
+   "jwks":{
+      "keys":[
          {
-            &quot;e&quot;:&quot;AQAB&quot;,
-            &quot;kid&quot;:&quot;dEEtRjlzY3djcENuT01wOGxrZlkxb3RIQVJlMTY0...&quot;,
-            &quot;kty&quot;:&quot;RSA&quot;,
-            &quot;n&quot;:&quot;x97YKqc9Cs-DNtFrQ7_vhXoH9bwkDWW6En2jJ044yH...&quot;
+            "e":"AQAB",
+            "kid":"dEEtRjlzY3djcENuT01wOGxrZlkxb3RIQVJlMTY0...",
+            "kty":"RSA",
+            "n":"x97YKqc9Cs-DNtFrQ7_vhXoH9bwkDWW6En2jJ044yH..."
          }
       ]
    }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-9" class="selfRef">Figure 9</a>: <a href="#name-example-openid-provider-ent" class="selfRef">Example OpenID Provider Entity Configuration JWT Claims Set</a></figcaption>
-</figure>
+}
+```
+Figure 9: Example OpenID Provider Entity Configuration JWT Claims Set
 
 
 
 
 
-#### [5.1.4.](#section-5.1.4){.section-number .selfRef} [OAuth Authorization Server](#name-oauth-authorization-server){.section-name .selfRef} {#name-oauth-authorization-server}
+
+### OAuth Authorization Server
 
 The Entity Type Identifier is `oauth_authorization_server`.
 
@@ -1879,7 +938,7 @@ The `issuer` parameter value in the `oauth_authorization_server` metadata MUST m
 
 
 
-#### [5.1.5.](#section-5.1.5){.section-number .selfRef} [OAuth Client](#name-oauth-client){.section-name .selfRef} {#name-oauth-client}
+### OAuth Client
 
 The Entity Type Identifier is `oauth_client`.
 
@@ -1889,7 +948,7 @@ All parameters defined in Section 2 of [OAuth 2.0 Dynamic Client Registration Pr
 
 
 
-#### [5.1.6.](#section-5.1.6){.section-number .selfRef} [OAuth Protected Resource](#name-oauth-protected-resource){.section-name .selfRef} {#name-oauth-protected-resource}
+### OAuth Protected Resource
 
 The Entity Type Identifier is `oauth_resource`. The parameters defined in [Section 5.2](#common_metadata){.auto .internal .xref} are applicable. In addition, deployments MAY use the protected resource metadata parameters defined in [[RFC9728](#RFC9728){.cite .xref}].
 
@@ -1899,108 +958,79 @@ The Entity Type Identifier is `oauth_resource`. The parameters defined in [Secti
 
 
 
-### [5.2.](#section-5.2){.section-number .selfRef} [Common Metadata Parameters](#name-common-metadata-parameters){.section-name .selfRef} {#name-common-metadata-parameters}
+### Common Metadata Parameters
 
 This section defines additional metadata parameters that MAY be used with all the Entity Types above, with the exception for JWK Sets noted below.
 
 
 
-#### [5.2.1.](#section-5.2.1){.section-number .selfRef} [Extensions for JWK Sets in Entity Metadata](#name-extensions-for-jwk-sets-in-){.section-name .selfRef} {#name-extensions-for-jwk-sets-in-}
+### Extensions for JWK Sets in Entity Metadata
 
 The following metadata parameters define ways of obtaining JWK Sets for an Entity Type of the Entity. Note that these keys are distinct from the Federation Entity Keys used to sign Entity Statements, which are in the `jwks` claim of the Entity Statement, and not within the `metadata` claim. These extensions for JWK Sets MUST NOT be used in `federation_entity` Entity Type metadata.
 
 []{.break}
 
 signed_jwks_uri
-:   OPTIONAL. URL referencing a signed JWT having the Entity's JWK Set document for that Entity Type as its payload. This URL MUST use the `https` scheme. The JWT MUST be signed using a Federation Entity Key. A successful response from the URL MUST use the HTTP status code 200 with the content type `application/jwk-set+jwt`. When both signing and encryption keys are present, a `use` (public key use) parameter value is REQUIRED for all keys in the referenced JWK Set to indicate each key's intended usage.
-:   
+:   OPTIONAL. URL referencing a signed JWT having the Entity's JWK Set document for that Entity Type as its payload. This URL MUST use the `https` scheme. The JWT MUST be signed using a Federation Entity Key. A successful response from the URL MUST use the HTTP status code 200 with the content type `application/jwk-set+jwt`. When both signing and encryption keys are present, a `use` (public key use) parameter value is REQUIRED for all keys in the referenced JWK Set to indicate each key's intended usage. Signed JWK Set JWTs are explicitly typed by setting the `typ` header parameter to `jwk-set+jwt` to prevent cross-JWT confusion, per Section 3.11 of [[RFC8725](#RFC8725){.cite .xref}]. Signed JWK Set JWTs without a `typ` header parameter or with a different `typ` value MUST be rejected. Signed JWK Set JWTs MUST include the `kid` (Key ID) header parameter with its value being the Key ID of the signing key used. The following claims are specified for use in the payload, all of which except `keys` are defined in [[RFC7519](#RFC7519){.cite .xref}]:
 
-:   Signed JWK Set JWTs are explicitly typed by setting the `typ` header parameter to `jwk-set+jwt` to prevent cross-JWT confusion, per Section 3.11 of [[RFC8725](#RFC8725){.cite .xref}]. Signed JWK Set JWTs without a `typ` header parameter or with a different `typ` value MUST be rejected.
-:   
+    -   `keys`: REQUIRED. Array of JWK values in the JWK Set, as specified in Section 5.1 of [[RFC7517](#RFC7517){.cite .xref}].
 
-:   Signed JWK Set JWTs MUST include the `kid` (Key ID) header parameter with its value being the Key ID of the signing key used.
-:   
+    -   `iss`: REQUIRED. The "iss" (issuer) claim identifies the principal that issued the JWT.
 
-:   The following claims are specified for use in the payload, all of which except `keys` are defined in [[RFC7519](#RFC7519){.cite .xref}]:
+    -   `sub`: REQUIRED. This claim identifies the owner of the keys. It SHOULD be the same as the issuer.
 
-    []{.break}
+    -   `iat`: OPTIONAL. Number. Time when this signed JWK Set was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
 
-    keys
-    :   REQUIRED. Array of JWK values in the JWK Set, as specified in Section 5.1 of [[RFC7517](#RFC7517){.cite .xref}].
-    :   
+    -   `exp`: OPTIONAL. Number. This claim identifies the time when the JWT is no longer valid. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
 
-    iss
-    :   REQUIRED. The "iss" (issuer) claim identifies the principal that issued the JWT.
-    :   
-
-    sub
-    :   REQUIRED. This claim identifies the owner of the keys. It SHOULD be the same as the issuer.
-    :   
-
-    iat
-    :   OPTIONAL. Number. Time when this signed JWK Set was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-    :   
-
-    exp
-    :   OPTIONAL. Number. This claim identifies the time when the JWT is no longer valid. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-    :   
-
-    More claims are defined in [[RFC7519](#RFC7519){.cite .xref}]; of these, `aud` SHOULD NOT be used since the issuer cannot know who the audience is. `nbf` and `jti` are not particularly useful in this context and SHOULD be omitted.
-
-:   
-
-:   Additional claims MAY be defined and used in conjunction with the claims above.
-
-    The following is a non-normative example of the JWT Claims Set for a signed JWK Set.
+    More claims are defined in [[RFC7519](#RFC7519){.cite .xref}]; of these, `aud` SHOULD NOT be used since the issuer cannot know who the audience is. `nbf` and `jti` are not particularly useful in this context and SHOULD be omitted. Additional claims MAY be defined and used in conjunction with the claims above. The following is a non-normative example of the JWT Claims Set for a signed JWK Set.
 
     []{#name-example-jwt-claims-set-for-}
 
-    <figure id="figure-10">
-    <div id="section-5.2.1-2.10.3.1" class="alignLeft art-text artwork">
-    <pre><code>    {
-          &quot;keys&quot;: [
+    
+
+``` figure
+    {
+          "keys": [
             {
-              &quot;kty&quot;: &quot;RSA&quot;,
-              &quot;kid&quot;: &quot;SUdtUndEWVY2cUFDeDV5NVlBWDhvOXJodVl2am1mNGNtR0pmd&quot;,
-              &quot;n&quot;: &quot;y_Zc8rByfeRIC9fFZrDZ2MGH2ZnxLrc0ZNNwkNet5rwCPYeRF3Sv
+              "kty": "RSA",
+              "kid": "SUdtUndEWVY2cUFDeDV5NVlBWDhvOXJodVl2am1mNGNtR0pmd",
+              "n": "y_Zc8rByfeRIC9fFZrDZ2MGH2ZnxLrc0ZNNwkNet5rwCPYeRF3Sv
                     5nihZA9NHkDTEX97dN8hG6ACfeSo6JB2P7heJtmzM8oOBZbmQ90n
                     EA_JCHszkejHaOtDDfxPH6bQLrMlItF4JSUKua301uLB7C8nzTxm
                     tF3eAhGCKn8LotEseccxsmzApKRNWhfKDLpKPe9i9PZQhhJaurwD
                     kMwbWTAeZbqCScU1o09piuK1JDf2PaDFevioHncZcQO74Obe4nN3
                     oNPNAxrMClkZ9s9GMEd5vMqOD4huXlRpHwm9V3oJ3LRutOTxqQLV
-                    yPucu7eHA7her4FOFAiUk-5SieXL9Q&quot;,
-              &quot;e&quot;: &quot;AQAB&quot;
+                    yPucu7eHA7her4FOFAiUk-5SieXL9Q",
+              "e": "AQAB"
             },
             {
-              &quot;kty&quot;: &quot;EC&quot;,
-              &quot;kid&quot;: &quot;MFYycG1raTI4SkZvVDBIMF9CNGw3VEZYUmxQLVN2T21nSWlkd3&quot;,
-              &quot;crv&quot;: &quot;P-256&quot;,
-              &quot;x&quot;: &quot;qAOdPQROkHfZY1daGofOmSNQWpYK8c9G2m2Rbkpbd4c&quot;,
-              &quot;y&quot;: &quot;G_7fF-T8n2vONKM15Mzj4KR_shvHBxKGjMosF6FdoPY&quot;
+              "kty": "EC",
+              "kid": "MFYycG1raTI4SkZvVDBIMF9CNGw3VEZYUmxQLVN2T21nSWlkd3",
+              "crv": "P-256",
+              "x": "qAOdPQROkHfZY1daGofOmSNQWpYK8c9G2m2Rbkpbd4c",
+              "y": "G_7fF-T8n2vONKM15Mzj4KR_shvHBxKGjMosF6FdoPY"
             }
           ],
-          &quot;iss&quot;: &quot;https://example.org/op&quot;,
-          &quot;sub&quot;: &quot;https://example.org/op&quot;,
-          &quot;iat&quot;: 1618410883
+          "iss": "https://example.org/op",
+          "sub": "https://example.org/op",
+          "iat": 1618410883
         }
-    </code></pre>
-    </div>
-    <figcaption><a href="#figure-10" class="selfRef">Figure 10</a>: <a href="#name-example-jwt-claims-set-for-" class="selfRef">Example JWT Claims Set for a Signed JWK Set</a></figcaption>
-    </figure>
+    
+```
+Figure 10: Example JWT Claims Set for a Signed JWK Set
 
-:   
+
 
 jwks_uri
 :   OPTIONAL. URL referencing a JWK Set document containing the Entity's keys for that Entity Type. This URL MUST use the `https` scheme. When both signing and encryption keys are present, a `use` (public key use) parameter value is REQUIRED for all keys in the referenced JWK Set to indicate each key's intended usage.
-:   
 
 jwks
 :   OPTIONAL. JSON Web Key Set document, passed by value, containing the Entity's keys for that Entity Type. When both signing and encryption keys are present, a `use` (public key use) parameter value is REQUIRED for all keys in the JWK Set to indicate each key's intended usage. This parameter is intended to be used by participants that, for some reason, cannot use the `signed_jwks_uri` parameter. An upside of using `jwks` is that the Entity's keys for the Entity Type are recorded in Trust Chains.
-:   
 
 
 
-##### [5.2.1.1.](#section-5.2.1.1){.section-number .selfRef} [Usage of jwks, jwks_uri, and signed_jwks_uri in Entity Metadata](#name-usage-of-jwks-jwks_uri-and-){.section-name .selfRef} {#name-usage-of-jwks-jwks_uri-and-}
+#### Usage of jwks, jwks_uri, and signed_jwks_uri in Entity Metadata
 
 It is RECOMMENDED that an Entity Configuration use only one of `jwks`, `jwks_uri`, and `signed_jwks_uri` in its OpenID Connect or OAuth 2.0 metadata. However, there may be circumstances in which it is desirable to use multiple JWK Set representations, such as when an Entity is in multiple federations and the federations have different policies about the JWK Set representation to be used. Also note that some implementations might not understand all these representations. For instance, while `jwks_uri` will certainly be understood in OpenID Connect OP metadata, `signed_jwks_uri` might not be understood by all OpenID Connect implementations, and so a JWK Set representation that is understood also needs to be present.
 
@@ -2012,7 +1042,7 @@ When multiple JWK Set representations are used, the keys present in each represe
 
 
 
-#### [5.2.2.](#section-5.2.2){.section-number .selfRef} [Informational Metadata Extensions](#name-informational-metadata-exte){.section-name .selfRef} {#name-informational-metadata-exte}
+### Informational Metadata Extensions
 
 The following metadata parameters define ways of obtaining information about the Entity for an Entity Type.
 
@@ -2020,39 +1050,30 @@ The following metadata parameters define ways of obtaining information about the
 
 organization_name
 :   OPTIONAL. A human-readable name representing the organization owning this Entity. If the owner is a physical person, this MAY be, for example, the person's name. Note that this information will be publicly available.
-:   
 
 display_name
 :   OPTIONAL. A human-readable name of the Entity to be presented to the End-User.
-:   
 
 description
 :   OPTIONAL. A human-readable brief description of this Entity presentable to the End-User.
-:   
 
 keywords
 :   OPTIONAL. JSON array with one or more strings representing search keywords, tags, categories, or labels that apply to this Entity.
-:   
 
 contacts
 :   OPTIONAL. JSON array with one or more strings representing contact persons at the Entity. These MAY contain names, e-mail addresses, descriptions, phone numbers, etc.
-:   
 
 logo_uri
 :   OPTIONAL. String. A URL that points to the logo of this Entity. The file containing the logo SHOULD be published in a format that can be viewed via the web.
-:   
 
 policy_uri
 :   OPTIONAL. URL of the documentation of conditions and policies relevant to this Entity.
-:   
 
 information_uri
 :   OPTIONAL. URL for documentation of additional information about this Entity viewable by the End-User.
-:   
 
 organization_uri
 :   OPTIONAL. URL of a Web page for the organization owning this Entity.
-:   
 
 These metadata parameters MAY be present in the Entity's metadata for any Entity Types that it uses.
 
@@ -2064,11 +1085,9 @@ These metadata parameters MAY be present in the Entity's metadata for any Entity
 
 
 
-## [6.](#section-6){.section-number .selfRef} [Federation Policy](#name-federation-policy){.section-name .selfRef} {#name-federation-policy}
+# Federation Policy
 
-
-
-### [6.1.](#section-6.1){.section-number .selfRef} [Metadata Policy](#name-metadata-policy){.section-name .selfRef} {#name-metadata-policy}
+## Metadata Policy
 
 Trust Anchors and Intermediate Entities MAY define policies that apply to the metadata of their Subordinates.
 
@@ -2078,7 +1097,7 @@ Note that the `metadata_policy` is not intended to check and validate the JSON v
 
 
 
-#### [6.1.1.](#section-6.1.1){.section-number .selfRef} [Principles](#name-principles){.section-name .selfRef} {#name-principles}
+### Principles
 
 OpenID Federation enables the definition of metadata policies with the following properties:
 
@@ -2090,11 +1109,9 @@ Hierarchy
 
     The hierarchy of policies is preserved in nested federations where a Trust Anchor in one federation acts as an Intermediate Entity in another federation.
 
-:   
 
 Equal Opportunity
 :   All Superior Entities in a Trust Chain can contribute metadata policies on an equal basis, provided their contributions result in a combined metadata policy that is logically sound. For instance, any Intermediate can further restrict the metadata of its Subordinates relative to what its Superiors specified. An Intermediate that introduces a conflict among the metadata policies causes the Trust Chain to be deemed invalid.
-:   
 
 Specificity and Granularity
 
@@ -2106,11 +1123,9 @@ Specificity and Granularity
 
     Because the place to define a policy is the Subordinate Statement and every Entity Statement is issued for a specific subject, a federation authority can choose to define a common Entity Type metadata policy for all its Subordinates, or specific Entity Type metadata policies for specific Subordinates.
 
-:   
 
 Operation
 :   A policy operates by performing a check, a modification, or both on a given metadata parameter. This specification defines a set of standard operators, described in [Section 6.1.3.1](#standard_metadata_policy_operators){.auto .internal .xref}. A federation MAY specify and use additional operators, provided they comply with the principles laid out in this section and with [Section 6.1.3](#metadata_policy_operators){.auto .internal .xref} and [Section 6.1.3.2](#additional_metadata_policy_operators){.auto .internal .xref}.
-:   
 
 Integral Metadata Enforcement
 
@@ -2126,17 +1141,15 @@ Integral Metadata Enforcement
       A Trust Chain with Entity metadata that does not comply with the resolved metadata policies is deemed invalid.
       
 
-:   
 
 Determinism
 :   The resolution and application of metadata policies in a Trust Chain is deterministic. Trust Anchors and Intermediate Entities are thus able to formulate policies that exhibit predictable and reproducible outcomes.
-:   
 
 
 
 
 
-#### [6.1.2.](#section-6.1.2){.section-number .selfRef} [Structure](#name-structure){.section-name .selfRef} {#name-structure}
+### Structure
 
 Metadata policies are expressed in the `metadata_policy` claim of a Subordinate Statement, as described in [Section 3](#entity-statement){.auto .internal .xref}. The claim value is a JSON object that has a data structure consisting of three levels:
 
@@ -2164,25 +1177,15 @@ The following is a non-normative example of a metadata policy for an OpenID Rely
 
 []{#name-example-metadata_policy-cla}
 
-<figure id="figure-11">
-<div id="section-6.1.2-5.1" class="alignLeft art-text artwork">
-<pre><code>&quot;metadata_policy&quot; : {
-  &quot;openid_relying_party&quot;: {
-    &quot;id_token_signed_response_alg&quot;: {
-      &quot;default&quot;: &quot;ES256&quot;,
-      &quot;one_of&quot;: [&quot;ES256&quot;, &quot;ES384&quot;, &quot;ES512&quot;]
-    }
-  }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-11" class="selfRef">Figure 11</a>: <a href="#name-example-metadata_policy-cla" class="selfRef">Example <code>metadata_policy</code> Claim</a></figcaption>
-</figure>
 
 
 
 
 
-#### [6.1.3.](#section-6.1.3){.section-number .selfRef} [Operators](#name-operators){.section-name .selfRef} {#name-operators}
+
+
+
+### Operators
 
 A metadata policy operator:
 
@@ -2224,13 +1227,13 @@ A metadata policy operator:
 
 
 
-##### [6.1.3.1.](#section-6.1.3.1){.section-number .selfRef} [Standard Operators](#name-standard-operators){.section-name .selfRef} {#name-standard-operators}
+#### Standard Operators
 
 This specification defines the following metadata policy operators:
 
 
 
-###### [6.1.3.1.1.](#section-6.1.3.1.1){.section-number .selfRef} [value](#name-value){.section-name .selfRef} {#name-value}
+##### value
 
 Name: `value`
 
@@ -2282,7 +1285,7 @@ Operator value merge: Allowed only when the operator values are equal. If not, t
 
 
 
-###### [6.1.3.1.2.](#section-6.1.3.1.2){.section-number .selfRef} [add](#name-add){.section-name .selfRef} {#name-add}
+##### add
 
 Name: `add`
 
@@ -2338,7 +1341,7 @@ Operator value merge: The result of merging the values of two `add` operators is
 
 
 
-###### [6.1.3.1.3.](#section-6.1.3.1.3){.section-number .selfRef} [default](#name-default){.section-name .selfRef} {#name-default}
+##### default
 
 Name: `default`
 
@@ -2390,7 +1393,7 @@ Operator value merge: The operator values MUST be equal. If the values are not e
 
 
 
-###### [6.1.3.1.4.](#section-6.1.3.1.4){.section-number .selfRef} [one_of](#name-one_of){.section-name .selfRef} {#name-one_of}
+##### one_of
 
 Name: `one_of`
 
@@ -2438,7 +1441,7 @@ Operator value merge: The result of merging the values of two `one_of` operators
 
 
 
-###### [6.1.3.1.5.](#section-6.1.3.1.5){.section-number .selfRef} [subset_of](#name-subset_of){.section-name .selfRef} {#name-subset_of}
+##### subset_of
 
 Name: `subset_of`
 
@@ -2494,7 +1497,7 @@ Operator value merge: The result of merging the values of two `subset_of` operat
 
 
 
-###### [6.1.3.1.6.](#section-6.1.3.1.6){.section-number .selfRef} [superset_of](#name-superset_of){.section-name .selfRef} {#name-superset_of}
+##### superset_of
 
 Name: `superset_of`
 
@@ -2550,7 +1553,7 @@ Operator value merge: The result of merging the values of two `superset_of` oper
 
 
 
-###### [6.1.3.1.7.](#section-6.1.3.1.7){.section-number .selfRef} [essential](#name-essential){.section-name .selfRef} {#name-essential}
+##### essential
 
 Name: `essential`
 
@@ -2586,7 +1589,7 @@ Operator value merge: The result of merging the values of two `essential` operat
 
 
 
-###### [6.1.3.1.8.](#section-6.1.3.1.8){.section-number .selfRef} [Notes on Operators](#name-notes-on-operators){.section-name .selfRef} {#name-notes-on-operators}
+##### Notes on Operators
 
 A "set equals" metadata parameter policy can be expressed by combining the operators `subset_of` and `superset_of` with identical array values.
 
@@ -2608,7 +1611,7 @@ The following table is a map of the outputs produced by combinations of the `ess
   true        [a,b,c]   no parameter         error
   false       [a,b,c]   no parameter         no parameter
 
-  : [Table 1](#table-1): [Examples of Outputs with Combinations of `essential` and `subset_of` for Different Inputs](#name-examples-of-outputs-with-co) {#table-1}
+  : [Table 1](#table-1): [Examples of Outputs with Combinations of ](#name-examples-of-outputs-with-co)`essential`[ and ](#name-examples-of-outputs-with-co)`subset_of`[ for Different Inputs](#name-examples-of-outputs-with-co) {#table-1}
 
 
 
@@ -2616,7 +1619,7 @@ The following table is a map of the outputs produced by combinations of the `ess
 
 
 
-##### [6.1.3.2.](#section-6.1.3.2){.section-number .selfRef} [Additional Operators](#name-additional-operators){.section-name .selfRef} {#name-additional-operators}
+#### Additional Operators
 
 Federations MAY specify and use additional metadata policy operators that conform with the principles in [Section 6.1.1](#metadata_policy_principles){.auto .internal .xref} and in [Section 6.1.3](#metadata_policy_operators){.auto .internal .xref}.
 
@@ -2638,7 +1641,7 @@ Implementations MUST ignore additional operators that are not understood, unless
 
 
 
-#### [6.1.4.](#section-6.1.4){.section-number .selfRef} [Enforcement](#name-enforcement){.section-name .selfRef} {#name-enforcement}
+### Enforcement
 
 This section describes the resolution of the metadata policy for a Trust Chain and its application to the metadata of the Federation Entity that is the Trust Chain subject.
 
@@ -2646,7 +1649,7 @@ If a policy error or another error is encountered during the metadata policy res
 
 
 
-##### [6.1.4.1.](#section-6.1.4.1){.section-number .selfRef} [Resolution](#name-resolution){.section-name .selfRef} {#name-resolution}
+#### Resolution
 
 The metadata policy for a Trust Chain is determined by the sequence of the present `metadata_policy` claims of the Subordinate Statements that make up the chain.
 
@@ -2710,7 +1713,7 @@ If no further Subordinate Statements with a `metadata_policy` claim are found, t
 
 
 
-##### [6.1.4.2.](#section-6.1.4.2){.section-number .selfRef} [Application](#name-application){.section-name .selfRef} {#name-application}
+#### Application
 
 If the Subordinate Statement about the Trust Chain subject contains a `metadata` claim, this MUST first be applied, as described in the claim definition in [Section 3](#entity-statement){.auto .internal .xref}, and only then it can be proceeded with applying the resolved metadata policy.
 
@@ -2728,7 +1731,7 @@ The Trust Chain subject is responsible to verify that it is able to support and 
 
 
 
-#### [6.1.5.](#section-6.1.5){.section-number .selfRef} [Metadata Policy Example](#name-metadata-policy-example){.section-name .selfRef} {#name-metadata-policy-example}
+### Metadata Policy Example
 
 The following is a non-normative example of resolving and applying Trust Chain metadata policies for an OpenID relying party.
 
@@ -2736,183 +1739,187 @@ We start with a federation Trust Anchor's `metadata_policy` for RPs:
 
 []{#name-example-metadata-policy-of-}
 
-<figure id="figure-12">
-<div id="section-6.1.5-3.1" class="alignLeft art-text artwork">
-<pre><code>&quot;metadata_policy&quot;: {
-  &quot;openid_relying_party&quot;: {
-    &quot;grant_types&quot;: {
-       &quot;default&quot;: [
-        &quot;authorization_code&quot;
+
+
+``` figure
+"metadata_policy": {
+  "openid_relying_party": {
+    "grant_types": {
+       "default": [
+        "authorization_code"
       ],
-      &quot;subset_of&quot;: [
-        &quot;authorization_code&quot;,
-        &quot;refresh_token&quot;
+      "subset_of": [
+        "authorization_code",
+        "refresh_token"
       ],
-      &quot;superset_of&quot;: [
-        &quot;authorization_code&quot;
+      "superset_of": [
+        "authorization_code"
       ]
     },
-    &quot;token_endpoint_auth_method&quot;: {
-      &quot;one_of&quot;: [
-        &quot;private_key_jwt&quot;,
-        &quot;self_signed_tls_client_auth&quot;
+    "token_endpoint_auth_method": {
+      "one_of": [
+        "private_key_jwt",
+        "self_signed_tls_client_auth"
       ],
-      &quot;essential&quot;: true
+      "essential": true
     },
-    &quot;token_endpoint_auth_signing_alg&quot; : {
-      &quot;one_of&quot;: [
-        &quot;PS256&quot;,
-        &quot;ES256&quot;
+    "token_endpoint_auth_signing_alg" : {
+      "one_of": [
+        "PS256",
+        "ES256"
       ]
     },
-    &quot;subject_type&quot;: {
-      &quot;value&quot;: &quot;pairwise&quot;
+    "subject_type": {
+      "value": "pairwise"
     },
-    &quot;contacts&quot;: {
-      &quot;add&quot;: [
-        &quot;helpdesk@federation.example.org&quot;
+    "contacts": {
+      "add": [
+        "helpdesk@federation.example.org"
       ]
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-12" class="selfRef">Figure 12</a>: <a href="#name-example-metadata-policy-of-" class="selfRef">Example Metadata Policy of a Trust Anchor for RPs</a></figcaption>
-</figure>
+}
+```
+Figure 12: Example Metadata Policy of a Trust Anchor for RPs
+
 
 Next, we have an Intermediate organization's `metadata_policy` for Subordinate RPs together with `metadata` values for its Immediate Subordinate RPs:
 
 []{#name-example-metadata-policy-and}
 
-<figure id="figure-13">
-<div id="section-6.1.5-5.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;metadata_policy&quot;: {
-    &quot;openid_relying_party&quot;: {
-      &quot;grant_types&quot;: {
-        &quot;subset_of&quot;: [
-          &quot;authorization_code&quot;
+
+
+``` figure
+{
+  "metadata_policy": {
+    "openid_relying_party": {
+      "grant_types": {
+        "subset_of": [
+          "authorization_code"
         ]
       },
-      &quot;token_endpoint_auth_method&quot;: {
-        &quot;one_of&quot;: [
-          &quot;self_signed_tls_client_auth&quot;
+      "token_endpoint_auth_method": {
+        "one_of": [
+          "self_signed_tls_client_auth"
         ]
       },
-      &quot;contacts&quot;: {
-        &quot;add&quot;: [
-          &quot;helpdesk@org.example.org&quot;
+      "contacts": {
+        "add": [
+          "helpdesk@org.example.org"
         ]
       }
     }
   },
-  &quot;metadata&quot;: {
-    &quot;openid_relying_party&quot;: {
-      &quot;sector_identifier_uri&quot;: &quot;https://org.example.org/sector-ids.json&quot;,
-      &quot;policy_uri&quot;: &quot;https://org.example.org/policy.html&quot;
+  "metadata": {
+    "openid_relying_party": {
+      "sector_identifier_uri": "https://org.example.org/sector-ids.json",
+      "policy_uri": "https://org.example.org/policy.html"
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-13" class="selfRef">Figure 13</a>: <a href="#name-example-metadata-policy-and" class="selfRef">Example Metadata Policy and Metadata Values of an Intermediate Entity for RPs</a></figcaption>
-</figure>
+}
+```
+Figure 13: Example Metadata Policy and Metadata Values of an Intermediate Entity for RPs
+
 
 Merging the example RP metadata policy of the Intermediate Entity into the RP metadata policy of the Trust Anchor produces the following policy for the Trust Chain:
 
 []{#name-example-merged-metadata-pol}
 
-<figure id="figure-14">
-<div id="section-6.1.5-7.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;grant_types&quot;: {
-    &quot;default&quot;: [
-      &quot;authorization_code&quot;
+
+
+``` figure
+{
+  "grant_types": {
+    "default": [
+      "authorization_code"
     ],
-    &quot;superset_of&quot;: [
-      &quot;authorization_code&quot;
+    "superset_of": [
+      "authorization_code"
     ],
-    &quot;subset_of&quot;: [
-      &quot;authorization_code&quot;
+    "subset_of": [
+      "authorization_code"
     ]
   },
-  &quot;token_endpoint_auth_method&quot;: {
-    &quot;one_of&quot;: [
-      &quot;self_signed_tls_client_auth&quot;
+  "token_endpoint_auth_method": {
+    "one_of": [
+      "self_signed_tls_client_auth"
     ],
-    &quot;essential&quot;: true
+    "essential": true
   },
-  &quot;token_endpoint_auth_signing_alg&quot;: {
-    &quot;one_of&quot;: [
-      &quot;PS256&quot;,
-      &quot;ES256&quot;
+  "token_endpoint_auth_signing_alg": {
+    "one_of": [
+      "PS256",
+      "ES256"
     ]
   },
-  &quot;subject_type&quot;: {
-    &quot;value&quot;: &quot;pairwise&quot;
+  "subject_type": {
+    "value": "pairwise"
   },
-  &quot;contacts&quot;: {
-    &quot;add&quot;: [
-      &quot;helpdesk@federation.example.org&quot;,
-      &quot;helpdesk@org.example.org&quot;
+  "contacts": {
+    "add": [
+      "helpdesk@federation.example.org",
+      "helpdesk@org.example.org"
     ]
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-14" class="selfRef">Figure 14</a>: <a href="#name-example-merged-metadata-pol" class="selfRef">Example Merged Metadata Policy for RPs</a></figcaption>
-</figure>
+}
+```
+Figure 14: Example Merged Metadata Policy for RPs
+
 
 The Trust Chain subject is a Leaf Entity, which publishes the following RP metadata in its Entity Configuration:
 
 []{#name-example-entity-configuratio}
 
-<figure id="figure-15">
-<div id="section-6.1.5-9.1" class="alignLeft art-text artwork">
-<pre><code>&quot;metadata&quot;: {
-  &quot;openid_relying_party&quot;: {
-    &quot;redirect_uris&quot;: [
-      &quot;https://rp.example.org/callback&quot;
+
+
+``` figure
+"metadata": {
+  "openid_relying_party": {
+    "redirect_uris": [
+      "https://rp.example.org/callback"
     ],
-    &quot;response_types&quot;: [
-      &quot;code&quot;
+    "response_types": [
+      "code"
     ],
-    &quot;token_endpoint_auth_method&quot;: &quot;self_signed_tls_client_auth&quot;,
-    &quot;contacts&quot;: [
-      &quot;rp_admins@rp.example.org&quot;
+    "token_endpoint_auth_method": "self_signed_tls_client_auth",
+    "contacts": [
+      "rp_admins@rp.example.org"
     ]
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-15" class="selfRef">Figure 15</a>: <a href="#name-example-entity-configuratio" class="selfRef">Example Entity Configuration RP Metadata</a></figcaption>
-</figure>
+}
+```
+Figure 15: Example Entity Configuration RP Metadata
+
 
 The `metadata` values specified by the Intermediate Entity for its Immediate Subordinates are applied to the Trust Chain subject `metadata`. After that, the merged metadata policy is applied, to produce the following resulting resolved RP metadata:
 
 []{#name-the-resulting-resolved-rp-m}
 
-<figure id="figure-16">
-<div id="section-6.1.5-11.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;redirect_uris&quot;: [
-    &quot;https://rp.example.org/callback&quot;
+
+
+``` figure
+{
+  "redirect_uris": [
+    "https://rp.example.org/callback"
   ],
-  &quot;grant_types&quot;: [
-    &quot;authorization_code&quot;
+  "grant_types": [
+    "authorization_code"
   ],
-  &quot;response_types&quot;: [
-    &quot;code&quot;
+  "response_types": [
+    "code"
   ],
-  &quot;token_endpoint_auth_method&quot;: &quot;self_signed_tls_client_auth&quot;,
-  &quot;subject_type&quot;: &quot;pairwise&quot;,
-  &quot;sector_identifier_uri&quot;: &quot;https://org.example.org/sector-ids.json&quot;,
-  &quot;policy_uri&quot;: &quot;https://org.example.org/policy.html&quot;,
-  &quot;contacts&quot;: [
-    &quot;rp_admins@rp.example.org&quot;,
-    &quot;helpdesk@federation.example.org&quot;,
-    &quot;helpdesk@org.example.org&quot;
+  "token_endpoint_auth_method": "self_signed_tls_client_auth",
+  "subject_type": "pairwise",
+  "sector_identifier_uri": "https://org.example.org/sector-ids.json",
+  "policy_uri": "https://org.example.org/policy.html",
+  "contacts": [
+    "rp_admins@rp.example.org",
+    "helpdesk@federation.example.org",
+    "helpdesk@org.example.org"
   ]
-}</code></pre>
-</div>
-<figcaption><a href="#figure-16" class="selfRef">Figure 16</a>: <a href="#name-the-resulting-resolved-rp-m" class="selfRef">The Resulting Resolved RP Metadata for the Trust Chain Subject</a></figcaption>
-</figure>
+}
+```
+Figure 16: The Resulting Resolved RP Metadata for the Trust Chain Subject
 
 
 
@@ -2920,7 +1927,8 @@ The `metadata` values specified by the Intermediate Entity for its Immediate Sub
 
 
 
-### [6.2.](#section-6.2){.section-number .selfRef} [Constraints](#name-constraints){.section-name .selfRef} {#name-constraints}
+
+## Constraints
 
 Trust Anchors and Intermediate Entities MAY define constraining criteria that apply to their Subordinates. They are expressed in the `constraints` claim of a Subordinate Statement, as described in [Section 3](#entity-statement){.auto .internal .xref}.
 
@@ -2930,15 +1938,12 @@ The following constraint parameters are defined:
 
 max_path_length
 :   OPTIONAL. Integer specifying the maximum number of Intermediate Entities between the Entity setting the constraint and the Trust Chain subject.
-:   
 
 naming_constraints
 :   OPTIONAL. JSON object specifying restrictions on the URIs of the Entity Identifiers of Subordinate Entities. Restrictions are defined in terms of permitted and excluded URI name subtrees.
-:   
 
 allowed_entity_types
 :   OPTIONAL. Array of string Entity Type Identifiers. Entity Type Identifiers are defined in [Section 5.1](#entity_types){.auto .internal .xref}. This constraint specifies the Entity Types and hence the metadata that Subordinate Entities are allowed to have.
-:   
 
 Additional constraint parameters MAY be defined and used. If they are not understood, they MUST be ignored.
 
@@ -2946,32 +1951,33 @@ The following is a non-normative example of a set of constraints:
 
 []{#name-example-set-of-constraints}
 
-<figure id="figure-17">
-<div id="section-6.2-6.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;max_path_length&quot;: 2,
-  &quot;naming_constraints&quot;: {
-    &quot;permitted&quot;: [
-      &quot;.example.com&quot;
+
+
+``` figure
+{
+  "max_path_length": 2,
+  "naming_constraints": {
+    "permitted": [
+      ".example.com"
     ],
-    &quot;excluded&quot;: [
-      &quot;east.example.com&quot;
+    "excluded": [
+      "east.example.com"
     ]
   },
-  &quot;allowed_entity_types&quot;: [
-    &quot;openid_provider&quot;,
-    &quot;openid_relying_party&quot;
+  "allowed_entity_types": [
+    "openid_provider",
+    "openid_relying_party"
   ]
-}</code></pre>
-</div>
-<figcaption><a href="#figure-17" class="selfRef">Figure 17</a>: <a href="#name-example-set-of-constraints" class="selfRef">Example Set of Constraints</a></figcaption>
-</figure>
+}
+```
+Figure 17: Example Set of Constraints
+
 
 When resolving the Trust Chain for an Entity the `constraints` claim in each Subordinate Statement MUST be independently applied, if present. If any of the `constraints` checks fails, the Trust Chain MUST be considered invalid.
 
 
 
-#### [6.2.1.](#section-6.2.1){.section-number .selfRef} [Max Path Length](#name-max-path-length){.section-name .selfRef} {#name-max-path-length}
+### Max Path Length
 
 The `max_path_length` constraint specifies the maximum allowed number of Intermediate Entities in a Trust Chain between a Trust Anchor or Intermediate that sets the constraint and the Trust Chain subject.
 
@@ -3021,7 +2027,7 @@ The Trust Chain does not fulfill the constraints if, for instance, the:
 
 
 
-#### [6.2.2.](#section-6.2.2){.section-number .selfRef} [Naming Constraints](#name-naming-constraints){.section-name .selfRef} {#name-naming-constraints}
+### Naming Constraints
 
 The `naming_constraints` member specifies a URI namespace within which the Entity Identifiers of Subordinate Entities in a Trust Chain MUST be located.
 
@@ -3033,7 +2039,7 @@ This specification uses the syntax of domain name constraints specified in Secti
 
 
 
-#### [6.2.3.](#section-6.2.3){.section-number .selfRef} [Entity Type Constraints](#name-entity-type-constraints){.section-name .selfRef} {#name-entity-type-constraints}
+### Entity Type Constraints
 
 The `allowed_entity_types` constraint specifies the acceptable metadata Entity Types of Subordinate Entities in a Trust Chain. If there is no `allowed_entity_types` constraint, it means that any Entity Type is allowed. The `federation_entity` Entity Type Identifier, specified in [Section 5.1.1](#federation_entity){.auto .internal .xref}, is always allowed and MUST NOT be included in the constraint. If the constraint is the empty array `[]`, it means that only the `federation_entity` Entity Type is allowed.
 
@@ -3047,7 +2053,7 @@ To apply the `allowed_entity_types` constraint during Trust Chain Resolution all
 
 
 
-## [7.](#section-7){.section-number .selfRef} [Trust Marks](#name-trust-marks){.section-name .selfRef} {#name-trust-marks}
+# Trust Marks
 
 Per the definition in [Section 1.2](#Terminology){.auto .internal .xref}, Trust Marks are statements of conformance to sets of criteria determined by an accreditation authority. Trust Marks used by this specification are signed JWTs. Entity Statements MAY include Trust Marks, as described in the `trust_marks` claim definition in [Section 3](#entity-statement){.auto .internal .xref}.
 
@@ -3063,7 +2069,7 @@ Trust Mark JWTs MUST be explicitly typed by using the `typ` header parameter to 
 
 
 
-### [7.1.](#section-7.1){.section-number .selfRef} [Trust Mark Claims](#name-trust-mark-claims){.section-name .selfRef} {#name-trust-mark-claims}
+## Trust Mark Claims
 
 The claims in a Trust Mark are:
 
@@ -3071,35 +2077,27 @@ The claims in a Trust Mark are:
 
 iss
 :   REQUIRED. String. The Entity Identifier of the issuer of the Trust Mark.
-:   
 
 sub
 :   REQUIRED. String. The Entity Identifier of the Entity this Trust Mark applies to.
-:   
 
 trust_mark_type
 :   REQUIRED. The `trust_mark_type` claim defined in [Section 7.1](#trust_mark_claims){.auto .internal .xref} is used in Trust Marks to provide the identifier of the type of the Trust Mark. The Trust Mark type identifier MUST be collision-resistant across multiple federations. It is RECOMMENDED that the identifier value is built using a URL that uniquely identifies the federation or the trust framework within which it was issued. This is required to prevent Trust Marks issued in different federations from having colliding identifiers.
-:   
 
 iat
 :   REQUIRED. Number. Time when this Trust Mark was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 logo_uri
 :   OPTIONAL. String. URL that references a logo for the issued Trust Mark. The value of this field MUST point to a valid image file.
-:   
 
 exp
 :   OPTIONAL. Number. Time when this Trust Mark is no longer valid. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}]. If not present, it means that the Trust Mark does not expire.
-:   
 
 ref
 :   OPTIONAL. The `ref` (reference) claim defined in [Section 13.5](#refClaim){.auto .internal .xref} is used in Trust Marks to provide a URL referring to human-readable information about the issuance of the Trust Mark.
-:   
 
 delegation
 :   OPTIONAL. The `delegation` claim defined in [Section 13.6](#delegationClaim){.auto .internal .xref} is used in Trust Marks to delegate the right to issue Trust Marks with a particular identifier. Its value is a Trust Mark delegation JWT, as defined in [Section 7.2.1](#delegation_jwt){.auto .internal .xref}.
-:   
 
 Additional claims MAY be defined and used in conjunction with the claims above.
 
@@ -3107,7 +2105,7 @@ Additional claims MAY be defined and used in conjunction with the claims above.
 
 
 
-### [7.2.](#section-7.2){.section-number .selfRef} [Trust Mark Delegation](#name-trust-mark-delegation){.section-name .selfRef} {#name-trust-mark-delegation}
+## Trust Mark Delegation
 
 There will be cases where the owner of a Trust Mark for some reason does not match the Trust Mark Issuer due to administrative or technical requirements. Take as an example vehicle inspection. Vehicle inspection is a procedure mandated by national or subnational governments in many countries, in which a vehicle is inspected to ensure that it conforms to regulations governing safety, emissions, or both. The body that mandates the inspections does not perform them; instead, there may be commercial companies performing the inspections, after which they issue the Trust Mark.
 
@@ -3117,7 +2115,7 @@ If the Federation Operator knows that Trust Marks with a certain Trust Mark type
 
 
 
-#### [7.2.1.](#section-7.2.1){.section-number .selfRef} [Trust Mark Delegation JWT](#name-trust-mark-delegation-jwt){.section-name .selfRef} {#name-trust-mark-delegation-jwt}
+### Trust Mark Delegation JWT
 
 A Trust Mark Delegation JWT is a signed JWT issued by a Trust Mark Owner that identifies a legitimate delegated issuer of Trust Marks with a particular identifier.
 
@@ -3131,27 +2129,21 @@ The claims in a Trust Mark delegation JWT are:
 
 iss
 :   REQUIRED. String. The owner of the Trust Mark.
-:   
 
 sub
 :   REQUIRED. String. The Entity this delegation applies to.
-:   
 
 trust_mark_type
 :   REQUIRED. String. The identifier for the type of the Trust Mark.
-:   
 
 iat
 :   REQUIRED. Number. Time when this delegation was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 exp
 :   OPTIONAL. Number. Time when this delegation stops being valid. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}]. If not present, it means that the delegation does not expire.
-:   
 
 ref
 :   OPTIONAL. String. URL that points to human-readable information connected to the Trust Mark.
-:   
 
 Additional claims MAY be defined and used in conjunction with the claims above.
 
@@ -3159,7 +2151,7 @@ Additional claims MAY be defined and used in conjunction with the claims above.
 
 
 
-#### [7.2.2.](#section-7.2.2){.section-number .selfRef} [Validating a Trust Mark Delegation](#name-validating-a-trust-mark-del){.section-name .selfRef} {#name-validating-a-trust-mark-del}
+### Validating a Trust Mark Delegation
 
 Validating a Trust Mark Delegation means validating a Trust Mark Delegation instance represented by a specific signed JWT.
 
@@ -3209,7 +2201,7 @@ To validate a delegation, the following validation steps MUST be performed. Plea
 
 
 
-### [7.3.](#section-7.3){.section-number .selfRef} [Validating a Trust Mark](#name-validating-a-trust-mark){.section-name .selfRef} {#name-validating-a-trust-mark}
+## Validating a Trust Mark
 
 Validating a Trust Mark means validating a Trust Mark instance represented by a specific signed JWT. It is NOT about validating whether a Trust Mark of a particular kind can exist or not.
 
@@ -3263,24 +2255,25 @@ As an alternative to the above procedure for validating Trust Marks, implementat
 
 
 
-### [7.4.](#section-7.4){.section-number .selfRef} [Trust Mark Examples](#name-trust-mark-examples){.section-name .selfRef} {#name-trust-mark-examples}
+## Trust Mark Examples
 
 A non-normative example of a `trust_marks` claim in the JWT Claims Set for an Entity Configuration is:
 
 []{#name-trust-mark-in-an-entity-con}
 
-<figure id="figure-18">
-<div id="section-7.4-2.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://rp.example.it/spid/&quot;,
-  &quot;sub&quot;: &quot;https://rp.example.it/spid/&quot;,
-  &quot;iat&quot;: 1516239022,
-  &quot;exp&quot;: 1516298022,
-  &quot;trust_marks&quot;: [
+
+
+``` figure
+{
+  "iss": "https://rp.example.it/spid/",
+  "sub": "https://rp.example.it/spid/",
+  "iat": 1516239022,
+  "exp": 1516298022,
+  "trust_marks": [
     {
-     &quot;trust_mark_type&quot;: &quot;https://www.spid.gov.it/certification/rp&quot;,
-     &quot;trust_mark&quot;:
-       &quot;eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoia29
+     "trust_mark_type": "https://www.spid.gov.it/certification/rp",
+     "trust_mark":
+       "eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoia29
         zR20yd3VaaDlER21OeEF0a3VPNDBwUGpwTDMtakNmMU4tcVBPLVllVSJ9.
         eyJpc3MiOiJodHRwczovL3d3dy5hZ2lkLmdvdi5pdCIsInN1YiI6Imh0dHBzOi8
         vcnAuZXhhbXBsZS5pdC9zcGlkIiwiaWF0IjoxNTc5NjIxMTYwLCJ0cnVzdF9tYX
@@ -3294,159 +2287,166 @@ A non-normative example of a `trust_marks` claim in the JWT Claims Set for an En
         an5nOmkxuAtMinU8k_-aWnPWj83sYe2AzT2mMgkXiz8zhda3jZm8hoxZ4jR6B0Y
         AvbMlq2pPWO5OWKdZhiFRMSprwh0GYluQkK0j1aLNMGXD3keMJd2zEoWX9D7w2f
         XShAA48W3cNhuXyBVnCoum1K4IWK3s_fx4nIkp6W-V4jCBOpxp7Yo8LZ30o_xpE
-        OzGTIECGWVR86azOAlwVC8XSiAA&quot;
+        OzGTIECGWVR86azOAlwVC8XSiAA"
     }
   ],
-  &quot;metadata&quot;: {
-    &quot;openid_relying_party&quot;: {
-      &quot;application_type&quot;: &quot;web&quot;,
-      &quot;client_registration_types&quot;: [&quot;automatic&quot;],
-      &quot;client_name&quot;: &quot;https://rp.example.it/spid/&quot;,
-      &quot;contacts&quot;: [
-        &quot;ops@rp.example.it&quot;
+  "metadata": {
+    "openid_relying_party": {
+      "application_type": "web",
+      "client_registration_types": ["automatic"],
+      "client_name": "https://rp.example.it/spid/",
+      "contacts": [
+        "ops@rp.example.it"
       ]
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-18" class="selfRef">Figure 18</a>: <a href="#name-trust-mark-in-an-entity-con" class="selfRef">Trust Mark in an Entity Configuration JWT Claims Set</a></figcaption>
-</figure>
+}
+```
+Figure 18: Trust Mark in an Entity Configuration JWT Claims Set
+
 
 An example of a decoded Trust Mark payload issued to an RP, attesting to conformance to a national public service profile:
 
 []{#name-trust-mark-for-a-national-p}
 
-<figure id="figure-19">
-<div id="section-7.4-4.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;trust_mark_type&quot;:&quot;https://mushrooms.federation.example.com/openid_relying_party/public/&quot;,
-  &quot;iss&quot;: &quot;https://epigeo.tm-issuer.example.it&quot;,
-  &quot;sub&quot;: &quot;https://porcino.example.com/rp&quot;,
-  &quot;iat&quot;: 1579621160,
-  &quot;organization_name&quot;: &quot;Porcino Mushrooms &amp; Co.&quot;,
-  &quot;policy_uri&quot;: &quot;https://porcino.example.com/privacy_policy&quot;,
-  &quot;tos_uri&quot;: &quot;https://porcino.example.com/info_policy&quot;,
-  &quot;service_documentation&quot;: &quot;https://porcino.example.com/api/v1/get/services&quot;,
-  &quot;ref&quot;: &quot;https://porcino.example.com/documentation/manuale_operativo.pdf&quot;
+
+
+``` figure
+{
+  "trust_mark_type":"https://mushrooms.federation.example.com/openid_relying_party/public/",
+  "iss": "https://epigeo.tm-issuer.example.it",
+  "sub": "https://porcino.example.com/rp",
+  "iat": 1579621160,
+  "organization_name": "Porcino Mushrooms & Co.",
+  "policy_uri": "https://porcino.example.com/privacy_policy",
+  "tos_uri": "https://porcino.example.com/info_policy",
+  "service_documentation": "https://porcino.example.com/api/v1/get/services",
+  "ref": "https://porcino.example.com/documentation/manuale_operativo.pdf"
 }
-</code></pre>
-</div>
-<figcaption><a href="#figure-19" class="selfRef">Figure 19</a>: <a href="#name-trust-mark-for-a-national-p" class="selfRef">Trust Mark for a National Profile</a></figcaption>
-</figure>
+
+```
+Figure 19: Trust Mark for a National Profile
+
 
 An example of a decoded Trust Mark payload issued to an RP, attesting to its conformance to the rules for data management of underage users:
 
 []{#name-trust-mark-issued-to-an-rp}
 
-<figure id="figure-20">
-<div id="section-7.4-6.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;trust_mark_type&quot;:&quot;https://mushrooms.federation.example.com/openid_relying_party/private/under-age&quot;,
-  &quot;iss&quot;: &quot;https://trustissuer.pinarolo.example.it&quot;,
-  &quot;sub&quot;: &quot;https://vavuso.example.com/rp&quot;,
-  &quot;iat&quot;: 1579621160,
-  &quot;organization_name&quot;: &quot;Pinarolo Suillus luteus&quot;,
-  &quot;policy_uri&quot;: &quot;https://vavuso.example.com/policy&quot;,
-  &quot;tos_uri&quot;: &quot;https://vavuso.example.com/tos&quot;
+
+
+``` figure
+{
+  "trust_mark_type":"https://mushrooms.federation.example.com/openid_relying_party/private/under-age",
+  "iss": "https://trustissuer.pinarolo.example.it",
+  "sub": "https://vavuso.example.com/rp",
+  "iat": 1579621160,
+  "organization_name": "Pinarolo Suillus luteus",
+  "policy_uri": "https://vavuso.example.com/policy",
+  "tos_uri": "https://vavuso.example.com/tos"
 }
-</code></pre>
-</div>
-<figcaption><a href="#figure-20" class="selfRef">Figure 20</a>: <a href="#name-trust-mark-issued-to-an-rp" class="selfRef">Trust Mark Issued to an RP</a></figcaption>
-</figure>
+
+```
+Figure 20: Trust Mark Issued to an RP
+
 
 An example of a decoded Trust Mark payload attesting a stipulation of an agreement between two organization's Entities:
 
 []{#name-trust-mark-attesting-to-an-}
 
-<figure id="figure-21">
-<div id="section-7.4-8.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;trust_mark_type&quot;: &quot;https://mushrooms.federation.example.com/arrosto/agreements&quot;,
-  &quot;iss&quot;: &quot;https://agaricaceae.example.it&quot;,
-  &quot;sub&quot;: &quot;https://coppolino.example.com&quot;,
-  &quot;iat&quot;: 1579621160,
-  &quot;logo_uri&quot;: &quot;https://coppolino.example.com/sgd-cmyk-150dpi-90mm.svg&quot;,
-  &quot;organization_type&quot;: &quot;public&quot;,
-  &quot;id_code&quot;: &quot;123456&quot;,
-  &quot;email&quot;: &quot;info@coppolino.example.com&quot;,
-  &quot;organization_name#it&quot;: &quot;Mazza di Tamburo&quot;,
-  &quot;policy_uri#it&quot;: &quot;https://coppolino.example.com/privacy_policy&quot;,
-  &quot;tos_uri#it&quot;: &quot;https://coppolino.example.com/info_policy&quot;,
-  &quot;service_documentation&quot;: &quot;https://coppolino.example.com/api/v1/get/services&quot;,
-  &quot;ref&quot;: &quot;https://agaricaceae.example.it/documentation/agaricaceae.pdf&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-21" class="selfRef">Figure 21</a>: <a href="#name-trust-mark-attesting-to-an-" class="selfRef">Trust Mark Attesting to an Agreement Between Entities</a></figcaption>
-</figure>
+
+
+``` figure
+{
+  "trust_mark_type": "https://mushrooms.federation.example.com/arrosto/agreements",
+  "iss": "https://agaricaceae.example.it",
+  "sub": "https://coppolino.example.com",
+  "iat": 1579621160,
+  "logo_uri": "https://coppolino.example.com/sgd-cmyk-150dpi-90mm.svg",
+  "organization_type": "public",
+  "id_code": "123456",
+  "email": "info@coppolino.example.com",
+  "organization_name#it": "Mazza di Tamburo",
+  "policy_uri#it": "https://coppolino.example.com/privacy_policy",
+  "tos_uri#it": "https://coppolino.example.com/info_policy",
+  "service_documentation": "https://coppolino.example.com/api/v1/get/services",
+  "ref": "https://agaricaceae.example.it/documentation/agaricaceae.pdf"
+}
+```
+Figure 21: Trust Mark Attesting to an Agreement Between Entities
+
 
 An example of a decoded Trust Mark payload asserting conformance to a security profile:
 
 []{#name-trust-mark-asserting-confor}
 
-<figure id="figure-22">
-<div id="section-7.4-10.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;trust_mark_type&quot;: &quot;https://mushrooms.federation.example.com/ottimo/commestibile&quot;,
-  &quot;iss&quot;: &quot;https://cantharellus.cibarius.example.org&quot;,
-  &quot;sub&quot;: &quot;https://gallinaccio.example.com/op&quot;,
-  &quot;iat&quot;: 1579621160,
-  &quot;logo_uri&quot;: &quot;https://cantharellus.cibarius/static/images/cantharellus-cibarius.svg&quot;,
-  &quot;ref&quot;: &quot;https://cantharellus.cibarius/cantharellus/cibarius&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-22" class="selfRef">Figure 22</a>: <a href="#name-trust-mark-asserting-confor" class="selfRef">Trust Mark Asserting Conformance to a Security Profile</a></figcaption>
-</figure>
+
+
+``` figure
+{
+  "trust_mark_type": "https://mushrooms.federation.example.com/ottimo/commestibile",
+  "iss": "https://cantharellus.cibarius.example.org",
+  "sub": "https://gallinaccio.example.com/op",
+  "iat": 1579621160,
+  "logo_uri": "https://cantharellus.cibarius/static/images/cantharellus-cibarius.svg",
+  "ref": "https://cantharellus.cibarius/cantharellus/cibarius"
+}
+```
+Figure 22: Trust Mark Asserting Conformance to a Security Profile
+
 
 An example of a decoded self-signed Trust Mark:
 
 []{#name-self-signed-trust-mark}
 
-<figure id="figure-23">
-<div id="section-7.4-12.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;trust_mark_type&quot;: &quot;https://mushrooms.federation.example.com/trust-marks/self-signed&quot;,
-  &quot;iss&quot;: &quot;https://amanita.muscaria.example.com&quot;,
-  &quot;sub&quot;: &quot;https://amanita.muscaria.example.com&quot;,
-  &quot;iat&quot;: 1579621160,
-  &quot;logo_uri&quot;: &quot;https://amanita.muscaria.example.com/img/amanita-mus.svg&quot;,
-  &quot;ref&quot;: &quot;https://amanita.muscaria.example.com/uploads/cookbook.zip&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-23" class="selfRef">Figure 23</a>: <a href="#name-self-signed-trust-mark" class="selfRef">Self-Signed Trust Mark</a></figcaption>
-</figure>
+
+
+``` figure
+{
+  "trust_mark_type": "https://mushrooms.federation.example.com/trust-marks/self-signed",
+  "iss": "https://amanita.muscaria.example.com",
+  "sub": "https://amanita.muscaria.example.com",
+  "iat": 1579621160,
+  "logo_uri": "https://amanita.muscaria.example.com/img/amanita-mus.svg",
+  "ref": "https://amanita.muscaria.example.com/uploads/cookbook.zip"
+}
+```
+Figure 23: Self-Signed Trust Mark
+
 
 An example of a third-party accreditation authority for Trust Marks:
 
 []{#name-third-party-accreditation-a}
 
-<figure id="figure-24">
-<div id="section-7.4-14.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://swamid.se&quot;,
-  &quot;sub&quot;: &quot;https://umu.se/op&quot;,
-  &quot;iat&quot;: 1577833200,
-  &quot;exp&quot;: 1609369200,
-  &quot;trust_mark_type&quot;: &quot;https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-24" class="selfRef">Figure 24</a>: <a href="#name-third-party-accreditation-a" class="selfRef">Third-Party Accreditation Authority for Trust Marks</a></figcaption>
-</figure>
+
+
+``` figure
+{
+  "iss": "https://swamid.se",
+  "sub": "https://umu.se/op",
+  "iat": 1577833200,
+  "exp": 1609369200,
+  "trust_mark_type": "https://refeds.org/wp-content/uploads/2016/01/Sirtfi-1.0.pdf"
+}
+```
+Figure 24: Third-Party Accreditation Authority for Trust Marks
 
 
 
 
 
-### [7.5.](#section-7.5){.section-number .selfRef} [Trust Mark Delegation Example](#name-trust-mark-delegation-examp){.section-name .selfRef} {#name-trust-mark-delegation-examp}
+
+## Trust Mark Delegation Example
 
 A non-normative example of a `trust_marks` claim in the JWT Claims Set for an Entity Configuration in which the Trust Mark is issued by an Entity that issues Trust Marks on behalf of another Entity. The fact that a Trust Mark is issued by a Trust Mark Issuer that is not the owner of the Trust Mark is expressed by including a `delegation` claim in the Trust Mark, whose value is a signed JWT.
 
 []{#name-example-of-a-trust-mark-usi}
 
-<figure id="figure-25">
-<div id="section-7.5-2.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;delegation&quot;:
-    &quot;eyJ0eXAiOiJ0cnVzdC1tYXJrLWRlbGVnYXRpb24rand0IiwiYWxnIjoiUl
+
+
+``` figure
+{
+  "delegation":
+    "eyJ0eXAiOiJ0cnVzdC1tYXJrLWRlbGVnYXRpb24rand0IiwiYWxnIjoiUl
     MyNTYiLCJraWQiOiJrb3NHbTJ3dVpoOURHbU54QXRrdU80MHBQanBMMy1qQ
     2YxTi1xUE8tWWVVIn0.
     eyJzdWIiOiJodHRwczovL3RtaS5leGFtcGxlLm9yZyIsInRydXN0X21hcmt
@@ -3458,47 +2458,48 @@ A non-normative example of a `trust_marks` claim in the JWT Claims Set for an En
     75lfWnmzPH0L2pDZG5COFgIgSOAlK3TVMBOR8fziF-VmWNPzAfB0lSc-hjH
     -7q66GyT43o3Exnm6DsoLxyB8bxG99BQltLxURDT90CzM6szGcF3OG64Rbe
     0I4lT_LAOfvhlrRbT56eK4sJNCsbVbGnDBfFmyfB_HIeBMGP0L7T5JPMOUU
-    9bjIlA&quot;,
-  &quot;iat&quot;: 1725176302,
-  &quot;trust_mark_type&quot;: &quot;https://refeds.org/sirtfi&quot;,
-  &quot;sub&quot;: &quot;https://entity.example.org&quot;,
-  &quot;exp&quot;: 1727768302,
-  &quot;iss&quot;: &quot;https://tmi.example.org&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-25" class="selfRef">Figure 25</a>: <a href="#name-example-of-a-trust-mark-usi" class="selfRef">Example of a Trust Mark using delegation. Only the JWT Claims Set of the Trust Mark is shown.</a></figcaption>
-</figure>
+    9bjIlA",
+  "iat": 1725176302,
+  "trust_mark_type": "https://refeds.org/sirtfi",
+  "sub": "https://entity.example.org",
+  "exp": 1727768302,
+  "iss": "https://tmi.example.org"
+}
+```
+Figure 25: Example of a Trust Mark using delegation. Only the JWT Claims Set of the Trust Mark is shown.
+
 
 JWS Header Parameters for the Trust Mark delegation JWT in the "delegation" claim above
 
 []{#name-trust-mark-delegation-jwt-j}
 
-<figure id="figure-26">
-<div id="section-7.5-4.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;typ&quot;: &quot;trust-mark-delegation+jwt&quot;,
-  &quot;alg&quot;: &quot;RS256&quot;,
-  &quot;kid&quot;: &quot;kosGm2wuZh9DGmNxAtkuO40pPjpL3-jCf1N-qPO-YeU&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-26" class="selfRef">Figure 26</a>: <a href="#name-trust-mark-delegation-jwt-j" class="selfRef">Trust Mark delegation JWT JWS Header Parameters</a></figcaption>
-</figure>
+
+
+``` figure
+{
+  "typ": "trust-mark-delegation+jwt",
+  "alg": "RS256",
+  "kid": "kosGm2wuZh9DGmNxAtkuO40pPjpL3-jCf1N-qPO-YeU"
+}
+```
+Figure 26: Trust Mark delegation JWT JWS Header Parameters
+
 
 JWT Claims Set of the Trust Mark delegation JWT in the "delegation" claim above
 
 []{#name-trust-mark-delegation-jwt-c}
 
-<figure id="figure-27">
-<div id="section-7.5-6.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;sub&quot;: &quot;https://tmi.example.org&quot;,
-  &quot;trust_mark_type&quot;: &quot;https://refeds.org/sirtfi&quot;,
-  &quot;iss&quot;: &quot;https://tm_owner.example.org&quot;,
-  &quot;iat&quot;: 1725176302
-}</code></pre>
-</div>
-<figcaption><a href="#figure-27" class="selfRef">Figure 27</a>: <a href="#name-trust-mark-delegation-jwt-c" class="selfRef">Trust Mark delegation JWT Claim Set</a></figcaption>
-</figure>
+
+
+``` figure
+{
+  "sub": "https://tmi.example.org",
+  "trust_mark_type": "https://refeds.org/sirtfi",
+  "iss": "https://tm_owner.example.org",
+  "iat": 1725176302
+}
+```
+Figure 27: Trust Mark delegation JWT Claim Set
 
 
 
@@ -3506,7 +2507,8 @@ JWT Claims Set of the Trust Mark delegation JWT in the "delegation" claim above
 
 
 
-## [8.](#section-8){.section-number .selfRef} [Federation Endpoints](#name-federation-endpoints){.section-name .selfRef} {#name-federation-endpoints}
+
+# Federation Endpoints
 
 The federation endpoints of an Entity can be found in the configuration response as described in [Section 9](#federation_configuration){.auto .internal .xref} or by other means.
 
@@ -3514,7 +2516,7 @@ For all federation endpoints, additional request parameters beyond those initial
 
 
 
-### [8.1.](#section-8.1){.section-number .selfRef} [Fetching a Subordinate Statement](#name-fetching-a-subordinate-stat){.section-name .selfRef} {#name-fetching-a-subordinate-stat}
+## Fetching a Subordinate Statement
 
 The fetch endpoint is used to collect Subordinate Statements one-by-one when assembling Trust Chains. An Entity with Subordinates MUST expose a fetch endpoint. An Entity MUST publish Subordinate Statements about its Immediate Subordinates via its fetch endpoint.
 
@@ -3524,7 +2526,7 @@ To fetch a Subordinate Statement, one needs to know the identifier of the Entity
 
 
 
-#### [8.1.1.](#section-8.1.1){.section-number .selfRef} [Fetch Subordinate Statement Request](#name-fetch-subordinate-statement){.section-name .selfRef} {#name-fetch-subordinate-statement}
+### Fetch Subordinate Statement Request
 
 When client authentication is not used, the request MUST be an HTTP request using the GET method to a fetch endpoint with the following query parameter, encoded in `application/x-www-form-urlencoded` format. The request is made to the fetch endpoint of the specified issuer.
 
@@ -3532,7 +2534,6 @@ When client authentication is not used, the request MUST be an HTTP request usin
 
 sub
 :   REQUIRED. The Entity Identifier of the subject for which the Subordinate Statement is being requested.
-:   
 
 When client authentication is used, the request MUST be an HTTP request using the POST method, with the parameters passed in the POST body.
 
@@ -3540,20 +2541,21 @@ The following is a non-normative example of an HTTP GET request for a Subordinat
 
 []{#name-api-request-for-a-subordina}
 
-<figure id="figure-28">
-<div id="section-8.1.1-5.1" class="alignLeft art-text artwork">
-<pre><code>GET /federation_fetch_endpoint?
+
+
+``` figure
+GET /federation_fetch_endpoint?
 sub=https%3A%2F%2Fopenid%2Esunet%2Ese HTTP/1.1
-Host: edugain.org</code></pre>
-</div>
-<figcaption><a href="#figure-28" class="selfRef">Figure 28</a>: <a href="#name-api-request-for-a-subordina" class="selfRef">API Request for a Subordinate Statement</a></figcaption>
-</figure>
+Host: edugain.org
+```
+Figure 28: API Request for a Subordinate Statement
 
 
 
 
 
-#### [8.1.2.](#section-8.1.2){.section-number .selfRef} [Fetch Subordinate Statement Response](#name-fetch-subordinate-statement-){.section-name .selfRef} {#name-fetch-subordinate-statement-}
+
+### Fetch Subordinate Statement Response
 
 A successful response MUST use the HTTP status code 200 with the content type `application/entity-statement+jwt`, to make it clear that the response contains an Entity Statement. If it is an error response, it will be a JSON object and the content type MUST be `application/json`. If the fetch endpoint cannot provide data for the requested `sub` parameter, returning the `not_found` error code is RECOMMENDED. If the `sub` parameter references the Entity Identifier of the Issuing Entity, returning the `invalid_request` error code is RECOMMENDED. See more about error responses in [Section 8.9](#error_response){.auto .internal .xref}.
 
@@ -3561,54 +2563,54 @@ The following is a non-normative example of the JWT Claims Set for a fetch respo
 
 []{#name-fetch-response-jwt-claims-s}
 
-<figure id="figure-29">
-<div id="section-8.1.2-3.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://edugain.org&quot;,
-  &quot;sub&quot;: &quot;https://openid.sunet.se&quot;,
-  &quot;exp&quot;: 1568397247,
-  &quot;iat&quot;: 1568310847,
-  &quot;source_endpoint&quot;: &quot;https://edugain.org/federation_fetch_endpoint&quot;,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+
+
+``` figure
+{
+  "iss": "https://edugain.org",
+  "sub": "https://openid.sunet.se",
+  "exp": 1568397247,
+  "iat": 1568310847,
+  "source_endpoint": "https://edugain.org/federation_fetch_endpoint",
+  "jwks": {
+    "keys": [
       {
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;dEEtRjlzY3djcENuT01wOGxrZlkxb3RIQVJlMTY0...&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;x97YKqc9Cs-DNtFrQ7_vhXoH9bwkDWW6En2jJ044yH...&quot;
+        "e": "AQAB",
+        "kid": "dEEtRjlzY3djcENuT01wOGxrZlkxb3RIQVJlMTY0...",
+        "kty": "RSA",
+        "n": "x97YKqc9Cs-DNtFrQ7_vhXoH9bwkDWW6En2jJ044yH..."
       }
     ]
   },
-  &quot;metadata&quot;:{
-    &quot;federation_entity&quot;: {
-        &quot;organization_name&quot;:&quot;SUNET&quot;
+  "metadata":{
+    "federation_entity": {
+        "organization_name":"SUNET"
     }
   }
-  &quot;metadata_policy&quot;: {
-    &quot;openid_provider&quot;: {
-      &quot;subject_types_supported&quot;: {
-        &quot;value&quot;: [
-          &quot;pairwise&quot;
+  "metadata_policy": {
+    "openid_provider": {
+      "subject_types_supported": {
+        "value": [
+          "pairwise"
         ]
       },
-      &quot;token_endpoint_auth_methods_supported&quot;: {
-        &quot;default&quot;: [
-          &quot;private_key_jwt&quot;
+      "token_endpoint_auth_methods_supported": {
+        "default": [
+          "private_key_jwt"
         ],
-        &quot;subset_of&quot;: [
-          &quot;private_key_jwt&quot;,
-          &quot;client_secret_jwt&quot;
+        "subset_of": [
+          "private_key_jwt",
+          "client_secret_jwt"
         ],
-        &quot;superset_of&quot;: [
-          &quot;private_key_jwt&quot;
+        "superset_of": [
+          "private_key_jwt"
         ]
       }
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-29" class="selfRef">Figure 29</a>: <a href="#name-fetch-response-jwt-claims-s" class="selfRef">Fetch Response JWT Claims Set</a></figcaption>
-</figure>
+}
+```
+Figure 29: Fetch Response JWT Claims Set
 
 
 
@@ -3616,7 +2618,8 @@ The following is a non-normative example of the JWT Claims Set for a fetch respo
 
 
 
-### [8.2.](#section-8.2){.section-number .selfRef} [Subordinate Listings](#name-subordinate-listings){.section-name .selfRef} {#name-subordinate-listings}
+
+## Subordinate Listings
 
 The listing endpoint is exposed by Federation Entities acting as a Trust Anchor, Intermediate, or Trust Mark Issuer. The endpoint lists the Immediate Subordinates about which the Trust Anchor, Intermediate, or Trust Mark Issuer issues Entity Statements.
 
@@ -3630,9 +2633,10 @@ The following example shows a tree of Entities belonging to the same federation 
 
 []{#name-tree-of-entities-in-a-feder}
 
-<figure id="figure-30">
-<div id="section-8.2-6.1" class="alignLeft art-text artwork">
-<pre><code>                       +----------------------+
+
+
+``` figure
+                       +----------------------+
                        |    Trust Anchor      |
                        +----------------------+
        +---------------+ Subordinate Listing  +--------------+
@@ -3659,14 +2663,14 @@ The following example shows a tree of Entities belonging to the same federation 
          |         |                |
  +-------v--+     +v--------+    +--v------+
  |  Leaf    |     |  Leaf   |    |  Leaf   |
- +----------+     +---------+    +---------+</code></pre>
-</div>
-<figcaption><a href="#figure-30" class="selfRef">Figure 30</a>: <a href="#name-tree-of-entities-in-a-feder" class="selfRef">Tree of Entities in a Federation Collected through Subordinate Listing Endpoints</a></figcaption>
-</figure>
+ +----------+     +---------+    +---------+
+```
+Figure 30: Tree of Entities in a Federation Collected through Subordinate Listing Endpoints
 
 
 
-#### [8.2.1.](#section-8.2.1){.section-number .selfRef} [Subordinate Listing Request](#name-subordinate-listing-request){.section-name .selfRef} {#name-subordinate-listing-request}
+
+### Subordinate Listing Request
 
 When client authentication is not used, the request MUST be an HTTP request using the GET method to a list endpoint with the following query parameters, encoded in `application/x-www-form-urlencoded` format.
 
@@ -3674,19 +2678,15 @@ When client authentication is not used, the request MUST be an HTTP request usin
 
 entity_type
 :   OPTIONAL. The value of this parameter is an Entity Type Identifier. If the responder knows the Entity Types of its Immediate Subordinates, the result MUST be filtered to include only those that include the specified Entity Type. When multiple `entity_type` parameters are present, for example `entity_type=openid_provider&entity_type=openid_relying_party`, the result MUST be filtered to include all specified Entity Types. If the responder does not support this feature, it MUST use the HTTP status code 400 and the content type `application/json`, with the error code `unsupported_parameter`.
-:   
 
 trust_marked
 :   OPTIONAL. Boolean. If the parameter `trust_marked` is present and set to `true`, the result contains only the Immediate Subordinates for which at least one Trust Mark has been issued and is still valid. If the responder does not support this feature, it MUST use the HTTP status code 400 and set the content type to `application/json`, with the error code `unsupported_parameter`.
-:   
 
 trust_mark_type
 :   OPTIONAL. The value of this parameter is the identifier for the type of the Trust Mark. If the responder has issued Trust Marks with the specified Trust Mark type identifier, the list in the response is filtered to include only the Immediate Subordinates for which that Trust Mark type identifier has been issued and is still valid. If the responder does not support this feature, it MUST use the HTTP status code 400 and set the content type to `application/json`, with the error code `unsupported_parameter`.
-:   
 
 intermediate
 :   OPTIONAL. Boolean. If the parameter `intermediate` is present and set to `true`, then if the responder knows whether its Immediate Subordinates are Intermediates or not, the result MUST be filtered accordingly. If the responder does not support this feature, it MUST use the HTTP status code 400 and the content type `application/json`, with the error code `unsupported_parameter`.
-:   
 
 When client authentication is used, the request MUST be an HTTP request using the POST method, with the parameters passed in the POST body.
 
@@ -3694,19 +2694,20 @@ The following is a non-normative example of an HTTP GET request for a list of Im
 
 []{#name-subordinate-listing-request-2}
 
-<figure id="figure-31">
-<div id="section-8.2.1-5.1" class="alignLeft art-text artwork">
-<pre><code>GET /list HTTP/1.1
-Host: openid.sunet.se</code></pre>
-</div>
-<figcaption><a href="#figure-31" class="selfRef">Figure 31</a>: <a href="#name-subordinate-listing-request-2" class="selfRef">Subordinate Listing Request</a></figcaption>
-</figure>
+
+
+``` figure
+GET /list HTTP/1.1
+Host: openid.sunet.se
+```
+Figure 31: Subordinate Listing Request
 
 
 
 
 
-#### [8.2.2.](#section-8.2.2){.section-number .selfRef} [Subordinate Listing Response](#name-subordinate-listing-respons){.section-name .selfRef} {#name-subordinate-listing-respons}
+
+### Subordinate Listing Response
 
 A successful response MUST use the HTTP status code 200 with the content type `application/json`, containing a JSON array with the known Entity Identifiers.
 
@@ -3716,19 +2717,19 @@ The following is a non-normative example of a response containing the Immediate 
 
 []{#name-subordinate-listing-response}
 
-<figure id="figure-32">
-<div id="section-8.2.2-4.1" class="alignLeft art-text artwork">
-<pre><code>200 OK
+
+
+``` figure
+200 OK
 Content-Type: application/json
 
 [
-  &quot;https://ntnu.andreas.labs.uninett.no/&quot;,
-  &quot;https://blackboard.ntnu.no/openid/callback&quot;,
-  &quot;https://serviceprovider.andreas.labs.uninett.no/application17&quot;
-]</code></pre>
-</div>
-<figcaption><a href="#figure-32" class="selfRef">Figure 32</a>: <a href="#name-subordinate-listing-response" class="selfRef">Subordinate Listing Response</a></figcaption>
-</figure>
+  "https://ntnu.andreas.labs.uninett.no/",
+  "https://blackboard.ntnu.no/openid/callback",
+  "https://serviceprovider.andreas.labs.uninett.no/application17"
+]
+```
+Figure 32: Subordinate Listing Response
 
 
 
@@ -3736,7 +2737,8 @@ Content-Type: application/json
 
 
 
-### [8.3.](#section-8.3){.section-number .selfRef} [Resolve Entity](#name-resolve-entity){.section-name .selfRef} {#name-resolve-entity}
+
+## Resolve Entity
 
 An Entity MAY use a resolve endpoint to fetch Resolved Metadata and Trust Marks for an Entity. The resolver fetches the subject's Entity Configuration, assembles a Trust Chain that starts with the subject's Entity Configuration and ends with the specified Trust Anchor's Entity Configuration, verifies the Trust Chain, and then applies all the policies present in the Trust Chain to the subject's metadata.
 
@@ -3746,7 +2748,7 @@ The resolve endpoint location is published in the Entity's `federation_entity` m
 
 
 
-#### [8.3.1.](#section-8.3.1){.section-number .selfRef} [Resolve Request](#name-resolve-request){.section-name .selfRef} {#name-resolve-request}
+### Resolve Request
 
 When client authentication is not used, the request MUST be an HTTP request using the GET method to a resolve endpoint with the following query parameters, encoded in `application/x-www-form-urlencoded` format.
 
@@ -3754,7 +2756,6 @@ When client authentication is not used, the request MUST be an HTTP request usin
 
 sub
 :   REQUIRED. The Entity Identifier of the Entity whose resolved data is requested.
-:   
 
 trust_anchor
 
@@ -3762,7 +2763,6 @@ trust_anchor
 
     The `trust_anchor` request parameter MAY occur multiple times, in which case, the resolver MAY return a successful resolve response using any of the Trust Anchor values provided.
 
-:   
 
 entity_type
 
@@ -3770,7 +2770,6 @@ entity_type
 
     The `entity_type` request parameter MAY occur multiple times, in which case, data for each Entity Type whose Entity Type Identifier is in an `entity_type` parameter value is returned.
 
-:   
 
 When client authentication is used, the request MUST be an HTTP request using the POST method, with the parameters passed in the POST body.
 
@@ -3778,22 +2777,23 @@ The following is a non-normative example of a resolve request:
 
 []{#name-example-resolve-request}
 
-<figure id="figure-33">
-<div id="section-8.3.1-5.1" class="alignLeft art-text artwork">
-<pre><code>GET /resolve?
-sub=https%3A%2F%2Fop.example.it%2Fspid&amp;
-entity_type=openid_provider&amp;
+
+
+``` figure
+GET /resolve?
+sub=https%3A%2F%2Fop.example.it%2Fspid&
+entity_type=openid_provider&
 trust_anchor=https%3A%2F%2Fswamid.se HTTP/1.1
-Host: openid.sunet.se</code></pre>
-</div>
-<figcaption><a href="#figure-33" class="selfRef">Figure 33</a>: <a href="#name-example-resolve-request" class="selfRef">Example Resolve Request</a></figcaption>
-</figure>
+Host: openid.sunet.se
+```
+Figure 33: Example Resolve Request
 
 
 
 
 
-#### [8.3.2.](#section-8.3.2){.section-number .selfRef} [Resolve Response](#name-resolve-response){.section-name .selfRef} {#name-resolve-response}
+
+### Resolve Response
 
 A successful response MUST use the HTTP status code 200 with the content type `application/resolve-response+jwt`, containing Resolved Metadata and verified Trust Marks.
 
@@ -3815,31 +2815,24 @@ The claims in a resolve response are:
 
 iss
 :   REQUIRED. String. Entity Identifier of the issuer of the resolve response.
-:   
 
 sub
 :   REQUIRED. String. Entity Identifier of the subject of the resolve response.
-:   
 
 iat
 :   REQUIRED. Number. Time when this resolution was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 exp
 :   REQUIRED. Number. Time when this resolution is no longer valid. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}]. It MUST correspond to the `exp` value of the Trust Chain from which the resolve response was derived.
-:   
 
 metadata
 :   REQUIRED. JSON object containing the resolved subject metadata, according to the requested `type` and expressed in the `metadata` format defined in [Section 3](#entity-statement){.auto .internal .xref}.
-:   
 
 trust_chain
 :   REQUIRED. Array containing the sequence of Entity Statements that compose the Trust Chain, starting with the subject and ending with the selected Trust Anchor, sorted as shown in [Section 4](#trust_chain){.auto .internal .xref}.
-:   
 
 trust_marks
 :   OPTIONAL. Array of objects, each representing a Trust Mark, as defined in [Section 3](#entity-statement){.auto .internal .xref}. Only valid Trust Marks that have been issued by Trust Mark issuers trusted by the Trust Anchor to issue such Trust Marks MAY appear in the resolver response.
-:   
 
 Additional claims MAY be defined and used in conjunction with the claims above.
 
@@ -3849,53 +2842,54 @@ The following is a non-normative example of the JWT Claims Set for a resolve res
 
 []{#name-resolve-response-jwt-claims}
 
-<figure id="figure-34">
-<div id="section-8.3.2-13.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://resolver.spid.gov.it/&quot;,
-  &quot;sub&quot;: &quot;https://op.example.it/spid/&quot;,
-  &quot;iat&quot;: 1516239022,
-  &quot;exp&quot;: 1516298022,
-  &quot;metadata&quot;: {
-    &quot;openid_provider&quot;: {
-      &quot;contacts&quot;: [&quot;legal@example.it&quot;, &quot;technical@example.it&quot;],
-      &quot;logo_uri&quot;:
-        &quot;https://op.example.it/static/img/op-logo.svg&quot;,
-      &quot;op_policy_uri&quot;:
-        &quot;https://op.example.it/en/about-the-website/legal-information&quot;,
-      &quot;federation_registration_endpoint&quot;:&quot;https://op.example.it/spid/fedreg&quot;,
-      &quot;authorization_endpoint&quot;:
-        &quot;https://op.example.it/spid/authorization&quot;,
-      &quot;token_endpoint&quot;: &quot;https://op.example.it/spid/token&quot;,
-      &quot;response_types_supported&quot;: [
-        &quot;code&quot;,
-        &quot;code id_token&quot;,
-        &quot;token&quot;
+
+
+``` figure
+{
+  "iss": "https://resolver.spid.gov.it/",
+  "sub": "https://op.example.it/spid/",
+  "iat": 1516239022,
+  "exp": 1516298022,
+  "metadata": {
+    "openid_provider": {
+      "contacts": ["legal@example.it", "technical@example.it"],
+      "logo_uri":
+        "https://op.example.it/static/img/op-logo.svg",
+      "op_policy_uri":
+        "https://op.example.it/en/about-the-website/legal-information",
+      "federation_registration_endpoint":"https://op.example.it/spid/fedreg",
+      "authorization_endpoint":
+        "https://op.example.it/spid/authorization",
+      "token_endpoint": "https://op.example.it/spid/token",
+      "response_types_supported": [
+        "code",
+        "code id_token",
+        "token"
       ],
-      &quot;grant_types_supported&quot;: [
-        &quot;authorization_code&quot;,
-        &quot;urn:ietf:params:oauth:grant-type:jwt-bearer&quot;
+      "grant_types_supported": [
+        "authorization_code",
+        "urn:ietf:params:oauth:grant-type:jwt-bearer"
       ],
-      &quot;subject_types_supported&quot;: [&quot;pairwise&quot;],
-      &quot;id_token_signing_alg_values_supported&quot;: [&quot;RS256&quot;],
-      &quot;issuer&quot;: &quot;https://op.example.it/spid&quot;,
-      &quot;jwks&quot;: {
-        &quot;keys&quot;: [
+      "subject_types_supported": ["pairwise"],
+      "id_token_signing_alg_values_supported": ["RS256"],
+      "issuer": "https://op.example.it/spid",
+      "jwks": {
+        "keys": [
           {
-            &quot;kty&quot;: &quot;RSA&quot;,
-            &quot;use&quot;: &quot;sig&quot;,
-            &quot;n&quot;: &quot;1Ta-sE ...&quot;,
-            &quot;e&quot;: &quot;AQAB&quot;,
-            &quot;kid&quot;: &quot;FANFS3YnC9tjiCaivhWLVUJ3AxwGGz_98uRFaqMEEs&quot;
+            "kty": "RSA",
+            "use": "sig",
+            "n": "1Ta-sE ...",
+            "e": "AQAB",
+            "kid": "FANFS3YnC9tjiCaivhWLVUJ3AxwGGz_98uRFaqMEEs"
           }
         ]
       }
     }
   },
-  &quot;trust_marks&quot;: [
-    {&quot;trust_mark_type&quot;: &quot;https://www.spid.gov.it/certification/op/&quot;,
-     &quot;trust_mark&quot;:
-       &quot;eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiOH
+  "trust_marks": [
+    {"trust_mark_type": "https://www.spid.gov.it/certification/op/",
+     "trust_mark":
+       "eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoiOH
         hzdUtXaVZmd1NnSG9mMVRlNE9VZGN5NHE3ZEpyS2ZGUmxPNXhoSElhMCJ9.
         eyJpc3MiOiJodHRwczovL3d3dy5hZ2lkLmdvdi5pdCIsInN1YiI6Imh0dHBzOi
         8vb3AuZXhhbXBsZS5pdC9zcGlkLyIsImlhdCI6MTU3OTYyMTE2MCwidHJ1c3Rf
@@ -3904,24 +2898,24 @@ The following is a non-normative example of the JWT Claims Set for a resolve res
         ZW1lcy9jdXN0b20vYWdpZC9sb2dvLnN2ZyIsInJlZiI6Imh0dHBzOi8vZG9jcy
         5pdGFsaWEuaXQvaXRhbGlhL3NwaWQvc3BpZC1yZWdvbGUtdGVjbmljaGUtb2lk
         Yy9pdC9zdGFiaWxlL2luZGV4Lmh0bWwifQ.
-        xyz-PDQ_...&quot;
+        xyz-PDQ_..."
     }
   ],
-  &quot;trust_chain&quot; : [
-    &quot;eyJhbGciOiJSUzI1NiIsImtpZCI6Ims1NEhRdERpYnlHY3M5WldWTWZ2aUhm ...&quot;,
-    &quot;eyJhbGciOiJSUzI1NiIsImtpZCI6IkJYdmZybG5oQU11SFIwN2FqVW1BY0JS ...&quot;,
-    &quot;eyJhbGciOiJSUzI1NiIsImtpZCI6IkJYdmZybG5oQU11SFIwN2FqVW1BY0JS ...&quot;
+  "trust_chain" : [
+    "eyJhbGciOiJSUzI1NiIsImtpZCI6Ims1NEhRdERpYnlHY3M5WldWTWZ2aUhm ...",
+    "eyJhbGciOiJSUzI1NiIsImtpZCI6IkJYdmZybG5oQU11SFIwN2FqVW1BY0JS ...",
+    "eyJhbGciOiJSUzI1NiIsImtpZCI6IkJYdmZybG5oQU11SFIwN2FqVW1BY0JS ..."
   ]
-}</code></pre>
-</div>
-<figcaption><a href="#figure-34" class="selfRef">Figure 34</a>: <a href="#name-resolve-response-jwt-claims" class="selfRef">Resolve Response JWT Claims Set</a></figcaption>
-</figure>
+}
+```
+Figure 34: Resolve Response JWT Claims Set
 
 
 
 
 
-#### [8.3.3.](#section-8.3.3){.section-number .selfRef} [Trust Considerations](#name-trust-considerations){.section-name .selfRef} {#name-trust-considerations}
+
+### Trust Considerations
 
 The basic assumption of this specification is that an Entity should have direct trust in no one except the Trust Anchor and its own capabilities. However, Entities MAY establish a kind of transitive trust in other Entities. For example, the Trust Anchor states who its Immediate Subordinates are, and Entities MAY choose to trust them. If a party uses the resolve service of another Entity to obtain federation data, it is trusting the resolver to perform validation of the cryptographically protected metadata correctly and to provide it with authentic results.
 
@@ -3931,7 +2925,7 @@ The basic assumption of this specification is that an Entity should have direct 
 
 
 
-### [8.4.](#section-8.4){.section-number .selfRef} [Trust Mark Status](#name-trust-mark-status){.section-name .selfRef} {#name-trust-mark-status}
+## Trust Mark Status
 
 This enables determining whether a Trust Mark Instance that has been issued to an Entity is still active. The query MUST be sent to the Trust Mark Issuer.
 
@@ -3939,7 +2933,7 @@ The Trust Mark Status endpoint location is published in the Entity's `federation
 
 
 
-#### [8.4.1.](#section-8.4.1){.section-number .selfRef} [Trust Mark Status Request](#name-trust-mark-status-request){.section-name .selfRef} {#name-trust-mark-status-request}
+### Trust Mark Status Request
 
 The request MUST be an HTTP request using the POST method to a Trust Mark Status endpoint with the following parameter, encoded in `application/x-www-form-urlencoded` format.
 
@@ -3947,7 +2941,6 @@ The request MUST be an HTTP request using the POST method to a Trust Mark Status
 
 trust_mark
 :   REQUIRED. The Trust Mark to be validated.
-:   
 
 When client authentication is used, the request MUST be an HTTP request using the POST method, with the parameters passed in the POST body.
 
@@ -3955,22 +2948,23 @@ The following is a non-normative example of a Trust Mark Status request:
 
 []{#name-trust-mark-status-request-2}
 
-<figure id="figure-35">
-<div id="section-8.4.1-5.1" class="alignLeft art-text artwork">
-<pre><code>POST /federation_trust_mark_status_endpoint HTTP/1.1
+
+
+``` figure
+POST /federation_trust_mark_status_endpoint HTTP/1.1
 Host: op.example.org
 Content-Type: application/x-www-form-urlencoded
 
-trust_mark=eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6 ...</code></pre>
-</div>
-<figcaption><a href="#figure-35" class="selfRef">Figure 35</a>: <a href="#name-trust-mark-status-request-2" class="selfRef">Trust Mark Status Request</a></figcaption>
-</figure>
+trust_mark=eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6 ...
+```
+Figure 35: Trust Mark Status Request
 
 
 
 
 
-#### [8.4.2.](#section-8.4.2){.section-number .selfRef} [Trust Mark Status Response](#name-trust-mark-status-response){.section-name .selfRef} {#name-trust-mark-status-response}
+
+### Trust Mark Status Response
 
 A successful response MUST use the HTTP status code 200 with the content type `application/trust-mark-status-response+jwt`, containing a signed JWT that is a Trust Mark Status Response.
 
@@ -3984,42 +2978,24 @@ The JWT Claims Set of the Trust Mark Status JWT is a JSON object containing the 
 
 iss
 :   REQUIRED. String. Entity Identifier of the issuer of the Trust Mark Status JWT.
-:   
 
 iat
 :   REQUIRED. Number. Time when this Trust Mark Status JWT was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 trust_mark
 :   REQUIRED. String. The Trust Mark JWT that this status response is about.
-:   
 
 status
 
-:   REQUIRED. Case-sensitive string value indicating the status of the Trust Mark. Values defined by this specification are:
+:   REQUIRED. Case-sensitive string value indicating the status of the Trust Mark. Values defined by this specification are listed below. Additional status values MAY be defined and used in addition to those listed:
 
-    []{.break}
+    -   `active`: The Trust Mark is active
 
-    active
-    :   The Trust Mark is active
-    :   
+    -   `expired`: The Trust Mark has expired
 
-    expired
-    :   The Trust Mark has expired
-    :   
+    -   `revoked`: The Trust Mark was revoked
 
-    revoked
-    :   The Trust Mark was revoked
-    :   
-
-    invalid
-    :   Signature validation failed or another error was detected
-    :   
-
-:   
-
-:   Additional status values MAY be defined and used in addition to those above.
-:   
+    -   `invalid`: Signature validation failed or another error was detected
 
 Additional Trust Mark Status claims MAY be defined and used in addition to the one above.
 
@@ -4027,11 +3003,12 @@ The following is a non-normative example of the JWT Claims Set for a response wi
 
 []{#name-active-trust-mark-status-re}
 
-<figure id="figure-36">
-<div id="section-8.4.2-8.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://www.agid.gov.it&quot;,
-  &quot;trust_mark&quot;: &quot;eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2
+
+
+``` figure
+{
+  "iss": "https://www.agid.gov.it",
+  "trust_mark": "eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2
     lkIjoia29zR20yd3VaaDlER21OeEF0a3VPNDBwUGpwTDMtakNmMU4tcVBPLVllVSJ9.
     eyJpc3MiOiJodHRwczovL3d3dy5hZ2lkLmdvdi5pdCIsInN1YiI6Imh0dHBzOi8
     vcnAuZXhhbXBsZS5pdC9zcGlkIiwiaWF0IjoxNTc5NjIxMTYwLCJ0cnVzdF9tYX
@@ -4045,23 +3022,24 @@ The following is a non-normative example of the JWT Claims Set for a response wi
     an5nOmkxuAtMinU8k_-aWnPWj83sYe2AzT2mMgkXiz8zhda3jZm8hoxZ4jR6B0Y
     AvbMlq2pPWO5OWKdZhiFRMSprwh0GYluQkK0j1aLNMGXD3keMJd2zEoWX9D7w2f
     XShAA48W3cNhuXyBVnCoum1K4IWK3s_fx4nIkp6W-V4jCBOpxp7Yo8LZ30o_xpE
-    OzGTIECGWVR86azOAlwVC8XSiAA&quot;,
-  &quot;iat&quot;: 1759897995,
-  &quot;status&quot;: &quot;active&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-36" class="selfRef">Figure 36</a>: <a href="#name-active-trust-mark-status-re" class="selfRef">Active Trust Mark Status Response JWT Claims Set</a></figcaption>
-</figure>
+    OzGTIECGWVR86azOAlwVC8XSiAA",
+  "iat": 1759897995,
+  "status": "active"
+}
+```
+Figure 36: Active Trust Mark Status Response JWT Claims Set
+
 
 The following is a non-normative example of the JWT Claims Set for a response with the status `revoked`:
 
 []{#name-revoked-trust-mark-status-r}
 
-<figure id="figure-37">
-<div id="section-8.4.2-10.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://www.agid.gov.it&quot;,
-  &quot;trust_mark&quot;: &quot;eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2
+
+
+``` figure
+{
+  "iss": "https://www.agid.gov.it",
+  "trust_mark": "eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2
     lkIjoia29zR20yd3VaaDlER21OeEF0a3VPNDBwUGpwTDMtakNmMU4tcVBPLVllVSJ9.
     eyJpc3MiOiJodHRwczovL3d3dy5hZ2lkLmdvdi5pdCIsInN1YiI6Imh0dHBzOi8
     vcnAuZXhhbXBsZS5pdC9zcGlkIiwiaWF0IjoxNTc5NjIxMTYwLCJ0cnVzdF9tYX
@@ -4075,13 +3053,13 @@ The following is a non-normative example of the JWT Claims Set for a response wi
     an5nOmkxuAtMinU8k_-aWnPWj83sYe2AzT2mMgkXiz8zhda3jZm8hoxZ4jR6B0Y
     AvbMlq2pPWO5OWKdZhiFRMSprwh0GYluQkK0j1aLNMGXD3keMJd2zEoWX9D7w2f
     XShAA48W3cNhuXyBVnCoum1K4IWK3s_fx4nIkp6W-V4jCBOpxp7Yo8LZ30o_xpE
-    OzGTIECGWVR86azOAlwVC8XSiAA&quot;,
-  &quot;iat&quot;: 1759898057,
-  &quot;status&quot;: &quot;revoked&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-37" class="selfRef">Figure 37</a>: <a href="#name-revoked-trust-mark-status-r" class="selfRef">Revoked Trust Mark Status Response JWT Claims Set</a></figcaption>
-</figure>
+    OzGTIECGWVR86azOAlwVC8XSiAA",
+  "iat": 1759898057,
+  "status": "revoked"
+}
+```
+Figure 37: Revoked Trust Mark Status Response JWT Claims Set
+
 
 An error response to a Trust Mark Status request is as defined in [Section 8.9](#error_response){.auto .internal .xref}.
 
@@ -4093,7 +3071,7 @@ If the Trust Mark Issuer receives a request about the status of an unknown Trust
 
 
 
-### [8.5.](#section-8.5){.section-number .selfRef} [Trust Marked Entities Listing](#name-trust-marked-entities-listi){.section-name .selfRef} {#name-trust-marked-entities-listi}
+## Trust Marked Entities Listing
 
 The Trust Marked Entities Listing endpoint is exposed by Trust Mark Issuers and lists all the Entities for which Trust Marks have been issued and are still valid.
 
@@ -4101,7 +3079,7 @@ The Trust Marked Entities Listing endpoint location is published in the Entity's
 
 
 
-#### [8.5.1.](#section-8.5.1){.section-number .selfRef} [Trust Marked Entities Listing Request](#name-trust-marked-entities-listin){.section-name .selfRef} {#name-trust-marked-entities-listin}
+### Trust Marked Entities Listing Request
 
 When client authentication is not used, the request MUST be an HTTP request using the GET method to a list endpoint with the following query parameters, encoded in `application/x-www-form-urlencoded` format.
 
@@ -4109,11 +3087,9 @@ When client authentication is not used, the request MUST be an HTTP request usin
 
 trust_mark_type
 :   REQUIRED. Identifier for the type of the Trust Mark. If the responder has issued Trust Marks with the specified Trust Mark type identifier, the list in the response is filtered to include only the Entities for which that Trust Mark type identifier has been issued and is still valid.
-:   
 
 sub
 :   OPTIONAL. The Entity Identifier of the Entity to which the Trust Mark was issued. The list obtained in the response MUST be filtered to only the Entity matching this value.
-:   
 
 When client authentication is used, the request MUST be an HTTP request using the POST method, with the parameters passed in the POST body.
 
@@ -4121,19 +3097,20 @@ The following is a non-normative example of an HTTP GET request for a list of Tr
 
 []{#name-trust-marked-entities-listing}
 
-<figure id="figure-38">
-<div id="section-8.5.1-5.1" class="alignLeft art-text artwork">
-<pre><code>GET /trust_marked_list?trust_mark_type=https%3A%2F%2Ffederation.example.org%2Fopenid_relying_party%2Fprivate%2Funder-age HTTP/1.1
-Host: trust-mark-issuer.example.org</code></pre>
-</div>
-<figcaption><a href="#figure-38" class="selfRef">Figure 38</a>: <a href="#name-trust-marked-entities-listing" class="selfRef">Trust Marked Entities Listing Request</a></figcaption>
-</figure>
+
+
+``` figure
+GET /trust_marked_list?trust_mark_type=https%3A%2F%2Ffederation.example.org%2Fopenid_relying_party%2Fprivate%2Funder-age HTTP/1.1
+Host: trust-mark-issuer.example.org
+```
+Figure 38: Trust Marked Entities Listing Request
 
 
 
 
 
-#### [8.5.2.](#section-8.5.2){.section-number .selfRef} [Trust Marked Entities Listing Response](#name-trust-marked-entities-listing-){.section-name .selfRef} {#name-trust-marked-entities-listing-}
+
+### Trust Marked Entities Listing Response
 
 A successful response MUST use the HTTP status code 200 with the content type `application/json`, containing a JSON array with Entity Identifiers.
 
@@ -4143,18 +3120,18 @@ The following is a non-normative example of a response, containing the Trust Mar
 
 []{#name-trust-marked-entities-listing-r}
 
-<figure id="figure-39">
-<div id="section-8.5.2-4.1" class="alignLeft art-text artwork">
-<pre><code>200 OK
+
+
+``` figure
+200 OK
 Content-Type: application/json
 
 [
-  &quot;https://blackboard.ntnu.no/openid/rp&quot;,
-  &quot;https://that-rp.example.org&quot;
-]</code></pre>
-</div>
-<figcaption><a href="#figure-39" class="selfRef">Figure 39</a>: <a href="#name-trust-marked-entities-listing-r" class="selfRef">Trust Marked Entities Listing Response</a></figcaption>
-</figure>
+  "https://blackboard.ntnu.no/openid/rp",
+  "https://that-rp.example.org"
+]
+```
+Figure 39: Trust Marked Entities Listing Response
 
 
 
@@ -4162,7 +3139,8 @@ Content-Type: application/json
 
 
 
-### [8.6.](#section-8.6){.section-number .selfRef} [Trust Mark Endpoint](#name-trust-mark-endpoint){.section-name .selfRef} {#name-trust-mark-endpoint}
+
+## Trust Mark Endpoint
 
 The Trust Mark endpoint is exposed by a Trust Mark Issuer to provide Trust Marks to subjects.
 
@@ -4170,7 +3148,7 @@ The Trust Mark endpoint location is published in the Entity's `federation_entity
 
 
 
-#### [8.6.1.](#section-8.6.1){.section-number .selfRef} [Trust Mark Request](#name-trust-mark-request){.section-name .selfRef} {#name-trust-mark-request}
+### Trust Mark Request
 
 When client authentication is not used, the request MUST be an HTTP request using the GET method with the following query parameters, encoded in `application/x-www-form-urlencoded` format.
 
@@ -4178,11 +3156,9 @@ When client authentication is not used, the request MUST be an HTTP request usin
 
 trust_mark_type
 :   REQUIRED. Identifier for the type of the Trust Mark.
-:   
 
 sub
 :   REQUIRED. The Entity Identifier of the Entity to which the Trust Mark is issued.
-:   
 
 When client authentication is used, the request MUST be an HTTP request using the POST method, with the parameters passed in the POST body. The Trust Mark endpoint MAY choose to allow authenticated requests from clients that are not the Trust Mark subject, as indicated by the `sub` parameter. An example use case is to let a Federation Entity retrieve the Trust Mark for another Entity.
 
@@ -4190,19 +3166,20 @@ The following is a non-normative example of an HTTP request for a Trust Mark wit
 
 []{#name-trust-mark-request-2}
 
-<figure id="figure-40">
-<div id="section-8.6.1-5.1" class="alignLeft art-text artwork">
-<pre><code>GET /trust_mark?trust_mark_type=https%3A%2F%2Fwww.spid.gov.it%2Fcertification%2Frp&amp;sub=https%3A%2F%2Frp.example.it%2Fspid HTTP/1.1
-Host: tuber.cert.example.org</code></pre>
-</div>
-<figcaption><a href="#figure-40" class="selfRef">Figure 40</a>: <a href="#name-trust-mark-request-2" class="selfRef">Trust Mark Request</a></figcaption>
-</figure>
+
+
+``` figure
+GET /trust_mark?trust_mark_type=https%3A%2F%2Fwww.spid.gov.it%2Fcertification%2Frp&sub=https%3A%2F%2Frp.example.it%2Fspid HTTP/1.1
+Host: tuber.cert.example.org
+```
+Figure 40: Trust Mark Request
 
 
 
 
 
-#### [8.6.2.](#section-8.6.2){.section-number .selfRef} [Trust Mark Response](#name-trust-mark-response){.section-name .selfRef} {#name-trust-mark-response}
+
+### Trust Mark Response
 
 A successful response MUST use the HTTP status code 200 with the content type `application/trust-mark+jwt`, containing the Trust Mark.
 
@@ -4212,9 +3189,10 @@ The following is a non-normative example of a response, containing the Trust Mar
 
 []{#name-trust-mark-response-2}
 
-<figure id="figure-41">
-<div id="section-8.6.2-4.1" class="alignLeft art-text artwork">
-<pre><code>200 OK
+
+
+``` figure
+200 OK
 Content-Type: application/trust-mark+jwt
 
 eyJ0eXAiOiJ0cnVzdC1tYXJrK2p3dCIsImFsZyI6IlJTMjU2Iiwia2lkIjoia29zR20yd3Va
@@ -4229,10 +3207,9 @@ L_pSh1InEiFAcs3E-1HBM7fNZYwF5ru3UGA_8yc80dGS3sszfA_sbj4AoW_zAJWQBdZpjxnH
 BBmybYXFrfZBcqxcedsrvUYrmbt1nPYxbUE54fRRoZK-sJmVqh1GzSan5nOmkxuAtMinU8k_
 -aWnPWj83sYe2AzT2mMgkXiz8zhda3jZm8hoxZ4jR6B0YAvbMlq2pPWO5OWKdZhiFRMSprwh
 0GYluQkK0j1aLNMGXD3keMJd2zEoWX9D7w2fXShAA48W3cNhuXyBVnCoum1K4IWK3s_fx4nI
-kp6W-V4jCBOpxp7Yo8LZ30o_xpEOzGTIECGWVR86azOAlwVC8XSiAA</code></pre>
-</div>
-<figcaption><a href="#figure-41" class="selfRef">Figure 41</a>: <a href="#name-trust-mark-response-2" class="selfRef">Trust Mark Response</a></figcaption>
-</figure>
+kp6W-V4jCBOpxp7Yo8LZ30o_xpEOzGTIECGWVR86azOAlwVC8XSiAA
+```
+Figure 41: Trust Mark Response
 
 
 
@@ -4240,7 +3217,8 @@ kp6W-V4jCBOpxp7Yo8LZ30o_xpEOzGTIECGWVR86azOAlwVC8XSiAA</code></pre>
 
 
 
-### [8.7.](#section-8.7){.section-number .selfRef} [Federation Historical Keys Endpoint](#name-federation-historical-keys-){.section-name .selfRef} {#name-federation-historical-keys-}
+
+## Federation Historical Keys Endpoint
 
 Each Federation Entity MAY publish its previously used Federation Entity Keys at the historical keys endpoint defined in [Section 5.1.1](#federation_entity){.auto .internal .xref}. The purpose of this endpoint is to provide the list of keys previously used by the Federation Entity to provide non-repudiation of statements signed by it after key rotation. This endpoint also discloses the reason for the retraction of the keys and whether they were expired or revoked, including the reason for the revocation.
 
@@ -4250,7 +3228,7 @@ The publishing of the historical keys guarantees that Trust Chains will remain v
 
 
 
-#### [8.7.1.](#section-8.7.1){.section-number .selfRef} [Federation Historical Keys Request](#name-federation-historical-keys-r){.section-name .selfRef} {#name-federation-historical-keys-r}
+### Federation Historical Keys Request
 
 When client authentication is not used, the request MUST be an HTTP request using the GET method to the federation historical keys endpoint.
 
@@ -4260,19 +3238,20 @@ The following is a non-normative example of a historical keys request:
 
 []{#name-federation-historical-keys-re}
 
-<figure id="figure-42">
-<div id="section-8.7.1-4.1" class="alignLeft art-text artwork">
-<pre><code>GET /federation_historical_keys HTTP/1.1
-Host: trust-anchor.example.com</code></pre>
-</div>
-<figcaption><a href="#figure-42" class="selfRef">Figure 42</a>: <a href="#name-federation-historical-keys-re" class="selfRef">Federation Historical Keys Request</a></figcaption>
-</figure>
+
+
+``` figure
+GET /federation_historical_keys HTTP/1.1
+Host: trust-anchor.example.com
+```
+Figure 42: Federation Historical Keys Request
 
 
 
 
 
-#### [8.7.2.](#section-8.7.2){.section-number .selfRef} [Federation Historical Keys Response](#name-federation-historical-keys-res){.section-name .selfRef} {#name-federation-historical-keys-res}
+
+### Federation Historical Keys Response
 
 The response is a signed JWK Set containing the historical keys. It is signed with a Federation Entity Key. A signed JWK Set is a signed JWT with a JWK Set [[RFC7517](#RFC7517){.cite .xref}] as its payload. A successful response MUST use the HTTP status code 200 with the content type `application/jwk-set+jwt`.
 
@@ -4286,53 +3265,27 @@ The claims in a historical keys JWT are:
 
 iss
 :   REQUIRED. String. The Entity's Entity Identifier.
-:   
 
 iat
 :   REQUIRED. Number. Time when this historical keys JWT was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 keys
 
-:   REQUIRED. Array of JSON objects containing the signing keys for the Entity in JWK format.
+:   REQUIRED. Array of JSON objects containing the signing keys for the Entity in JWK format. JWKs in the `keys` claim use the following parameters listed below. Additional claims MAY be defined and used in conjunction with the claims listed:
 
-    JWKs in the `keys` claim use the following parameters:
+    -   `kid`: REQUIRED. Parameter used to match a specific key. It is RECOMMENDED that the Key ID be the JWK Thumbprint [[RFC7638](#RFC7638){.cite .xref}] of the key using the SHA-256 hash function.
 
-    []{.break}
+    -   `iat`: OPTIONAL. Number. Time when this key was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
 
-    kid
-    :   REQUIRED. Parameter used to match a specific key. It is RECOMMENDED that the Key ID be the JWK Thumbprint [[RFC7638](#RFC7638){.cite .xref}] of the key using the SHA-256 hash function.
-    :   
+    -   `exp`: REQUIRED. Number. Expiration time for the key. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}], After this time the key MUST NOT be considered valid.
 
-    iat
-    :   OPTIONAL. Number. Time when this key was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-    :   
+    -   `revoked`: OPTIONAL. JSON object that contains the properties of the revocation, as defined below:
 
-    exp
-    :   REQUIRED. Number. Expiration time for the key. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}], After this time the key MUST NOT be considered valid.
-    :   
+        -   `revoked_at`: REQUIRED. Time when the key was revoked or must be considered revoked, using the time format defined for the `iat` claim in [[RFC7519](#RFC7519){.cite .xref}].
 
-    revoked
-
-    :   OPTIONAL. JSON object that contains the properties of the revocation, as defined below:
-
-        []{.break}
-
-        revoked_at
-        :   REQUIRED. Time when the key was revoked or must be considered revoked, using the time format defined for the `iat` claim in [[RFC7519](#RFC7519){.cite .xref}].
-        :   
-
-        reason
-        :   OPTIONAL. String that identifies the reason for the key revocation, as defined in [Section 8.7.3](#hist-keys-reasons){.auto .internal .xref}.
-        :   
+        -   `reason`: OPTIONAL. String that identifies the reason for the key revocation, as defined in [Section 8.7.3](#hist-keys-reasons){.auto .internal .xref}.
 
         Additional members of the `revoked` object MAY be defined and used.
-
-    :   
-
-:   
-
-Additional claims MAY be defined and used in conjunction with the claims above.
 
 JWKs in the `keys` claim MAY also contain the `nbf` parameter. For use in Historical Keys, `iat` and `exp` are sufficient to establish the key lifetime, making `nbf` typically superfluous; however, it is registered for use by profiles that may choose to issue keys that do not immediately become valid at the time of issuance. Its definition is:
 
@@ -4340,50 +3293,50 @@ JWKs in the `keys` claim MAY also contain the `nbf` parameter. For use in Histor
 
 nbf
 :   OPTIONAL. Time before which the key is not valid, using the time format defined for the `nbf` claim in [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 The following is a non-normative example of the JWT Claims Set for a historical keys response:
 
 []{#name-federation-historical-keys-resp}
 
-<figure id="figure-43">
-<div id="section-8.7.2-10.1" class="alignLeft art-text artwork">
-<pre><code>{
-    &quot;iss&quot;: &quot;https://trust-anchor.federation.example.com&quot;,
-    &quot;iat&quot;: 123972394272,
-    &quot;keys&quot;:
+
+
+``` figure
+{
+    "iss": "https://trust-anchor.federation.example.com",
+    "iat": 123972394272,
+    "keys":
         [
             {
-                &quot;kty&quot;:&quot;RSA&quot;,
-                &quot;n&quot;:&quot;5s4qi …&quot;,
-                &quot;e&quot;:&quot;AQAB&quot;,
-                &quot;kid&quot;:&quot;2HnoFS3YnC9tjiCaivhWLVUJ3AxwGGz_98uRFaqMEEs&quot;,
-                &quot;iat&quot;: 123972394872,
-                &quot;exp&quot;: 123974395972
+                "kty":"RSA",
+                "n":"5s4qi …",
+                "e":"AQAB",
+                "kid":"2HnoFS3YnC9tjiCaivhWLVUJ3AxwGGz_98uRFaqMEEs",
+                "iat": 123972394872,
+                "exp": 123974395972
             },
             {
-                &quot;kty&quot;:&quot;RSA&quot;,
-                &quot;n&quot;:&quot;ng5jr …&quot;,
-                &quot;e&quot;:&quot;AQAB&quot;,
-                &quot;kid&quot;:&quot;8KnoFS3YnC9tjiCaivhWLVUJ3AxwGGz_98uRFaqMJJr&quot;,
-                &quot;iat&quot;: 123972394872,
-                &quot;exp&quot;: 123974394972,
-                &quot;revoked&quot;: {
-                  &quot;revoked_at&quot;: 123972495172,
-                  &quot;reason&quot;: &quot;compromised&quot;,
+                "kty":"RSA",
+                "n":"ng5jr …",
+                "e":"AQAB",
+                "kid":"8KnoFS3YnC9tjiCaivhWLVUJ3AxwGGz_98uRFaqMJJr",
+                "iat": 123972394872,
+                "exp": 123974394972,
+                "revoked": {
+                  "revoked_at": 123972495172,
+                  "reason": "compromised",
                 }
             }
         ]
-}</code></pre>
-</div>
-<figcaption><a href="#figure-43" class="selfRef">Figure 43</a>: <a href="#name-federation-historical-keys-resp" class="selfRef">Federation Historical Keys Response JWT Claims Set</a></figcaption>
-</figure>
+}
+```
+Figure 43: Federation Historical Keys Response JWT Claims Set
 
 
 
 
 
-#### [8.7.3.](#section-8.7.3){.section-number .selfRef} [Federation Historical Keys Revocation Reasons](#name-federation-historical-keys-rev){.section-name .selfRef} {#name-federation-historical-keys-rev}
+
+### Federation Historical Keys Revocation Reasons
 
 Federation Entities are strongly encouraged to use a meaningful `reason` value when indicating the revocation reason for a Federation Entity Key. The `reason` MAY be omitted instead of using the `unspecified` value.
 
@@ -4407,7 +3360,7 @@ A federation MAY specify and utilize additional reasons depending on the trust o
 
 
 
-#### [8.7.4.](#section-8.7.4){.section-number .selfRef} [Rationale for the Federation Historical Keys Endpoint](#name-rationale-for-the-federatio){.section-name .selfRef} {#name-rationale-for-the-federatio}
+### Rationale for the Federation Historical Keys Endpoint
 
 The Federation Historical Keys endpoint solves the problem of verifying historical Trust Chains when the Federation Entity Keys have changed, either due to expiration or revocation.
 
@@ -4437,7 +3390,7 @@ A simple example: In the following Trust Chain, the Federation Intermediate atte
 
 
 
-### [8.8.](#section-8.8){.section-number .selfRef} [Client Authentication at Federation Endpoints](#name-client-authentication-at-fe){.section-name .selfRef} {#name-client-authentication-at-fe}
+## Client Authentication at Federation Endpoints
 
 Client authentication is not used at any of the federation endpoints, by default. Federations can choose to make client authentication OPTIONAL, REQUIRED, and/or not allowed at particular federation endpoints.
 
@@ -4445,7 +3398,7 @@ Client authentication with `private_key_jwt` is the default client authenticatio
 
 
 
-#### [8.8.1.](#section-8.8.1){.section-number .selfRef} [Client Authentication Metadata for Federation Endpoints](#name-client-authentication-metad){.section-name .selfRef} {#name-client-authentication-metad}
+### Client Authentication Metadata for Federation Endpoints
 
 Like other OAuth and OpenID endpoints supporting client authentication, this specification defines metadata parameters saying which client authentication methods are supported for each endpoint. These largely parallel the `token_endpoint_auth_methods_supported` metadata value defined in Section 3 of [OpenID Connect Discovery 1.0](#OpenID.Discovery){.internal .xref} [[OpenID.Discovery](#OpenID.Discovery){.cite .xref}].
 
@@ -4457,12 +3410,13 @@ So, for instance, this metadata declaration states that requests authenticated w
 
 []{#name-declaring-that-client-authe}
 
-<figure id="figure-44">
-<div id="section-8.8.1-5.1" class="alignLeft art-text artwork">
-<pre><code>&quot;federation_trust_mark_endpoint_auth_methods&quot;: [&quot;private_key_jwt&quot;]</code></pre>
-</div>
-<figcaption><a href="#figure-44" class="selfRef">Figure 44</a>: <a href="#name-declaring-that-client-authe" class="selfRef">Declaring that client authentication is REQUIRED at an endpoint</a></figcaption>
-</figure>
+
+
+``` figure
+"federation_trust_mark_endpoint_auth_methods": ["private_key_jwt"]
+```
+Figure 44: Declaring that client authentication is REQUIRED at an endpoint
+
 
 If omitted, the default value for these methods is `["none"]`, indicating that only unauthenticated requests are accepted.
 
@@ -4474,7 +3428,7 @@ The `endpoint_auth_signing_alg_values_supported` metadata parameter lists suppor
 
 
 
-### [8.9.](#section-8.9){.section-number .selfRef} [Error Responses](#name-error-responses){.section-name .selfRef} {#name-error-responses}
+## Error Responses
 
 If the request was malformed or an error occurred during the processing of the request, the response body SHOULD be a JSON object with the content type `application/json`. In compliance with [[RFC6749](#RFC6749){.cite .xref}], the following standardized error format SHOULD be used:
 
@@ -4484,75 +3438,48 @@ error
 
 :   REQUIRED. Error codes in the IANA "OAuth Extensions Error Registry" [[IANA.OAuth.Parameters](#IANA.OAuth.Parameters){.cite .xref}] MAY be used. This specification also defines the following error codes:
 
-    []{.break}
+    -   `invalid_request`: The request is incomplete or does not comply with current specifications. The HTTP response status code SHOULD be 400 (Bad Request).
 
-    invalid_request
-    :   The request is incomplete or does not comply with current specifications. The HTTP response status code SHOULD be 400 (Bad Request).
-    :   
+    -   `invalid_client`: The Client cannot be authorized or is not a valid participant of the federation. The HTTP response status code SHOULD be 401 (Unauthorized).
 
-    invalid_client
-    :   The Client cannot be authorized or is not a valid participant of the federation. The HTTP response status code SHOULD be 401 (Unauthorized).
-    :   
+    -   `invalid_issuer`: The endpoint cannot serve the requested issuer. The HTTP response status code SHOULD be 404 (Not Found).
 
-    invalid_issuer
-    :   The endpoint cannot serve the requested issuer. The HTTP response status code SHOULD be 404 (Not Found).
-    :   
+    -   `invalid_subject`: The endpoint cannot serve the requested subject. The HTTP response status code SHOULD be 404 (Not Found).
 
-    invalid_subject
-    :   The endpoint cannot serve the requested subject. The HTTP response status code SHOULD be 404 (Not Found).
-    :   
+    -   `invalid_trust_anchor`: The Trust Anchor cannot be found or used. The HTTP response status code SHOULD be 404 (Not Found).
 
-    invalid_trust_anchor
-    :   The Trust Anchor cannot be found or used. The HTTP response status code SHOULD be 404 (Not Found).
-    :   
+    -   `invalid_trust_chain`: The Trust Chain cannot be validated. The HTTP response status code SHOULD be 400 (Bad Request).
 
-    invalid_trust_chain
-    :   The Trust Chain cannot be validated. The HTTP response status code SHOULD be 400 (Bad Request).
-    :   
+    -   `invalid_metadata`: Metadata or Metadata Policy values are invalid or conflict. The HTTP response status code SHOULD be 400 (Bad Request).
 
-    invalid_metadata
-    :   Metadata or Metadata Policy values are invalid or conflict. The HTTP response status code SHOULD be 400 (Bad Request).
-    :   
+    -   `not_found`: The requested Entity Identifier cannot be found. The HTTP response status code SHOULD be 404 (Not Found).
 
-    not_found
-    :   The requested Entity Identifier cannot be found. The HTTP response status code SHOULD be 404 (Not Found).
-    :   
+    -   `server_error`: The server encountered an unexpected condition that prevented it from fulfilling the request. The HTTP response status code SHOULD be one in the 5xx range, like 500 (Internal Server Error).
 
-    server_error
-    :   The server encountered an unexpected condition that prevented it from fulfilling the request. The HTTP response status code SHOULD be one in the 5xx range, like 500 (Internal Server Error).
-    :   
+    -   `temporarily_unavailable`: The server hosting the federation endpoint is currently unable to handle the request due to temporary overloading or maintenance. The HTTP response status code SHOULD be 503 (Service Unavailable).
 
-    temporarily_unavailable
-    :   The server hosting the federation endpoint is currently unable to handle the request due to temporary overloading or maintenance. The HTTP response status code SHOULD be 503 (Service Unavailable).
-    :   
-
-    unsupported_parameter
-    :   The server does not support the requested parameter. The HTTP response status code SHOULD be 400 (Bad Request).
-    :   
-
-:   
+    -   `unsupported_parameter`: The server does not support the requested parameter. The HTTP response status code SHOULD be 400 (Bad Request).
 
 error_description
 :   REQUIRED. Human-readable text providing additional information used to assist the developer in understanding the error that occurred.
-:   
 
 The following is a non-normative example of an error response:
 
 []{#name-example-error-response}
 
-<figure id="figure-45">
-<div id="section-8.9-4.1" class="alignLeft art-text artwork">
-<pre><code>400 Bad request
+
+
+``` figure
+400 Bad request
 Content-Type: application/json
 
 {
-  &quot;error&quot;: &quot;invalid_request&quot;,
-  &quot;error_description&quot;:
-    &quot;Required request parameter [sub] was missing.&quot;
-}</code></pre>
-</div>
-<figcaption><a href="#figure-45" class="selfRef">Figure 45</a>: <a href="#name-example-error-response" class="selfRef">Example Error Response</a></figcaption>
-</figure>
+  "error": "invalid_request",
+  "error_description":
+    "Required request parameter [sub] was missing."
+}
+```
+Figure 45: Example Error Response
 
 
 
@@ -4560,7 +3487,8 @@ Content-Type: application/json
 
 
 
-## [9.](#section-9){.section-number .selfRef} [Obtaining Federation Entity Configuration Information](#name-obtaining-federation-entity){.section-name .selfRef} {#name-obtaining-federation-entity}
+
+# Obtaining Federation Entity Configuration Information
 
 The Entity Configuration of all Trust Anchor and Intermediate Federation Entities MUST be published at their configuration endpoint and the Entity Configuration for Leaf Entities SHOULD be published there. Its location is determined by concatenating the string `/.well-known/openid-federation` to the Entity Identifier (which MUST use the `https` scheme and contain a host component and MAY also contain port and path components). For instance, the configuration endpoint for the Entity Identifier `https://entity.example` is the URL `https://entity.example/.well-known/openid-federation`. If the Entity Identifier contains a trailing "/" character, it MUST be removed before concatenating `/.well-known/openid-federation`.
 
@@ -4570,7 +3498,7 @@ While Leaf Federation Entities SHOULD make an Entity Configuration document avai
 
 
 
-### [9.1.](#section-9.1){.section-number .selfRef} [Federation Entity Configuration Request](#name-federation-entity-configura){.section-name .selfRef} {#name-federation-entity-configura}
+## Federation Entity Configuration Request
 
 An Entity Configuration document MUST be queried using an HTTP GET request at the previously specified path.
 
@@ -4578,19 +3506,20 @@ In this example, the requesting party would make the following request to the En
 
 []{#name-request-for-entity-configur}
 
-<figure id="figure-46">
-<div id="section-9.1-3.1" class="alignLeft art-text artwork">
-<pre><code>  GET /.well-known/openid-federation HTTP/1.1
-  Host: openid.sunet.se</code></pre>
-</div>
-<figcaption><a href="#figure-46" class="selfRef">Figure 46</a>: <a href="#name-request-for-entity-configur" class="selfRef">Request for Entity Configuration</a></figcaption>
-</figure>
+
+
+``` figure
+  GET /.well-known/openid-federation HTTP/1.1
+  Host: openid.sunet.se
+```
+Figure 46: Request for Entity Configuration
 
 
 
 
 
-### [9.2.](#section-9.2){.section-number .selfRef} [Federation Entity Configuration Response](#name-federation-entity-configurat){.section-name .selfRef} {#name-federation-entity-configurat}
+
+## Federation Entity Configuration Response
 
 The response is an Entity Configuration, as described in [Section 3](#entity-statement){.auto .internal .xref}. If the Entity is an Intermediate Entity or a Trust Anchor, the response MUST contain metadata for a federation Entity (`federation_entity`).
 
@@ -4600,74 +3529,74 @@ The following is a non-normative example JWT Claims Set for a response from an I
 
 []{#name-entity-configuration-respon}
 
-<figure id="figure-47">
-<div id="section-9.2-4.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://openid.sunet.se&quot;,
-  &quot;sub&quot;: &quot;https://openid.sunet.se&quot;,
-  &quot;iat&quot;: 1516239022,
-  &quot;exp&quot;: 1516298022,
-  &quot;metadata&quot;: {
-    &quot;federation_entity&quot;: {
-      &quot;contacts&quot;: [&quot;ops@sunet.se&quot;],
-      &quot;federation_fetch_endpoint&quot;: &quot;https://sunet.se/openid/fedapi&quot;,
-      &quot;organization_uri&quot;: &quot;https://www.sunet.se&quot;,
-      &quot;organization_name&quot;: &quot;SUNET&quot;
+
+
+``` figure
+{
+  "iss": "https://openid.sunet.se",
+  "sub": "https://openid.sunet.se",
+  "iat": 1516239022,
+  "exp": 1516298022,
+  "metadata": {
+    "federation_entity": {
+      "contacts": ["ops@sunet.se"],
+      "federation_fetch_endpoint": "https://sunet.se/openid/fedapi",
+      "organization_uri": "https://www.sunet.se",
+      "organization_name": "SUNET"
     },
-    &quot;openid_provider&quot;: {
-      &quot;issuer&quot;: &quot;https://openid.sunet.se&quot;,
-      &quot;signed_jwks_uri&quot;: &quot;https://openid.sunet.se/jwks.jose&quot;,
-      &quot;authorization_endpoint&quot;:
-        &quot;https://openid.sunet.se/authorization&quot;,
-      &quot;client_registration_types_supported&quot;: [
-        &quot;automatic&quot;,
-        &quot;explicit&quot;
+    "openid_provider": {
+      "issuer": "https://openid.sunet.se",
+      "signed_jwks_uri": "https://openid.sunet.se/jwks.jose",
+      "authorization_endpoint":
+        "https://openid.sunet.se/authorization",
+      "client_registration_types_supported": [
+        "automatic",
+        "explicit"
       ],
-      &quot;grant_types_supported&quot;: [
-        &quot;authorization_code&quot;
+      "grant_types_supported": [
+        "authorization_code"
       ],
-      &quot;id_token_signing_alg_values_supported&quot;: [
-        &quot;ES256&quot;, &quot;RS256&quot;
+      "id_token_signing_alg_values_supported": [
+        "ES256", "RS256"
       ],
-      &quot;logo_uri&quot;:
-        &quot;https://www.umu.se/img/umu-logo-left-neg-SE.svg&quot;,
-      &quot;op_policy_uri&quot;:
-        &quot;https://www.umu.se/en/website/legal-information/&quot;,
-      &quot;response_types_supported&quot;: [
-        &quot;code&quot;
+      "logo_uri":
+        "https://www.umu.se/img/umu-logo-left-neg-SE.svg",
+      "op_policy_uri":
+        "https://www.umu.se/en/website/legal-information/",
+      "response_types_supported": [
+        "code"
       ],
-      &quot;subject_types_supported&quot;: [
-        &quot;pairwise&quot;,
-        &quot;public&quot;
+      "subject_types_supported": [
+        "pairwise",
+        "public"
       ],
-      &quot;token_endpoint&quot;: &quot;https://openid.sunet.se/token&quot;,
-      &quot;federation_registration_endpoint&quot;:
-        &quot;https://op.umu.se/openid/fedreg&quot;,
-      &quot;token_endpoint_auth_methods_supported&quot;: [
-        &quot;private_key_jwt&quot;
+      "token_endpoint": "https://openid.sunet.se/token",
+      "federation_registration_endpoint":
+        "https://op.umu.se/openid/fedreg",
+      "token_endpoint_auth_methods_supported": [
+        "private_key_jwt"
       ]
 
     }
   },
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+  "jwks": {
+    "keys": [
       {
-        &quot;alg&quot;: &quot;RS256&quot;,
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;key1&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;pnXBOusEANuug6ewezb9J_...&quot;,
-        &quot;use&quot;: &quot;sig&quot;
+        "alg": "RS256",
+        "e": "AQAB",
+        "kid": "key1",
+        "kty": "RSA",
+        "n": "pnXBOusEANuug6ewezb9J_...",
+        "use": "sig"
       }
     ]
   },
-  &quot;authority_hints&quot;: [
-    &quot;https://edugain.org/federation&quot;
+  "authority_hints": [
+    "https://edugain.org/federation"
   ]
-}</code></pre>
-</div>
-<figcaption><a href="#figure-47" class="selfRef">Figure 47</a>: <a href="#name-entity-configuration-respon" class="selfRef">Entity Configuration Response JWT Claims Set</a></figcaption>
-</figure>
+}
+```
+Figure 47: Entity Configuration Response JWT Claims Set
 
 
 
@@ -4675,7 +3604,8 @@ The following is a non-normative example JWT Claims Set for a response from an I
 
 
 
-## [10.](#section-10){.section-number .selfRef} [Resolving the Trust Chain and Metadata](#name-resolving-the-trust-chain-a){.section-name .selfRef} {#name-resolving-the-trust-chain-a}
+
+# Resolving the Trust Chain and Metadata
 
 An Entity (Party A) that wants to establish trust with another Entity (Party B) MUST have Party B's Entity Identifier and a list of Entity Identifiers of Trust Anchors and their public signing keys. Party A will first have to fetch sufficient Entity Statements to establish at least one chain of trust from Party B to one or more of the Trust Anchors. After that, Party A MUST validate the Trust Chains independently, and if there are multiple valid Trust Chains and if the application demands it, choose one to use.
 
@@ -4683,7 +3613,7 @@ To delegate the Trust Chain evaluation to a trusted third party, the Entity (Par
 
 
 
-### [10.1.](#section-10.1){.section-number .selfRef} [Fetching Entity Statements to Establish a Trust Chain](#name-fetching-entity-statements-){.section-name .selfRef} {#name-fetching-entity-statements-}
+## Fetching Entity Statements to Establish a Trust Chain
 
 Depending on the circumstances, Party A MAY be handed Party B's Entity Configuration, or it may have to fetch it by itself. If it needs to fetch it, it will use the process described in [Section 9](#federation_configuration){.auto .internal .xref} based on the Entity Identifier of Party B.
 
@@ -4701,9 +3631,10 @@ The following sequence diagram represents the interactions between the RP, the O
 
 []{#name-resolving-trust-chain-and-m}
 
-<figure id="figure-48">
-<div id="section-10.1-8.1" class="alignLeft art-text artwork">
-<pre><code>+-----+                         +-----+                             +--------------+
+
+
+``` figure
++-----+                         +-----+                             +--------------+
 | RP  |                         | OP  |                             | Trust Anchor |
 +-----+                         +-----+                             +--------------+
    |                               |                                        |
@@ -4750,19 +3681,19 @@ The following sequence diagram represents the interactions between the RP, the O
    |                               |                   |                    |
    |                               |&lt;-------------------                    |
    |                               |                                        |
-   |                               | Derives the RP&#39;s Resolved Metadata     |
+   |                               | Derives the RP's Resolved Metadata     |
    |                               |-----------------------------------     |
    |                               |                                  |     |
-   |                               |&lt;----------------------------------     |</code></pre>
-</div>
-<figcaption><a href="#figure-48" class="selfRef">Figure 48</a>: <a href="#name-resolving-trust-chain-and-m" class="selfRef">Resolving Trust Chain and Metadata from the Perspective of an OP</a></figcaption>
-</figure>
+   |                               |&lt;----------------------------------     |
+```
+Figure 48: Resolving Trust Chain and Metadata from the Perspective of an OP
 
 
 
 
 
-### [10.2.](#section-10.2){.section-number .selfRef} [Validating a Trust Chain](#name-validating-a-trust-chain){.section-name .selfRef} {#name-validating-a-trust-chain}
+
+## Validating a Trust Chain
 
 As described in [Section 4](#trust_chain){.auto .internal .xref}, a Trust Chain consists of an ordered list of Entity Statements. So however Party A has acquired the set of Entity Statements, it MUST now verify that it is a proper Trust Chain using the rules laid out in that section.
 
@@ -4818,7 +3749,7 @@ After the preceding validation, metadata MUST be resolved to the subject of the 
 
 
 
-### [10.3.](#section-10.3){.section-number .selfRef} [Choosing One of the Valid Trust Chains](#name-choosing-one-of-the-valid-t){.section-name .selfRef} {#name-choosing-one-of-the-valid-t}
+## Choosing One of the Valid Trust Chains
 
 If multiple valid Trust Chains are found, Party A will need to decide on which one to use. One simple rule would be to prefer a shorter chain over a longer one. Federation participants MAY follow other rules according to local policy.
 
@@ -4826,7 +3757,7 @@ If multiple valid Trust Chains are found, Party A will need to decide on which o
 
 
 
-### [10.4.](#section-10.4){.section-number .selfRef} [Calculating the Expiration Time of a Trust Chain](#name-calculating-the-expiration-){.section-name .selfRef} {#name-calculating-the-expiration-}
+## Calculating the Expiration Time of a Trust Chain
 
 Each Entity Statement in a Trust Chain is signed and MUST have an expiration time (`exp`). The expiration time of the whole Trust Chain is the minimum (`exp`) value within the Trust Chain.
 
@@ -4834,7 +3765,7 @@ Each Entity Statement in a Trust Chain is signed and MUST have an expiration tim
 
 
 
-### [10.5.](#section-10.5){.section-number .selfRef} [Transient Trust Chain Validation Errors](#name-transient-trust-chain-valid){.section-name .selfRef} {#name-transient-trust-chain-valid}
+## Transient Trust Chain Validation Errors
 
 If the federation topology is being updated, for example when a set of Leaf Entities is moved to a new Intermediate Entity, the Trust Chain validation may fail in a transient manner. Retrying after a period of time may resolve the situation.
 
@@ -4842,7 +3773,7 @@ If the federation topology is being updated, for example when a set of Leaf Enti
 
 
 
-### [10.6.](#section-10.6){.section-number .selfRef} [Resolving the Trust Chain and Metadata with a Resolver](#name-resolving-the-trust-chain-an){.section-name .selfRef} {#name-resolving-the-trust-chain-an}
+## Resolving the Trust Chain and Metadata with a Resolver
 
 Note that an alternative method for resolving a Trust Chain for an Entity (Party B) using the methods described above is to use a resolve endpoint, as described in [Section 8.3](#resolve){.auto .internal .xref}. This lets the resolver do the work that otherwise the Entity (Party A) wanting to establish trust would have to do for itself.
 
@@ -4852,7 +3783,7 @@ Note that an alternative method for resolving a Trust Chain for an Entity (Party
 
 
 
-## [11.](#section-11){.section-number .selfRef} [Updating Metadata, Key Rollover, and Revocation](#name-updating-metadata-key-rollo){.section-name .selfRef} {#name-updating-metadata-key-rollo}
+# Updating Metadata, Key Rollover, and Revocation
 
 This specification facilitates smoothly updating metadata and public keys.
 
@@ -4860,7 +3791,7 @@ As described in [Section 10.4](#trust_lifetime){.auto .internal .xref}, each Tru
 
 
 
-### [11.1.](#section-11.1){.section-number .selfRef} [Protocol Key Rollover](#name-protocol-key-rollover){.section-name .selfRef} {#name-protocol-key-rollover}
+## Protocol Key Rollover
 
 If a Leaf Entity publishes its public keys in its metadata using `jwks`, the expiration time of its Entity Configuration can be used to control how often the receiving Entity needs to fetch an updated set of public keys.
 
@@ -4868,7 +3799,7 @@ If a Leaf Entity publishes its public keys in its metadata using `jwks`, the exp
 
 
 
-### [11.2.](#section-11.2){.section-number .selfRef} [Key Rollover for a Trust Anchor](#name-key-rollover-for-a-trust-an){.section-name .selfRef} {#name-key-rollover-for-a-trust-an}
+## Key Rollover for a Trust Anchor
 
 A Trust Anchor MUST publish an Entity Configuration about itself. The expiration time (exp) set on this Entity Configuration should be chosen such that it ensures that federation participants re-fetch it at reasonable intervals. When a Trust Anchor rolls over its signing keys, it needs to:
 
@@ -4892,7 +3823,7 @@ A Trust Anchor MUST publish an Entity Configuration about itself. The expiration
 
 
 
-### [11.3.](#section-11.3){.section-number .selfRef} [Redundant Retrieval of Trust Anchor Keys](#name-redundant-retrieval-of-trus){.section-name .selfRef} {#name-redundant-retrieval-of-trus}
+## Redundant Retrieval of Trust Anchor Keys
 
 It is RECOMMENDED that Federation Operators provide a means of retrieving the public keys for the Trust Anchors it administers that is independent of those Trust Anchors' Entity Configurations. This is intended to provide redundancy in the eventuality of the compromise of the Web PKI infrastructure underlying retrieval of public keys from Entity Configurations.
 
@@ -4902,7 +3833,7 @@ The keys retrieved via the independent mechanism specified by the Federation Ope
 
 
 
-### [11.4.](#section-11.4){.section-number .selfRef} [Revocation](#name-revocation){.section-name .selfRef} {#name-revocation}
+## Revocation
 
 Since the participants in federations are expected to check the Trust Chain on a regular frequent basis, this specification does not define a revocation process. Specific federations MAY make a different choice and will then have to define their own revocation process.
 
@@ -4912,7 +3843,7 @@ Since the participants in federations are expected to check the Trust Chain on a
 
 
 
-## [12.](#section-12){.section-number .selfRef} [OpenID Connect Client Registration](#name-openid-connect-client-regis){.section-name .selfRef} {#name-openid-connect-client-regis}
+# OpenID Connect Client Registration
 
 This section describes how the mechanisms defined in this specification can be used to establish trust between an RP and an OP that have no prior explicit configuration or registration between them. It defines two client registration methods, Automatic Registration and Explicit Registration, that use Trust Chains, per [Section 10](#resolving_trust){.auto .internal .xref}. Federations can use other appropriate methods for client registration.
 
@@ -4922,7 +3853,7 @@ Note that both Automatic Registration and Explicit Registration can also be used
 
 
 
-### [12.1.](#section-12.1){.section-number .selfRef} [Automatic Registration](#name-automatic-registration){.section-name .selfRef} {#name-automatic-registration}
+## Automatic Registration
 
 Automatic Registration enables an RP to make Authentication Requests without a prior registration step with the OP. The OP resolves the RP's Entity Configuration from the Client ID in the Authentication Request, following the process defined in [Section 10](#resolving_trust){.auto .internal .xref}.
 
@@ -4942,7 +3873,7 @@ An OP that supports Automatic Registration MUST include the `automatic` keyword 
 
 
 
-#### [12.1.1.](#section-12.1.1){.section-number .selfRef} [Authentication Request](#name-authentication-request){.section-name .selfRef} {#name-authentication-request}
+### Authentication Request
 
 The Authentication Request is performed by passing a Request Object by value or by reference, as described in Section 6 of [OpenID Connect Core 1.0](#OpenID.Core){.internal .xref} [[OpenID.Core](#OpenID.Core){.cite .xref}] and [The OAuth 2.0 Authorization Framework: JWT-Secured Authorization Request (JAR)](#RFC9101){.internal .xref} [[RFC9101](#RFC9101){.cite .xref}], or using a pushed authorization request, as described in [Pushed Authorization Requests](#RFC9126){.internal .xref} [[RFC9126](#RFC9126){.cite .xref}].
 
@@ -4952,7 +3883,7 @@ Deployments MAY choose not to support passing the request object by reference (u
 
 
 
-##### [12.1.1.1.](#section-12.1.1.1){.section-number .selfRef} [Using a Request Object](#name-using-a-request-object){.section-name .selfRef} {#name-using-a-request-object}
+#### Using a Request Object
 
 When a Request Object is used at the Authorization Endpoint or the Pushed Authorization Request Endpoint, the value of the `request` parameter is a JWT whose Claims are the request parameters specified in Section 3.1.2 in [OpenID Connect Core 1.0](#OpenID.Core){.internal .xref} [[OpenID.Core](#OpenID.Core){.cite .xref}]. The JWT MUST be signed and MAY be encrypted. The following parameters are used in the Request Object:
 
@@ -4960,43 +3891,34 @@ When a Request Object is used at the Authorization Endpoint or the Pushed Author
 
 aud
 :   REQUIRED. The Audience (aud) value MUST be the OP's Entity Identifier and MUST NOT include any other values.
-:   
 
 client_id
 :   REQUIRED. The `client_id` value MUST be the RP's Entity Identifier.
-:   
 
 iss
 :   REQUIRED. The `iss` value MUST be the RP's Entity Identifier.
-:   
 
 sub
 :   MUST NOT be present. This prevents reuse of the statement for `private_key_jwt` client authentication.
-:   
 
 jti
 :   REQUIRED. JWT ID. A unique identifier for the JWT, which can be used to prevent reuse of the Request Object. A Request Object MUST only be used once, unless conditions for reuse were negotiated between the parties; any such negotiation is beyond the scope of this specification.
-:   
 
 exp
 :   REQUIRED. Number. Expiration time after which the JWT MUST NOT be accepted for processing. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 iat
 :   OPTIONAL. Number. Time when this Request Object was issued. This is expressed as Seconds Since the Epoch, per [[RFC7519](#RFC7519){.cite .xref}].
-:   
 
 trust_chain
 
-:   
     OPTIONAL. Array containing the sequence of Entity Statements that comprise the Trust Chain between the RP making the request and the selected Trust Anchor, sorted as in [Section 4](#trust_chain){.auto .internal .xref}. When the RP and the OP are part of the same federation, the RP MUST select a Trust Anchor that it has in common with the OP; otherwise, the RP is free to select the Trust Anchor to use.
     
 
-:   
 
 
 
-###### [12.1.1.1.1.](#section-12.1.1.1.1){.section-number .selfRef} [Authorization Request with a Trust Chain](#name-authorization-request-with-){.section-name .selfRef} {#name-authorization-request-with-}
+##### Authorization Request with a Trust Chain
 
 When the `trust_chain` request parameter is used in the authentication request, the Relying Party informs the OP of the sequence of Entity Statements that proves the trust relationship between it and the selected Trust Anchor.
 
@@ -5006,49 +3928,51 @@ The following is a non-normative example of the JWT Claims Set in a Request Obje
 
 []{#name-request-object-jwt-claims-s}
 
-<figure id="figure-49">
-<div id="section-12.1.1.1.1-4.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;typ&quot;: &quot;oauth-authz-req+jwt&quot;,
-  &quot;alg&quot;: &quot;RS256&quot;,
-  &quot;kid&quot;: &quot;that-kid-which-points-to-a-jwk-contained-in-the-trust-chain&quot;,
+
+
+``` figure
+{
+  "typ": "oauth-authz-req+jwt",
+  "alg": "RS256",
+  "kid": "that-kid-which-points-to-a-jwk-contained-in-the-trust-chain",
 }
 .
 {
-  &quot;aud&quot;: &quot;https://op.example.org&quot;,
-  &quot;client_id&quot;: &quot;https://rp.example.com&quot;,
-  &quot;exp&quot;: 1589699162,
-  &quot;iat&quot;: 1589699102,
-  &quot;iss&quot;: &quot;https://rp.example.com&quot;,
-  &quot;jti&quot;: &quot;4d3ec0f81f134ee9a97e0449be6d32be&quot;,
-  &quot;nonce&quot;: &quot;4LX0mFMxdBjkGmtx7a8WIOnB&quot;,
-  &quot;redirect_uri&quot;: &quot;https://rp.example.com/authz_cb&quot;,
-  &quot;response_type&quot;: &quot;code&quot;,
-  &quot;scope&quot;: &quot;openid profile email address phone&quot;,
-  &quot;state&quot;: &quot;YmX8PM9I7WbNoMnnieKKBiptVW0sP2OZ&quot;,
-  &quot;trust_chain&quot; : [
-    &quot;eyJhbGciOiJSUzI1NiIsImtpZCI6Ims1NEhRdERpYnlHY3M5WldWTWZ2aUhm ...&quot;,
-    &quot;eyJhbGciOiJSUzI1NiIsImtpZCI6IkJYdmZybG5oQU11SFIwN2FqVW1BY0JS ...&quot;,
-    &quot;eyJhbGciOiJSUzI1NiIsImtpZCI6IkJYdmZybG5oQU11SFIwN2FqVW1BY0JS ...&quot;
+  "aud": "https://op.example.org",
+  "client_id": "https://rp.example.com",
+  "exp": 1589699162,
+  "iat": 1589699102,
+  "iss": "https://rp.example.com",
+  "jti": "4d3ec0f81f134ee9a97e0449be6d32be",
+  "nonce": "4LX0mFMxdBjkGmtx7a8WIOnB",
+  "redirect_uri": "https://rp.example.com/authz_cb",
+  "response_type": "code",
+  "scope": "openid profile email address phone",
+  "state": "YmX8PM9I7WbNoMnnieKKBiptVW0sP2OZ",
+  "trust_chain" : [
+    "eyJhbGciOiJSUzI1NiIsImtpZCI6Ims1NEhRdERpYnlHY3M5WldWTWZ2aUhm ...",
+    "eyJhbGciOiJSUzI1NiIsImtpZCI6IkJYdmZybG5oQU11SFIwN2FqVW1BY0JS ...",
+    "eyJhbGciOiJSUzI1NiIsImtpZCI6IkJYdmZybG5oQU11SFIwN2FqVW1BY0JS ..."
   ]
-}</code></pre>
-</div>
-<figcaption><a href="#figure-49" class="selfRef">Figure 49</a>: <a href="#name-request-object-jwt-claims-s" class="selfRef">Request Object JWT Claims Set</a></figcaption>
-</figure>
+}
+```
+Figure 49: Request Object JWT Claims Set
+
 
 The following is a non-normative example of an Authentication Request using the `request` parameter (with line wraps within values for display purposes only):
 
 []{#name-authentication-request-usin}
 
-<figure id="figure-50">
-<div id="section-12.1.1.1.1-6.1" class="alignLeft art-text artwork">
-<pre><code>Host: server.example.com
+
+
+``` figure
+Host: server.example.com
 GET /authorize?
     redirect_uri=https%3A%2F%2Frp.example.com%2Fauthz_cb
-    &amp;scope=openid+profile+email+address+phone
-    &amp;response_type=code
-    &amp;client_id=https%3A%2F%2Frp.example.com
-    &amp;request=eyJ0eXAiOiJvYXV0aC1hdXRoei1yZXErand0IiwiYWxnIjoiUlMyNTYiLCJ
+    &scope=openid+profile+email+address+phone
+    &response_type=code
+    &client_id=https%3A%2F%2Frp.example.com
+    &request=eyJ0eXAiOiJvYXV0aC1hdXRoei1yZXErand0IiwiYWxnIjoiUlMyNTYiLCJ
         raWQiOiJOX19EOThJdkI4TmFlLWt3QTZuck90LWlwVGhqSGtEeDM3bmljRE1IM04
         0In0.
         eyJhdWQiOiJodHRwczovL29wLmV4YW1wbGUub3JnIiwiY2xpZW50X2lkIjoiaHR0
@@ -5071,16 +3995,16 @@ GET /authorize?
         fUmb-YvmFguxDb3weYl8WS-
         48EIkP1h4b_KGU9x9n7a1fUOHrS02ATQZmaL8jUil7yLJqx5MiCsPr4pCAXV0doA
         4pwhs_FIw HTTP/1.1
-</code></pre>
-</div>
-<figcaption><a href="#figure-50" class="selfRef">Figure 50</a>: <a href="#name-authentication-request-usin" class="selfRef">Authentication Request Using Request Object</a></figcaption>
-</figure>
+
+```
+Figure 50: Authentication Request Using Request Object
 
 
 
 
 
-###### [12.1.1.1.2.](#section-12.1.1.1.2){.section-number .selfRef} [Processing the Authentication Request](#name-processing-the-authenticati){.section-name .selfRef} {#name-processing-the-authenticati}
+
+##### Processing the Authentication Request
 
 When the OP receives an incoming Authentication Request, the OP supports OpenID Federation, the incoming Client ID is a valid URL, and the OP does not have the Client ID registered as a known client, then the OP SHOULD resolve the Trust Chains related to the requestor.
 
@@ -5100,7 +4024,7 @@ Once the OP has the RP's metadata, it MUST verify that the client was actually t
 
 
 
-##### [12.1.1.2.](#section-12.1.1.2){.section-number .selfRef} [Using Pushed Authorization](#name-using-pushed-authorization){.section-name .selfRef} {#name-using-pushed-authorization}
+#### Using Pushed Authorization
 
 [Pushed Authorization Requests](#RFC9126){.internal .xref} [[RFC9126](#RFC9126){.cite .xref}] provide an interoperable way to push authentication request parameters directly to the AS in exchange for a one-time-use `request_uri`. The standard PAR metadata parameters are used in the RP and OP metadata to indicate its use.
 
@@ -5120,21 +4044,22 @@ A Pushed Authorization Request to the OP could look like this:
 
 []{#name-pushed-authorization-reques}
 
-<figure id="figure-51">
-<div id="section-12.1.1.2-6.1" class="alignLeft art-text artwork">
-<pre><code>POST /par HTTP/1.1
+
+
+``` figure
+POST /par HTTP/1.1
 Host: op.example.org
 Content-Type: application/x-www-form-urlencoded
 
 redirect_uri=https%3A%2F%2Frp.example.com%2Fauthz_cb
-&amp;scope=openid+profile+email+address+phone
-&amp;response_type=code
-&amp;nonce=4LX0mFMxdBjkGmtx7a8WIOnB
-&amp;state=YmX8PM9I7WbNoMnnieKKBiptVW0sP2OZ
-&amp;client_id=https%3A%2F%2Frp.example.com
-&amp;client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
+&scope=openid+profile+email+address+phone
+&response_type=code
+&nonce=4LX0mFMxdBjkGmtx7a8WIOnB
+&state=YmX8PM9I7WbNoMnnieKKBiptVW0sP2OZ
+&client_id=https%3A%2F%2Frp.example.com
+&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3A
   client-assertion-type%3Ajwt-bearer
-&amp;client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6ImRVTjJ
+&client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6ImRVTjJ
   hMDF3Umtoa1NXcGxRVGh2Y1ZCSU5VSXdUVWRPVUZVMlRtVnJTbW
   hFUVhnelpYbHBUemRRTkEifQ.
   eyJzdWIiOiAiaHR0cHM6Ly9ycC5leGFtcGxlLmNvbSIsICJpc3M
@@ -5149,14 +4074,14 @@ redirect_uri=https%3A%2F%2Frp.example.com%2Fauthz_cb
   FC2p9BIqItU3m9gmH0ojdBCUX5Up0iDsys6_npYomqitAcvaBRD
   PiuUBa5Iar9HVR-H7FMAr7aq7s-dH5gx2CHIfM3-qlc2-_Apsy0
   BrQl6VePR6j-3q6JCWvNw7l4_F2UpHeanHb31fLKQbK-1yoXDNz
-  DwA7B0ZqmuSmMFQ</code></pre>
-</div>
-<figcaption><a href="#figure-51" class="selfRef">Figure 51</a>: <a href="#name-pushed-authorization-reques" class="selfRef">Pushed Authorization Request to the OP</a></figcaption>
-</figure>
+  DwA7B0ZqmuSmMFQ
+```
+Figure 51: Pushed Authorization Request to the OP
 
 
 
-###### [12.1.1.2.1.](#section-12.1.1.2.1){.section-number .selfRef} [Processing the Pushed Authentication Request](#name-processing-the-pushed-authe){.section-name .selfRef} {#name-processing-the-pushed-authe}
+
+##### Processing the Pushed Authentication Request
 
 The requirements specified in [Section 12.1.1.1.2](#AuthzRequestProcessing){.auto .internal .xref} also apply to [Pushed Authorization Requests](#RFC9126){.internal .xref} [[RFC9126](#RFC9126){.cite .xref}].
 
@@ -5168,11 +4093,9 @@ The means of verification depends on the client authentication method used:
 
 private_key_jwt
 :   If this method is used, then the OP verifies the signature of the signed JWT using the key material published by the RP in its metadata. If the authentication is successful, then the registration is valid. The audience of the signed JWT MUST be the Authorization Server's Entity Identifier and MUST NOT include any other values.
-:   
 
 self_signed_tls_client_auth
 :   If mTLS is used with a self-signed certificate, then the certificate MUST be present as the value of an `x5c` claim for a key in the JWK Set containing the RP's keys.
-:   
 
 
 
@@ -5182,7 +4105,7 @@ self_signed_tls_client_auth
 
 
 
-#### [12.1.2.](#section-12.1.2){.section-number .selfRef} [Successful Authentication Response](#name-successful-authentication-r){.section-name .selfRef} {#name-successful-authentication-r}
+### Successful Authentication Response
 
 The response to a successful authentication request when using Automatic Registration is the same as the successful authentication responses defined in [[OpenID.Core](#OpenID.Core){.cite .xref}]. It is a successful OAuth 2.0 authorization response sent to the Client's redirection URI.
 
@@ -5190,7 +4113,7 @@ The response to a successful authentication request when using Automatic Registr
 
 
 
-#### [12.1.3.](#section-12.1.3){.section-number .selfRef} [Authentication Error Response](#name-authentication-error-respon){.section-name .selfRef} {#name-authentication-error-respon}
+### Authentication Error Response
 
 The error response to an unsuccessful authentication request when using Automatic Registration is the same as the error authentication responses defined in [[OpenID.Core](#OpenID.Core){.cite .xref}]. It is an OAuth 2.0 authorization error response sent to the Client's redirection URI, unless a [Pushed Authorization Request](#RFC9126){.internal .xref} [[RFC9126](#RFC9126){.cite .xref}] was used for the request.
 
@@ -5204,23 +4127,24 @@ The following is a non-normative example authentication error response:
 
 []{#name-authentication-error-respons}
 
-<figure id="figure-52">
-<div id="section-12.1.3-6.1" class="alignLeft art-text artwork">
-<pre><code>HTTP/1.1 302 Found
+
+
+``` figure
+HTTP/1.1 302 Found
   Location: https://client.example.org/cb?
     error=consent_required
-    &amp;error_description=
+    &error_description=
       Consent%20by%20the%20End-User%20required
-    &amp;state=af0ifjsldkj</code></pre>
-</div>
-<figcaption><a href="#figure-52" class="selfRef">Figure 52</a>: <a href="#name-authentication-error-respons" class="selfRef">Authentication Error Response</a></figcaption>
-</figure>
+    &state=af0ifjsldkj
+```
+Figure 52: Authentication Error Response
 
 
 
 
 
-#### [12.1.4.](#section-12.1.4){.section-number .selfRef} [Automatic Registration and Client Authentication](#name-automatic-registration-and-){.section-name .selfRef} {#name-automatic-registration-and-}
+
+### Automatic Registration and Client Authentication
 
 Note that when using Automatic Registration, the client authentication methods that the client can use are declared to the OP using RP Metadata parameters: either the `token_endpoint_auth_methods_supported` parameter defined in [[OpenID.RP.Choices](#OpenID.RP.Choices){.cite .xref}] or the `token_endpoint_auth_method` parameter. Those that the OP can use are likewise declared to the RP using OP Metadata parameters. However, if there are multiple methods supported by both the RP and the OP, the OP does not know which one the RP will pick in advance of it being used, since this isn't declared at the time the Automatic Registration occurs.
 
@@ -5230,7 +4154,7 @@ OPs SHOULD accept any client authentication method that is mutually supported an
 
 
 
-#### [12.1.5.](#section-12.1.5){.section-number .selfRef} [Possible Other Uses of Automatic Registration](#name-possible-other-uses-of-auto){.section-name .selfRef} {#name-possible-other-uses-of-auto}
+### Possible Other Uses of Automatic Registration
 
 Automatic Registration is designed to be able to be employed for OAuth 2.0 use cases beyond OpenID Connect, as noted in [Section 12](#client_registration){.auto .internal .xref}. For instance, ecosystems using bare [OAuth 2.0](#RFC6749){.internal .xref} [[RFC6749](#RFC6749){.cite .xref}] or [FAPI](#FAPI){.internal .xref} [[FAPI](#FAPI){.cite .xref}] can utilize Automatic Registration.
 
@@ -5242,7 +4166,7 @@ Also note that Client ID values that are Entity Identifiers could be used to ide
 
 
 
-### [12.2.](#section-12.2){.section-number .selfRef} [Explicit Registration](#name-explicit-registration){.section-name .selfRef} {#name-explicit-registration}
+## Explicit Registration
 
 Using this method, the RP establishes its client registration with the OP by means of a dedicated registration request, similar to [[OpenID.Registration](#OpenID.Registration){.cite .xref}], but instead of its metadata, the RP submits its Entity Configuration or an entire Trust Chain. When the Explicit Registration is completed, the RP can proceed to make regular OpenID authentication requests to the OP.
 
@@ -5254,7 +4178,7 @@ An example of an Explicit Registration is provided in [Appendix A.3.2](#Explicit
 
 
 
-#### [12.2.1.](#section-12.2.1){.section-number .selfRef} [Explicit Client Registration Request](#name-explicit-client-registratio){.section-name .selfRef} {#name-explicit-client-registratio}
+### Explicit Client Registration Request
 
 The RP performs Explicit Client Registration as follows:
 
@@ -5290,43 +4214,33 @@ The following Entity Configuration claims are specified for use in Explicit Regi
 
 iss
 :   REQUIRED. Its value MUST be the Entity Identifier of the RP.
-:   
 
 sub
 :   REQUIRED. Its value MUST be the Entity Identifier of the RP.
-:   
 
 iat
 :   REQUIRED.
-:   
 
 exp
 :   REQUIRED.
-:   
 
 jwks
 :   REQUIRED.
-:   
 
 aud
 :   REQUIRED. Its value MUST be the Entity Identifier of the OP. This claim is only used in Explicit Registration requests, since it is not a general Entity Statement claim.
-:   
 
 authority_hints
 :   REQUIRED.
-:   
 
 metadata
 :   REQUIRED. It MUST contain the RP metadata under the `openid_relying_party` Entity Type Identifier.
-:   
 
 crit
 :   OPTIONAL.
-:   
 
 trust_marks
 :   OPTIONAL.
-:   
 
 The request MUST be an HTTP request to the `federation_registration_endpoint` of the OP, using the POST method.
 
@@ -5336,7 +4250,7 @@ When the RP submits an Entity Configuration the content type of the request MUST
 
 
 
-#### [12.2.2.](#section-12.2.2){.section-number .selfRef} [Processing Explicit Client Registration Request by OP](#name-processing-explicit-client-){.section-name .selfRef} {#name-processing-explicit-client-}
+### Processing Explicit Client Registration Request by OP
 
 The OP processes the request as follows:
 
@@ -5382,7 +4296,7 @@ The OP processes the request as follows:
 
 
 
-#### [12.2.3.](#section-12.2.3){.section-number .selfRef} [Successful Explicit Client Registration Response](#name-successful-explicit-client-){.section-name .selfRef} {#name-successful-explicit-client-}
+### Successful Explicit Client Registration Response
 
 If the OP created a client registration for the RP, it MUST then construct a success response in the form of an Entity Statement.
 
@@ -5402,43 +4316,33 @@ The following Entity Statement claims are used in Explicit Registration response
 
 iss
 :   REQUIRED. Its value MUST be the Entity Identifier of the OP.
-:   
 
 sub
 :   REQUIRED. Its value MUST be the Entity Identifier of the RP.
-:   
 
 iat
 :   REQUIRED. Time when this statement was issued.
-:   
 
 exp
 :   REQUIRED. Expiration time after which the statement MUST NOT be accepted for processing.
-:   
 
 jwks
 :   OPTIONAL. If present, it MUST be a verbatim copy of the `jwks` Entity Statement claim from the received Entity Configuration of the RP. Note that this is distinct from the identically named RP metadata parameter.
-:   
 
 aud
 :   REQUIRED. Its value MUST be the RP's Entity Identifier and MUST NOT include any other values. This claim is used in Explicit Registration responses but is not a general Entity Statement claim.
-:   
 
 trust_anchor
 :   REQUIRED. Its value MUST be the Entity Identifier of the Trust Anchor that the OP selected to process the Explicit Registration request. This claim is specific to Explicit Registration responses and is not a general Entity Statement claim.
-:   
 
 authority_hints
 :   REQUIRED. It MUST be a single-element array, whose value references the Immediate Superior of the RP in the Trust Chain that the OP selected to process the request.
-:   
 
 metadata
 :   REQUIRED. It MUST contain the registered RP metadata under the `openid_relying_party` Entity Type Identifier.
-:   
 
 crit
 :   OPTIONAL. Set of claims that MUST be understood and processed, as specified in [Section 3](#entity-statement){.auto .internal .xref}.
-:   
 
 A successful response MUST have an HTTP status code 200 and the content type `application/explicit-registration-response+jwt`. Furthermore, the `typ` header parameter value in the response MUST be `explicit-registration-response+jwt` (and not `entity-statement+jwt`) to prevent confusion between the Explicit Registration response and normal Entity Statements.
 
@@ -5446,7 +4350,7 @@ A successful response MUST have an HTTP status code 200 and the content type `ap
 
 
 
-#### [12.2.4.](#section-12.2.4){.section-number .selfRef} [Explicit Client Registration Error Response](#name-explicit-client-registration){.section-name .selfRef} {#name-explicit-client-registration}
+### Explicit Client Registration Error Response
 
 For a client registration error, the response is as defined in [Section 8.9](#error_response){.auto .internal .xref} and MAY use errors defined there and in Section 3.3 of [[OpenID.Registration](#OpenID.Registration){.cite .xref}] and Section 3.2.2 of [[RFC7591](#RFC7591){.cite .xref}].
 
@@ -5454,7 +4358,7 @@ For a client registration error, the response is as defined in [Section 8.9](#er
 
 
 
-#### [12.2.5.](#section-12.2.5){.section-number .selfRef} [Processing Explicit Client Registration Response by RP](#name-processing-explicit-client-r){.section-name .selfRef} {#name-processing-explicit-client-r}
+### Processing Explicit Client Registration Response by RP
 
 1.  
     If the response indicates success, the RP MUST verify that its content is a valid Entity Statement and issued by the OP.
@@ -5486,7 +4390,7 @@ For a client registration error, the response is as defined in [Section 8.9](#er
 
 
 
-#### [12.2.6.](#section-12.2.6){.section-number .selfRef} [After an Explicit Client Registration](#name-after-an-explicit-client-re){.section-name .selfRef} {#name-after-an-explicit-client-re}
+### After an Explicit Client Registration
 
 An RP can utilize the `exp` claim of the registration Entity Statement to devise a suitable strategy for renewing its client registration. RP implementers should note that if the OP expiration of the `client_id` coincides with an OAuth 2.0 flow that was just initiated by the RP, this may cause OpenID Connect authentication requests, token requests, or UserInfo requests to suddenly fail. Renewing the RP registration prior to its expiration can prevent such errors from occurring and ensure the end-user experience is not disrupted.
 
@@ -5498,7 +4402,7 @@ An OP MAY invalidate a client registration before the expiration that is indicat
 
 
 
-### [12.3.](#section-12.3){.section-number .selfRef} [Registration Validity and Trust Reevaluation](#name-registration-validity-and-t){.section-name .selfRef} {#name-registration-validity-and-t}
+## Registration Validity and Trust Reevaluation
 
 The validity of an Automatic or Explicit Registration at an OP MUST NOT exceed the lifetime of the Trust Chain the OP used to create the registration. An OP MAY choose to expire the registration at some earlier time, or choose to perform additional periodic reevaluations of the Trust Chain for the registered RP before the Trust Chain reaches its expiration time.
 
@@ -5508,7 +4412,7 @@ Similarly, an RP that obtained an Automatic or Explicit Registration MUST NOT us
 
 
 
-### [12.4.](#section-12.4){.section-number .selfRef} [Differences between Automatic Registration and Explicit Registration](#name-differences-between-automat){.section-name .selfRef} {#name-differences-between-automat}
+## Differences between Automatic Registration and Explicit Registration
 
 The primary differences between Automatic Registration and Explicit Registration are:
 
@@ -5528,7 +4432,7 @@ The primary differences between Automatic Registration and Explicit Registration
 
 
 
-### [12.5.](#section-12.5){.section-number .selfRef} [Rationale for the Trust Chain in the Request](#name-rationale-for-the-trust-cha){.section-name .selfRef} {#name-rationale-for-the-trust-cha}
+## Rationale for the Trust Chain in the Request
 
 Both Automatic and Explicit Client Registration support the submission of the Trust Chain embedded in the Request, calculated by the requestor, and related to itself. This provides the following benefits:
 
@@ -5550,13 +4454,13 @@ Both Automatic and Explicit Client Registration support the submission of the Tr
 
 
 
-## [13.](#section-13){.section-number .selfRef} [General-Purpose JWT Claims](#name-general-purpose-jwt-claims){.section-name .selfRef} {#name-general-purpose-jwt-claims}
+# General-Purpose JWT Claims
 
 This section defines general-purpose JWT claims designed to be used by many different JWT profiles. They are also used in specific kinds of JWTs defined by this specification.
 
 
 
-### [13.1.](#section-13.1){.section-number .selfRef} ["jwks" (JSON Web Key Set) Claim](#name-jwks-json-web-key-set-claim){.section-name .selfRef} {#name-jwks-json-web-key-set-claim}
+## "jwks" (JSON Web Key Set) Claim
 
 The `jwks` (JSON Web Key Set) claim value is a JWK Set, as defined in [[RFC7517](#RFC7517){.cite .xref}]. It is used to convey a set of cryptographic keys. Use of this claim is OPTIONAL.
 
@@ -5566,7 +4470,7 @@ For instance, the `jwks` (JSON Web Key Set) claim might be used to represent a s
 
 
 
-### [13.2.](#section-13.2){.section-number .selfRef} ["metadata" Claim](#name-metadata-claim){.section-name .selfRef} {#name-metadata-claim}
+## "metadata" Claim
 
 The `metadata` claim is used for conveying metadata pertaining to the JWT. Its value is a JSON object. The details of the metadata contained are application-specific. Use of this claim is OPTIONAL.
 
@@ -5576,7 +4480,7 @@ For instance, the `metadata` claim might be used to represent a set of endpoint 
 
 
 
-### [13.3.](#section-13.3){.section-number .selfRef} ["constraints" Claim](#name-constraints-claim){.section-name .selfRef} {#name-constraints-claim}
+## "constraints" Claim
 
 The `constraints` claim is used for conveying constraints pertaining to the JWT. Its value is a JSON object. The details of the constraints contained are application-specific. Use of this claim is OPTIONAL.
 
@@ -5586,7 +4490,7 @@ For instance, the `constraints` claim might be used to impose material thickness
 
 
 
-### [13.4.](#section-13.4){.section-number .selfRef} ["crit" (Critical) Claim](#name-crit-critical-claim){.section-name .selfRef} {#name-crit-critical-claim}
+## "crit" (Critical) Claim
 
 The `crit` (critical) claim indicates that extensions to the set of claims specified for use in this type of JWT are being used that MUST be understood and processed. It is used in the same way that the `crit` header parameter is used for extension JOSE header parameters that MUST be understood and processed. Its value is an array listing the claim names present in the JWT that use those extensions. If any of the listed claims are not understood and supported by the recipient, then the JWT is invalid. Producers MUST NOT include claim names already specified for use in this type of JWT, duplicate names, or names that do not occur as claim names in the JWT in the `crit` list. Producers MUST NOT use the empty array `[]` as the `crit` value. Use of this claim is OPTIONAL.
 
@@ -5596,7 +4500,7 @@ This claim is used in this specification in [Section 3](#entity-statement){.auto
 
 
 
-### [13.5.](#section-13.5){.section-number .selfRef} ["ref" (Reference) Claim](#name-ref-reference-claim){.section-name .selfRef} {#name-ref-reference-claim}
+## "ref" (Reference) Claim
 
 The `ref` (reference) claim is used for conveying the URI for a resource pertaining to the JWT. It plays a similar role in a JWT as the `href` property does in HTML. The nature of the content at the referenced resource is generally application specific. The `ref` value is a case-sensitive string containing a URI value. Use of this claim is OPTIONAL.
 
@@ -5606,7 +4510,7 @@ For instance, a JWT referring to a contract between two parties might use the `r
 
 
 
-### [13.6.](#section-13.6){.section-number .selfRef} ["delegation" Claim](#name-delegation-claim){.section-name .selfRef} {#name-delegation-claim}
+## "delegation" Claim
 
 The `delegation` claim expresses that authority is being delegated to the party referenced in the claim value. The `delegation` value is a case-sensitive string containing a StringOrURI value. Use of this claim is OPTIONAL.
 
@@ -5616,7 +4520,7 @@ For instance, the `delegation` claim might be used to express that the reference
 
 
 
-### [13.7.](#section-13.7){.section-number .selfRef} ["logo_uri" (Logo URI) Claim](#name-logo_uri-logo-uri-claim){.section-name .selfRef} {#name-logo_uri-logo-uri-claim}
+## "logo_uri" (Logo URI) Claim
 
 The `logo_uri` claim value is a URI that references a logo pertaining to the JWT. Use of this claim is OPTIONAL.
 
@@ -5628,7 +4532,7 @@ For instance, the `logo_uri` claim might be used to represent the location from 
 
 
 
-## [14.](#section-14){.section-number .selfRef} [Claims Languages and Scripts](#name-claims-languages-and-script){.section-name .selfRef} {#name-claims-languages-and-script}
+# Claims Languages and Scripts
 
 Human-readable claim values and claim values that reference human-readable values MAY be represented in multiple languages and scripts. This specification enables such representations in the same manner as defined in Section 5.2 of [OpenID Connect Core 1.0](#OpenID.Core){.internal .xref} [[OpenID.Core](#OpenID.Core){.cite .xref}].
 
@@ -5640,13 +4544,13 @@ Language tags can be used in any data structures containing or referencing human
 
 
 
-## [15.](#section-15){.section-number .selfRef} [Media Types](#name-media-types){.section-name .selfRef} {#name-media-types}
+# Media Types
 
 These media types [[RFC2046](#RFC2046){.cite .xref}] are defined by this specification.
 
 
 
-### [15.1.](#section-15.1){.section-number .selfRef} ["application/entity-statement+jwt" Media Type](#name-application-entity-statemen){.section-name .selfRef} {#name-application-entity-statemen}
+## "application/entity-statement+jwt" Media Type
 
 The `application/entity-statement+jwt` media type is used to specify that the associated content is an Entity Statement, as defined in [Section 3](#entity-statement){.auto .internal .xref}. No parameters are used with this media type.
 
@@ -5654,7 +4558,7 @@ The `application/entity-statement+jwt` media type is used to specify that the as
 
 
 
-### [15.2.](#section-15.2){.section-number .selfRef} ["application/trust-mark+jwt" Media Type](#name-application-trust-markjwt-m){.section-name .selfRef} {#name-application-trust-markjwt-m}
+## "application/trust-mark+jwt" Media Type
 
 The `application/trust-mark+jwt` media type is used to specify that the associated content is a Trust Mark, as defined in [Section 7](#trust_marks){.auto .internal .xref}. No parameters are used with this media type.
 
@@ -5662,7 +4566,7 @@ The `application/trust-mark+jwt` media type is used to specify that the associat
 
 
 
-### [15.3.](#section-15.3){.section-number .selfRef} ["application/resolve-response+jwt" Media Type](#name-application-resolve-respons){.section-name .selfRef} {#name-application-resolve-respons}
+## "application/resolve-response+jwt" Media Type
 
 The `application/resolve-response+jwt` media type is used to specify that the associated content is a Resolve Response, as defined in [Section 8.3.2](#resolve-response){.auto .internal .xref}. No parameters are used with this media type.
 
@@ -5670,7 +4574,7 @@ The `application/resolve-response+jwt` media type is used to specify that the as
 
 
 
-### [15.4.](#section-15.4){.section-number .selfRef} ["application/trust-chain+json" Media Type](#name-application-trust-chainjson){.section-name .selfRef} {#name-application-trust-chainjson}
+## "application/trust-chain+json" Media Type
 
 The `application/trust-chain+json` media type is used to specify that the associated content is a JSON array representing a Trust Chain, as defined in [Section 4](#trust_chain){.auto .internal .xref}. No parameters are used with this media type.
 
@@ -5678,7 +4582,7 @@ The `application/trust-chain+json` media type is used to specify that the associ
 
 
 
-### [15.5.](#section-15.5){.section-number .selfRef} ["application/trust-mark-delegation+jwt" Media Type](#name-application-trust-mark-dele){.section-name .selfRef} {#name-application-trust-mark-dele}
+## "application/trust-mark-delegation+jwt" Media Type
 
 The `application/trust-mark-delegation+jwt` media type is used to specify that the associated content is a Trust Mark delegation, as defined in [Section 7.2.1](#delegation_jwt){.auto .internal .xref}. No parameters are used with this media type.
 
@@ -5686,7 +4590,7 @@ The `application/trust-mark-delegation+jwt` media type is used to specify that t
 
 
 
-### [15.6.](#section-15.6){.section-number .selfRef} ["application/jwk-set+jwt" Media Type](#name-application-jwk-setjwt-medi){.section-name .selfRef} {#name-application-jwk-setjwt-medi}
+## "application/jwk-set+jwt" Media Type
 
 The `application/jwk-set+jwt` media type is used to specify that the associated content is a signed JWK Set, as defined in [Section 8.7.2](#HistKeysResp){.auto .internal .xref}. No parameters are used with this media type.
 
@@ -5694,7 +4598,7 @@ The `application/jwk-set+jwt` media type is used to specify that the associated 
 
 
 
-### [15.7.](#section-15.7){.section-number .selfRef} ["application/explicit-registration-response+jwt" Media Type](#name-application-explicit-regist){.section-name .selfRef} {#name-application-explicit-regist}
+## "application/explicit-registration-response+jwt" Media Type
 
 The `application/explicit-registration-response+jwt` media type is used to specify that the associated content is an Explicit Registration response, as defined in [Section 12.2.3](#cliregresp){.auto .internal .xref}. No parameters are used with this media type.
 
@@ -5702,7 +4606,7 @@ The `application/explicit-registration-response+jwt` media type is used to speci
 
 
 
-### [15.8.](#section-15.8){.section-number .selfRef} ["application/trust-mark-status-response+jwt" Media Type](#name-application-trust-mark-stat){.section-name .selfRef} {#name-application-trust-mark-stat}
+## "application/trust-mark-status-response+jwt" Media Type
 
 The `application/trust-mark-status-response+jwt` media type is used to specify that the associated content is a Trust Mark Status Response, as defined in [Section 8.4.2](#tm-status-response){.auto .internal .xref}. No parameters are used with this media type.
 
@@ -5712,7 +4616,7 @@ The `application/trust-mark-status-response+jwt` media type is used to specify t
 
 
 
-## [16.](#section-16){.section-number .selfRef} [String Operations](#name-string-operations){.section-name .selfRef} {#name-string-operations}
+# String Operations
 
 Processing some OpenID Federation messages requires comparing values in the messages to other values. For example, the Entity Identifier in an `iss` claim might be compared to the Entity Identifier in a `sub` claim. Comparing Unicode [[UNICODE](#UNICODE){.cite .xref}] strings, however, has significant security implications.
 
@@ -5736,13 +4640,13 @@ Note that this is the same comparison procedure as specified in Section 14 of [O
 
 
 
-## [17.](#section-17){.section-number .selfRef} [Implementation Considerations](#name-implementation-consideratio){.section-name .selfRef} {#name-implementation-consideratio}
+# Implementation Considerations
 
 This section provides guidance to implementers and deployers of Federations on situations and properties that they should consider for their Federations.
 
 
 
-### [17.1.](#section-17.1){.section-number .selfRef} [Federation Topologies](#name-federation-topologies){.section-name .selfRef} {#name-federation-topologies}
+## Federation Topologies
 
 It is possible to construct Federation topologies that have multiple trust paths between Entities. The specification does not disallow this, but it can create ambiguities that deployers need to be aware of.
 
@@ -5750,30 +4654,31 @@ Consider the following Federation topology:
 
 []{#name-example-topology-with-multi}
 
-<figure id="figure-53">
-<div id="section-17.1-3.1" class="alignLeft art-text artwork">
-<pre><code>              .--------------.
+
+
+``` figure
+              .--------------.
               | Trust Anchor |
-              &#39;--.---.-----.-&#39;
+              '--.---.-----.-'
                  |   |     |
-              .--&#39;   &#39;--.  &#39;---------------.
+              .--'   '--.  '---------------.
               |         |                  |
 .-------------v--.   .--v-------------.    |
 | Intermediate 1 |   | Intermediate 2 |    |
-&#39;-------------.--&#39;   &#39;--.-------------&#39;    |
+'-------------.--'   '--.-------------'    |
               |         |                .-v--.
               |         |                | OP |
-           .--v---------v---.            &#39;----&#39;
+           .--v---------v---.            '----'
            | Intermediate 3 |
-           &#39;-------.--------&#39;
+           '-------.--------'
                    |
                    |
                  .-v--.
                  | RP |
-                 &#39;----&#39;</code></pre>
-</div>
-<figcaption><a href="#figure-53" class="selfRef">Figure 53</a>: <a href="#name-example-topology-with-multi" class="selfRef">Example topology with multiple trust paths between Entities</a></figcaption>
-</figure>
+                 '----'
+```
+Figure 53: Example topology with multiple trust paths between Entities
+
 
 In this topology, there are multiple trust paths between the RP and the Trust Anchor, meaning that multiple different Trust Chains could be built between them. If the metadata policies of Intermediate 1 and Intermediate 2 are different, this could result in the Resolved Metadata for the RP differing, depending upon which Intermediate is used when building the Trust Chain. Some such differences will be innocuous and some can cause failures.
 
@@ -5785,7 +4690,7 @@ Even when a Federation topology contains loops, Trust Chains built from them MUS
 
 
 
-### [17.2.](#section-17.2){.section-number .selfRef} [Federation Discovery and Trust Chain Resolution Patterns](#name-federation-discovery-and-tr){.section-name .selfRef} {#name-federation-discovery-and-tr}
+## Federation Discovery and Trust Chain Resolution Patterns
 
 This section describes different patterns that implementers may use for discovering entities within a federation and for resolving Trust Chains. It is important to distinguish between two related but distinct concepts:
 
@@ -5817,7 +4722,7 @@ Federation operators may choose to support multiple patterns to accommodate diff
 
 
 
-#### [17.2.1.](#section-17.2.1){.section-number .selfRef} [Top-Down Discovery](#name-top-down-discovery){.section-name .selfRef} {#name-top-down-discovery}
+### Top-Down Discovery
 
 Top-down discovery is the process of finding entities that are part of a federation by starting from a known Trust Anchor and traversing down the federation hierarchy. This pattern is used when the goal is to discover available entities, particularly entities of specific Entity Types, without necessarily knowing their Entity Identifiers in advance.
 
@@ -5867,7 +4772,7 @@ Note that top-down discovery may or may not include Trust Chain resolution, depe
 
 
 
-#### [17.2.2.](#section-17.2.2){.section-number .selfRef} [Bottom-Up Trust Chain Resolution](#name-bottom-up-trust-chain-resol){.section-name .selfRef} {#name-bottom-up-trust-chain-resol}
+### Bottom-Up Trust Chain Resolution
 
 Bottom-up Trust Chain resolution is the process described in [Section 10](#resolving_trust){.auto .internal .xref}, also known as Federation Entity Discovery (see the definition in the Terminology section). This process starts with a known Entity Identifier and builds a Trust Chain by traversing up the federation hierarchy until reaching a Trust Anchor. This pattern is not discovery in the sense of finding unknown entities, but rather trust resolution for a known entity.
 
@@ -5923,7 +4828,7 @@ The bottom-up Trust Chain resolution process follows these steps, as described i
 
 
 
-#### [17.2.3.](#section-17.2.3){.section-number .selfRef} [Single Point of Trust Resolution](#name-single-point-of-trust-resol){.section-name .selfRef} {#name-single-point-of-trust-resol}
+### Single Point of Trust Resolution
 
 Single point of trust resolution delegates the entire Trust Chain resolution process to a trusted resolver implementing the Resolve Endpoint defined in [Section 8.3](#resolve){.auto .internal .xref}. This pattern allows entities to offload the complexity of Trust Chain resolution to a specialized service.
 
@@ -5979,7 +4884,7 @@ The single point of trust resolution process follows these steps:
 
 
 
-### [17.3.](#section-17.3){.section-number .selfRef} [Trust Anchors and Resolvers Go Together](#name-trust-anchors-and-resolvers){.section-name .selfRef} {#name-trust-anchors-and-resolvers}
+## Trust Anchors and Resolvers Go Together
 
 If only one resolver is present in a federation, that entity should be both Trust Anchor and Resolver. If so, users of the resolver will not have to collect and evaluate Trust Chains for the Resolver. The Trust Anchor is by definition trusted and if the entity also serves as Resolver, that service will be implicitly trusted.
 
@@ -5987,7 +4892,7 @@ If only one resolver is present in a federation, that entity should be both Trus
 
 
 
-### [17.4.](#section-17.4){.section-number .selfRef} [One Entity, One Service](#name-one-entity-one-service){.section-name .selfRef} {#name-one-entity-one-service}
+## One Entity, One Service
 
 Apart from letting an entity provide both the Trust Anchor and Resolver services, there is a good reason for having each entity only do one thing. The reason is that, later in time, it will be much easier to share specific services between federations.
 
@@ -5995,7 +4900,7 @@ Apart from letting an entity provide both the Trust Anchor and Resolver services
 
 
 
-### [17.5.](#section-17.5){.section-number .selfRef} [Trust Mark Policies](#name-trust-mark-policies){.section-name .selfRef} {#name-trust-mark-policies}
+## Trust Mark Policies
 
 When validating trust marks in an Entity Statement, it can be split into three parts.
 
@@ -6003,11 +4908,9 @@ When validating trust marks in an Entity Statement, it can be split into three p
 
 Validating Trust Marks in the Context of Validating an Entity Statement
 :   According to the text on Entity Statement Validation in [Section 3.5](#ESValidation){.auto .internal .xref}, validating a Trust Mark is confined to validating the syntax of the claim value, including that the `trust_mark_type` value is consistent.
-:   
 
 Validating a Specific Trust Mark
 :   This is what is described in [Section 7.3](#trust-mark-validation){.auto .internal .xref}. In order to validate a Trust Mark, the entity must find a Trust Chain for the Trust Mark Issuer to a Trust Anchor the Entity trusts. This has nothing to do with which federation that will later be used for the application protocol.
-:   
 
 Deciding which Trust Marks to Use
 
@@ -6017,7 +4920,6 @@ Deciding which Trust Marks to Use
 
     An Entity MAY also choose, at its own discretion, to utilize Trust Marks presented to it that are not recognized within the federation, and where the accreditation authority is established by an out-of-band mechanism.
 
-:   
 
 
 
@@ -6025,11 +4927,9 @@ Deciding which Trust Marks to Use
 
 
 
-## [18.](#section-18){.section-number .selfRef} [Security Considerations](#name-security-considerations){.section-name .selfRef} {#name-security-considerations}
+# Security Considerations
 
-
-
-### [18.1.](#section-18.1){.section-number .selfRef} [Denial-of-Service Attack Prevention](#name-denial-of-service-attack-pr){.section-name .selfRef} {#name-denial-of-service-attack-pr}
+## Denial-of-Service Attack Prevention
 
 Some of the interfaces defined in this specification could be used for Denial-of-Service attacks (DoS), most notably, the resolve endpoint ([Section 8.2](#entity_listing){.auto .internal .xref}), Explicit Client Registration ([Section 12.2](#explicit){.auto .internal .xref}), and Automatic Client Registration ([Section 12.1](#automatic){.auto .internal .xref}) can be exploited as vectors of HTTP propagation attacks. Below is an explanation of how such an attack can occur and the countermeasures to prevent it.
 
@@ -6051,7 +4951,7 @@ Passing request objects by reference (using the `request_uri` request parameter)
 
 
 
-### [18.2.](#section-18.2){.section-number .selfRef} [Unsigned Error Messages](#name-unsigned-error-messages){.section-name .selfRef} {#name-unsigned-error-messages}
+## Unsigned Error Messages
 
 One of the fundamental design goals of this protocol is to protect messages end-to-end. This cannot be accomplished by demanding TLS since TLS, in lots of cases, is not end-to-end but ends in an HTTPS to HTTP Reverse Proxy. Allowing unsigned error messages therefore opens an attack vector for someone who wants to run a Denial-of-Service attack. This is not specific to OpenID Federation but equally valid for other protocols when HTTPS to HTTP reverse proxies are used.
 
@@ -6061,7 +4961,7 @@ One of the fundamental design goals of this protocol is to protect messages end-
 
 
 
-## [19.](#section-19){.section-number .selfRef} [Privacy Considerations](#name-privacy-considerations){.section-name .selfRef} {#name-privacy-considerations}
+# Privacy Considerations
 
 Implementers should be aware of these privacy considerations:
 
@@ -6069,31 +4969,26 @@ Implementers should be aware of these privacy considerations:
 
 Entity Statements
 :   Entity Statements are designed to establish trust relationships between organizational entities within a federation, rather than between individuals or for specific business applications. Trust and reputation assessments for individuals or legal entities, such as those required for Know Your Customer and Anti-Money Laundering processes, should be managed through specialized platforms tailored for those purposes. Given that Entity Statements facilitate trust relationships using a public infrastructure, they should be limited to the essential information necessary for federation operations and organizational trust establishment.
-:   
 
 Trust Mark Status
 :   The Trust Mark Status endpoint enables querying the status of Trust Marks in real time. Similar to the Federation Fetch endpoint, in cases where the Trust Mark Status endpoint is not protected by any client authentication method, requests to validate Trust Marks may not necessarily indicate an actual interaction or relationship between Entities, as they could simply be part of routine network inspection or discovery processes. This could potentially enable Trust Mark issuers to track Entities evaluating Trust Marks about other Entities through standard network diagnostic tools like IPv4/IPv6 addresses and DNS Whois entries. To mitigate tracking risks, implementers can use short-lived Trust Marks, or use the Trust Marked Entities Listing ([Section 8.5](#tm_listing){.auto .internal .xref}) with only the `trust_mark_type` parameter and not the `sub` parameter, reducing the need to use the Trust Mark Status endpoint.
-:   
 
 Federation Fetch Endpoint
 :   The Federation Fetch endpoint enables querying Subordinate Statements in real time. Similar to Trust Mark Status validation, in the cases where the federation infrastructure is public and widely browsable and endpoints are not protected by any client authentication method, requests to fetch Subordinate Statements may not necessarily indicate an actual interaction or relationship between Entities, as they could simply be part of routine network inspection or discovery processes. However, this could potentially enable Trust Anchors or Intermediates to track Entities evaluating trust relationships with other Entities through standard network diagnostic tools like IPv4/IPv6 addresses and DNS Whois entries. To mitigate tracking risks around Entities inspecting and interacting with other Entities, implementers should consider using static and short-lived Trust Chains where appropriate, which can reduce the need for real-time fetching of Subordinate Statements.
-:   
 
 
 
 
 
-## [20.](#section-20){.section-number .selfRef} [IANA Considerations](#name-iana-considerations){.section-name .selfRef} {#name-iana-considerations}
+# IANA Considerations
 
-
-
-### [20.1.](#section-20.1){.section-number .selfRef} [OAuth Authorization Server Metadata Registration](#name-oauth-authorization-server-){.section-name .selfRef} {#name-oauth-authorization-server-}
+## OAuth Authorization Server Metadata Registration
 
 This specification registers the following metadata entries in the IANA "OAuth Authorization Server Metadata" registry [[IANA.OAuth.Parameters](#IANA.OAuth.Parameters){.cite .xref}] established by [[RFC8414](#RFC8414){.cite .xref}].
 
 
 
-#### [20.1.1.](#section-20.1.1){.section-number .selfRef} [Registry Contents](#name-registry-contents){.section-name .selfRef} {#name-registry-contents}
+### Registry Contents
 
 - 
   Metadata Name: `client_registration_types_supported`
@@ -6111,7 +5006,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.1.3](#OP_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `federation_registration_endpoint`
@@ -6129,7 +5024,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.1.3](#OP_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `signed_jwks_uri`
@@ -6147,7 +5042,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.1](#jwks_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `jwks`
@@ -6165,7 +5060,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.1](#jwks_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `organization_name`
@@ -6183,7 +5078,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `display_name`
@@ -6201,7 +5096,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `description`
@@ -6219,7 +5114,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `keywords`
@@ -6237,7 +5132,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `contacts`
@@ -6255,7 +5150,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `logo_uri`
@@ -6273,7 +5168,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `information_uri`
@@ -6291,7 +5186,7 @@ This specification registers the following metadata entries in the IANA "OAuth A
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `organization_uri`
@@ -6315,13 +5210,13 @@ This specification registers the following metadata entries in the IANA "OAuth A
 
 
 
-### [20.2.](#section-20.2){.section-number .selfRef} [OAuth Dynamic Client Registration Metadata Registration](#name-oauth-dynamic-client-regist){.section-name .selfRef} {#name-oauth-dynamic-client-regist}
+## OAuth Dynamic Client Registration Metadata Registration
 
 This specification registers the following client metadata entries in the IANA "OAuth Dynamic Client Registration Metadata" registry [[IANA.OAuth.Parameters](#IANA.OAuth.Parameters){.cite .xref}] established by [[RFC7591](#RFC7591){.cite .xref}].
 
 
 
-#### [20.2.1.](#section-20.2.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-2){.section-name .selfRef} {#name-registry-contents-2}
+### Registry Contents
 
 - 
   Client Metadata Name: `client_registration_types`
@@ -6339,7 +5234,7 @@ This specification registers the following client metadata entries in the IANA "
   Specification Document(s): [Section 5.1.2](#RP_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Client Metadata Name: `signed_jwks_uri`
@@ -6357,7 +5252,7 @@ This specification registers the following client metadata entries in the IANA "
   Specification Document(s): [Section 5.2.1](#jwks_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Client Metadata Name: `organization_name`
@@ -6375,7 +5270,7 @@ This specification registers the following client metadata entries in the IANA "
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Client Metadata Name: `description`
@@ -6393,7 +5288,7 @@ This specification registers the following client metadata entries in the IANA "
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Client Metadata Name: `keywords`
@@ -6411,7 +5306,7 @@ This specification registers the following client metadata entries in the IANA "
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Client Metadata Name: `information_uri`
@@ -6429,7 +5324,7 @@ This specification registers the following client metadata entries in the IANA "
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Client Metadata Name: `organization_uri`
@@ -6453,13 +5348,13 @@ This specification registers the following client metadata entries in the IANA "
 
 
 
-### [20.3.](#section-20.3){.section-number .selfRef} [OAuth Extensions Error Registration](#name-oauth-extensions-error-regi){.section-name .selfRef} {#name-oauth-extensions-error-regi}
+## OAuth Extensions Error Registration
 
 This section registers the following values in the IANA "OAuth Extensions Error Registry" registry [[IANA.OAuth.Parameters](#IANA.OAuth.Parameters){.cite .xref}] established by [[RFC6749](#RFC6749){.cite .xref}].
 
 
 
-#### [20.3.1.](#section-20.3.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-3){.section-name .selfRef} {#name-registry-contents-3}
+### Registry Contents
 
 - 
   Name: invalid_request
@@ -6481,7 +5376,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: invalid_client
@@ -6503,7 +5398,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: invalid_issuer
@@ -6525,7 +5420,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: invalid_subject
@@ -6547,7 +5442,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: invalid_trust_anchor
@@ -6569,7 +5464,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: invalid_trust_chain
@@ -6591,7 +5486,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: invalid_metadata
@@ -6613,7 +5508,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: not_found
@@ -6635,7 +5530,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: server_error
@@ -6657,7 +5552,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: temporarily_unavailable
@@ -6679,7 +5574,7 @@ This section registers the following values in the IANA "OAuth Extensions Error 
   Reference: [Section 8.9](#error_response){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Name: unsupported_parameter
@@ -6707,13 +5602,13 @@ This section registers the following values in the IANA "OAuth Extensions Error 
 
 
 
-### [20.4.](#section-20.4){.section-number .selfRef} [Media Type Registration](#name-media-type-registration){.section-name .selfRef} {#name-media-type-registration}
+## Media Type Registration
 
 This section registers the following media types [[RFC2046](#RFC2046){.cite .xref}] in the "Media Types" registry [[IANA.MediaTypes](#IANA.MediaTypes){.cite .xref}] in the manner described in [[RFC6838](#RFC6838){.cite .xref}].
 
 
 
-#### [20.4.1.](#section-20.4.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-4){.section-name .selfRef} {#name-registry-contents-4}
+### Registry Contents
 
 - 
   Type name: application
@@ -6797,7 +5692,7 @@ This section registers the following media types [[RFC2046](#RFC2046){.cite .xre
   Provisional registration? No
   
 
-<!-- -->
+
 
 - 
   Type name: application
@@ -6881,7 +5776,7 @@ This section registers the following media types [[RFC2046](#RFC2046){.cite .xre
   Provisional registration? No
   
 
-<!-- -->
+
 
 - 
   Type name: application
@@ -6965,7 +5860,7 @@ This section registers the following media types [[RFC2046](#RFC2046){.cite .xre
   Provisional registration? No
   
 
-<!-- -->
+
 
 - 
   Type name: application
@@ -7049,7 +5944,7 @@ This section registers the following media types [[RFC2046](#RFC2046){.cite .xre
   Provisional registration? No
   
 
-<!-- -->
+
 
 - 
   Type name: application
@@ -7133,7 +6028,7 @@ This section registers the following media types [[RFC2046](#RFC2046){.cite .xre
   Provisional registration? No
   
 
-<!-- -->
+
 
 - 
   Type name: application
@@ -7217,7 +6112,7 @@ This section registers the following media types [[RFC2046](#RFC2046){.cite .xre
   Provisional registration? No
   
 
-<!-- -->
+
 
 - 
   Type name: application
@@ -7301,7 +6196,7 @@ This section registers the following media types [[RFC2046](#RFC2046){.cite .xre
   Provisional registration? No
   
 
-<!-- -->
+
 
 - 
   Type name: application
@@ -7391,13 +6286,13 @@ This section registers the following media types [[RFC2046](#RFC2046){.cite .xre
 
 
 
-### [20.5.](#section-20.5){.section-number .selfRef} [OAuth Parameters Registration](#name-oauth-parameters-registrati){.section-name .selfRef} {#name-oauth-parameters-registrati}
+## OAuth Parameters Registration
 
 This specification registers the following parameter name in the IANA "OAuth Parameters" registry [[IANA.OAuth.Parameters](#IANA.OAuth.Parameters){.cite .xref}] established by [[RFC6749](#RFC6749){.cite .xref}].
 
 
 
-#### [20.5.1.](#section-20.5.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-5){.section-name .selfRef} {#name-registry-contents-5}
+### Registry Contents
 
 - 
   Parameter Name: `trust_chain`
@@ -7421,13 +6316,13 @@ This specification registers the following parameter name in the IANA "OAuth Par
 
 
 
-### [20.6.](#section-20.6){.section-number .selfRef} [JSON Web Signature and Encryption Header Parameters Registration](#name-json-web-signature-and-encr){.section-name .selfRef} {#name-json-web-signature-and-encr}
+## JSON Web Signature and Encryption Header Parameters Registration
 
 This specification registers the following JWS header parameter in the IANA "JSON Web Signature and Encryption Header Parameters" registry [[IANA.JOSE](#IANA.JOSE){.cite .xref}] established by [[RFC7515](#RFC7515){.cite .xref}].
 
 
 
-#### [20.6.1.](#section-20.6.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-6){.section-name .selfRef} {#name-registry-contents-6}
+### Registry Contents
 
 - 
   Header Parameter Name: `trust_chain`
@@ -7455,13 +6350,13 @@ This specification registers the following JWS header parameter in the IANA "JSO
 
 
 
-### [20.7.](#section-20.7){.section-number .selfRef} [JSON Web Token Claims Registration](#name-json-web-token-claims-regis){.section-name .selfRef} {#name-json-web-token-claims-regis}
+## JSON Web Token Claims Registration
 
 This specification registers the following claims in the IANA "JSON Web Token Claims" registry [[IANA.JWT.Claims](#IANA.JWT.Claims){.cite .xref}] established by [[RFC7519](#RFC7519){.cite .xref}].
 
 
 
-#### [20.7.1.](#section-20.7.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-7){.section-name .selfRef} {#name-registry-contents-7}
+### Registry Contents
 
 - 
   Claim Name: `jwks`
@@ -7479,7 +6374,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 13.1](#jwksClaim){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `metadata`
@@ -7497,7 +6392,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 13.2](#metadataClaim){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `constraints`
@@ -7515,7 +6410,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 13.3](#constraintsClaim){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `crit`
@@ -7533,7 +6428,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 13.4](#critClaim){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `ref`
@@ -7551,7 +6446,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 13.5](#refClaim){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `delegation`
@@ -7569,7 +6464,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 13.6](#delegationClaim){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `logo_uri`
@@ -7587,7 +6482,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 13.7](#logo_uriClaim){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `authority_hints`
@@ -7605,7 +6500,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 3](#entity-statement){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `metadata_policy`
@@ -7623,7 +6518,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 3](#entity-statement){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `metadata_policy_crit`
@@ -7641,7 +6536,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 3](#entity-statement){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `trust_marks`
@@ -7659,7 +6554,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 3](#entity-statement){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `trust_mark_issuers`
@@ -7677,7 +6572,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 3](#entity-statement){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `trust_mark_owners`
@@ -7695,7 +6590,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 3](#entity-statement){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `source_endpoint`
@@ -7713,7 +6608,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 3](#entity-statement){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `trust_chain`
@@ -7731,7 +6626,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 4](#trust_chain){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `keys`
@@ -7749,7 +6644,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 5.2](#common_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `trust_mark_type`
@@ -7767,7 +6662,7 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
   Specification Document(s): [Section 7.1](#trust_mark_claims){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Claim Name: `trust_anchor`
@@ -7791,13 +6686,13 @@ This specification registers the following claims in the IANA "JSON Web Token Cl
 
 
 
-### [20.8.](#section-20.8){.section-number .selfRef} [JSON Web Key Parameters Registration](#name-json-web-key-parameters-reg){.section-name .selfRef} {#name-json-web-key-parameters-reg}
+## JSON Web Key Parameters Registration
 
 This specification registers the following parameters in the IANA "JSON Web Key Parameters" registry [[IANA.JOSE](#IANA.JOSE){.cite .xref}] established by [[RFC7517](#RFC7517){.cite .xref}].
 
 
 
-#### [20.8.1.](#section-20.8.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-8){.section-name .selfRef} {#name-registry-contents-8}
+### Registry Contents
 
 - 
   Parameter Name: `iat`
@@ -7823,7 +6718,7 @@ This specification registers the following parameters in the IANA "JSON Web Key 
   Specification Document(s): [Section 8.7.2](#HistKeysResp){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Parameter Name: `nbf`
@@ -7849,7 +6744,7 @@ This specification registers the following parameters in the IANA "JSON Web Key 
   Specification Document(s): [Section 8.7.2](#HistKeysResp){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Parameter Name: `exp`
@@ -7875,7 +6770,7 @@ This specification registers the following parameters in the IANA "JSON Web Key 
   Specification Document(s): [Section 8.7.2](#HistKeysResp){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Parameter Name: `revoked`
@@ -7907,13 +6802,13 @@ This specification registers the following parameters in the IANA "JSON Web Key 
 
 
 
-### [20.9.](#section-20.9){.section-number .selfRef} [Well-Known URI Registry](#name-well-known-uri-registry){.section-name .selfRef} {#name-well-known-uri-registry}
+## Well-Known URI Registry
 
 This specification registers the following well-known URI in the IANA "Well-Known URIs" registry [[IANA.well-known](#IANA.well-known){.cite .xref}] established by [[RFC5785](#RFC5785){.cite .xref}].
 
 
 
-#### [20.9.1.](#section-20.9.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-9){.section-name .selfRef} {#name-registry-contents-9}
+### Registry Contents
 
 - 
   URI suffix: `openid-federation`
@@ -7937,13 +6832,13 @@ This specification registers the following well-known URI in the IANA "Well-Know
 
 
 
-### [20.10.](#section-20.10){.section-number .selfRef} [OAuth Protected Resource Metadata Registration](#name-oauth-protected-resource-me){.section-name .selfRef} {#name-oauth-protected-resource-me}
+## OAuth Protected Resource Metadata Registration
 
 This specification registers the following protected resource metadata entries in the IANA "OAuth Protected Resource Metadata" registry [[IANA.OAuth.Parameters](#IANA.OAuth.Parameters){.cite .xref}] established by [[RFC9728](#RFC9728){.cite .xref}].
 
 
 
-#### [20.10.1.](#section-20.10.1){.section-number .selfRef} [Registry Contents](#name-registry-contents-10){.section-name .selfRef} {#name-registry-contents-10}
+### Registry Contents
 
 - 
   Metadata Name: `signed_jwks_uri`
@@ -7961,7 +6856,7 @@ This specification registers the following protected resource metadata entries i
   Specification Document(s): [Section 5.2.1](#jwks_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `jwks`
@@ -7979,7 +6874,7 @@ This specification registers the following protected resource metadata entries i
   Specification Document(s): [Section 5.2.1](#jwks_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `organization_name`
@@ -7997,7 +6892,7 @@ This specification registers the following protected resource metadata entries i
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `description`
@@ -8015,7 +6910,7 @@ This specification registers the following protected resource metadata entries i
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `keywords`
@@ -8033,7 +6928,7 @@ This specification registers the following protected resource metadata entries i
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `contacts`
@@ -8051,7 +6946,7 @@ This specification registers the following protected resource metadata entries i
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `logo_uri`
@@ -8069,7 +6964,7 @@ This specification registers the following protected resource metadata entries i
   Specification Document(s): [Section 5.2.2](#informational_metadata){.auto .internal .xref} of this specification
   
 
-<!-- -->
+
 
 - 
   Metadata Name: `organization_uri`
@@ -8094,156 +6989,122 @@ This specification registers the following protected resource metadata entries i
 
 
 
-## [21.](#section-21){.section-number .selfRef} [References](#name-references){.section-name .selfRef} {#name-references}
+# References
 
 
-### [21.1.](#section-21.1){.section-number .selfRef} [Normative References](#name-normative-references){.section-name .selfRef} {#name-normative-references}
+## Normative References
 
 [OpenID.Core]
 :   [Sakimura, N.]{.refAuthor}, [Bradley, J.]{.refAuthor}, [Jones, M.B.]{.refAuthor}, [de Medeiros, B.]{.refAuthor}, and [C. Mortimore]{.refAuthor}, ["OpenID Connect Core 1.0"]{.refTitle}, 15 December 2023, <<https://openid.net/specs/openid-connect-core-1_0.html>>.
-:   
 
 [OpenID.Discovery]
 :   [Sakimura, N.]{.refAuthor}, [Bradley, J.]{.refAuthor}, [Jones, M.B.]{.refAuthor}, and [E. Jay]{.refAuthor}, ["OpenID Connect Discovery 1.0"]{.refTitle}, 15 December 2023, <<https://openid.net/specs/openid-connect-discovery-1_0.html>>.
-:   
 
 [OpenID.Registration]
 :   [Sakimura, N.]{.refAuthor}, [Bradley, J.]{.refAuthor}, and [M.B. Jones]{.refAuthor}, ["OpenID Connect Dynamic Client Registration 1.0"]{.refTitle}, 15 December 2023, <<https://openid.net/specs/openid-connect-registration-1_0.html>>.
-:   
 
 [OpenID.RP.Choices]
 :   [Jones, M.B.]{.refAuthor}, [Hedberg, R.]{.refAuthor}, [Bradley, J.]{.refAuthor}, and [F. Skokan]{.refAuthor}, ["OpenID Connect Relying Party Metadata Choices 1.0"]{.refTitle}, 24 April 2025, <<https://openid.net/specs/openid-connect-rp-metadata-choices-1_0.html>>.
-:   
 
 [RFC2119]
 :   [Bradner, S.]{.refAuthor}, ["Key words for use in RFCs to Indicate Requirement Levels"]{.refTitle}, [BCP 14]{.seriesInfo}, [RFC 2119]{.seriesInfo}, [DOI 10.17487/RFC2119]{.seriesInfo}, March 1997, <<https://www.rfc-editor.org/info/rfc2119>>.
-:   
 
 [RFC4732]
 :   [Handley, M., Ed.]{.refAuthor}, [Rescorla, E., Ed.]{.refAuthor}, and [IAB]{.refAuthor}, ["Internet Denial-of-Service Considerations"]{.refTitle}, [RFC 4732]{.seriesInfo}, [DOI 10.17487/RFC4732]{.seriesInfo}, December 2006, <<https://www.rfc-editor.org/info/rfc4732>>.
-:   
 
 [RFC5280]
 :   [Cooper, D.]{.refAuthor}, [Santesson, S.]{.refAuthor}, [Farrell, S.]{.refAuthor}, [Boeyen, S.]{.refAuthor}, [Housley, R.]{.refAuthor}, and [W. Polk]{.refAuthor}, ["Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile"]{.refTitle}, [RFC 5280]{.seriesInfo}, [DOI 10.17487/RFC5280]{.seriesInfo}, May 2008, <<https://www.rfc-editor.org/info/rfc5280>>.
-:   
 
 [RFC5646]
 :   [Phillips, A., Ed.]{.refAuthor} and [M. Davis, Ed.]{.refAuthor}, ["Tags for Identifying Languages"]{.refTitle}, [BCP 47]{.seriesInfo}, [RFC 5646]{.seriesInfo}, [DOI 10.17487/RFC5646]{.seriesInfo}, September 2009, <<https://www.rfc-editor.org/info/rfc5646>>.
-:   
 
 [RFC6749]
 :   [Hardt, D., Ed.]{.refAuthor}, ["The OAuth 2.0 Authorization Framework"]{.refTitle}, [RFC 6749]{.seriesInfo}, [DOI 10.17487/RFC6749]{.seriesInfo}, October 2012, <<https://www.rfc-editor.org/info/rfc6749>>.
-:   
 
 [RFC7515]
 :   [Jones, M.]{.refAuthor}, [Bradley, J.]{.refAuthor}, and [N. Sakimura]{.refAuthor}, ["JSON Web Signature (JWS)"]{.refTitle}, [RFC 7515]{.seriesInfo}, [DOI 10.17487/RFC7515]{.seriesInfo}, May 2015, <<https://www.rfc-editor.org/info/rfc7515>>.
-:   
 
 [RFC7516]
 :   [Jones, M.]{.refAuthor} and [J. Hildebrand]{.refAuthor}, ["JSON Web Encryption (JWE)"]{.refTitle}, [RFC 7516]{.seriesInfo}, [DOI 10.17487/RFC7516]{.seriesInfo}, May 2015, <<https://www.rfc-editor.org/info/rfc7516>>.
-:   
 
 [RFC7517]
 :   [Jones, M.]{.refAuthor}, ["JSON Web Key (JWK)"]{.refTitle}, [RFC 7517]{.seriesInfo}, [DOI 10.17487/RFC7517]{.seriesInfo}, May 2015, <<https://www.rfc-editor.org/info/rfc7517>>.
-:   
 
 [RFC7519]
 :   [Jones, M.]{.refAuthor}, [Bradley, J.]{.refAuthor}, and [N. Sakimura]{.refAuthor}, ["JSON Web Token (JWT)"]{.refTitle}, [RFC 7519]{.seriesInfo}, [DOI 10.17487/RFC7519]{.seriesInfo}, May 2015, <<https://www.rfc-editor.org/info/rfc7519>>.
-:   
 
 [RFC7591]
 :   [Richer, J., Ed.]{.refAuthor}, [Jones, M.]{.refAuthor}, [Bradley, J.]{.refAuthor}, [Machulak, M.]{.refAuthor}, and [P. Hunt]{.refAuthor}, ["OAuth 2.0 Dynamic Client Registration Protocol"]{.refTitle}, [RFC 7591]{.seriesInfo}, [DOI 10.17487/RFC7591]{.seriesInfo}, July 2015, <<https://www.rfc-editor.org/info/rfc7591>>.
-:   
 
 [RFC7638]
 :   [Jones, M.]{.refAuthor} and [N. Sakimura]{.refAuthor}, ["JSON Web Key (JWK) Thumbprint"]{.refTitle}, [RFC 7638]{.seriesInfo}, [DOI 10.17487/RFC7638]{.seriesInfo}, September 2015, <<https://www.rfc-editor.org/info/rfc7638>>.
-:   
 
 [RFC8174]
 :   [Leiba, B.]{.refAuthor}, ["Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"]{.refTitle}, [BCP 14]{.seriesInfo}, [RFC 8174]{.seriesInfo}, [DOI 10.17487/RFC8174]{.seriesInfo}, May 2017, <<https://www.rfc-editor.org/info/rfc8174>>.
-:   
 
 [RFC8259]
 :   [Bray, T., Ed.]{.refAuthor}, ["The JavaScript Object Notation (JSON) Data Interchange Format"]{.refTitle}, [STD 90]{.seriesInfo}, [RFC 8259]{.seriesInfo}, [DOI 10.17487/RFC8259]{.seriesInfo}, December 2017, <<https://www.rfc-editor.org/info/rfc8259>>.
-:   
 
 [RFC8414]
 :   [Jones, M.]{.refAuthor}, [Sakimura, N.]{.refAuthor}, and [J. Bradley]{.refAuthor}, ["OAuth 2.0 Authorization Server Metadata"]{.refTitle}, [RFC 8414]{.seriesInfo}, [DOI 10.17487/RFC8414]{.seriesInfo}, June 2018, <<https://www.rfc-editor.org/info/rfc8414>>.
-:   
 
 [RFC8705]
 :   [Campbell, B.]{.refAuthor}, [Bradley, J.]{.refAuthor}, [Sakimura, N.]{.refAuthor}, and [T. Lodderstedt]{.refAuthor}, ["OAuth 2.0 Mutual-TLS Client Authentication and Certificate-Bound Access Tokens"]{.refTitle}, [RFC 8705]{.seriesInfo}, [DOI 10.17487/RFC8705]{.seriesInfo}, February 2020, <<https://www.rfc-editor.org/info/rfc8705>>.
-:   
 
 [RFC9101]
 :   [Sakimura, N.]{.refAuthor}, [Bradley, J.]{.refAuthor}, and [M. Jones]{.refAuthor}, ["The OAuth 2.0 Authorization Framework: JWT-Secured Authorization Request (JAR)"]{.refTitle}, [RFC 9101]{.seriesInfo}, [DOI 10.17487/RFC9101]{.seriesInfo}, August 2021, <<https://www.rfc-editor.org/info/rfc9101>>.
-:   
 
 [RFC9126]
 :   [Lodderstedt, T.]{.refAuthor}, [Campbell, B.]{.refAuthor}, [Sakimura, N.]{.refAuthor}, [Tonge, D.]{.refAuthor}, and [F. Skokan]{.refAuthor}, ["OAuth 2.0 Pushed Authorization Requests"]{.refTitle}, [RFC 9126]{.seriesInfo}, [DOI 10.17487/RFC9126]{.seriesInfo}, September 2021, <<https://www.rfc-editor.org/info/rfc9126>>.
-:   
 
 [RFC9728]
 :   [Jones, M.B.]{.refAuthor}, [Hunt, P.]{.refAuthor}, and [A. Parecki]{.refAuthor}, ["OAuth 2.0 Protected Resource Metadata"]{.refTitle}, [RFC 9728]{.seriesInfo}, [DOI 10.17487/RFC9728]{.seriesInfo}, April 2025, <<https://www.rfc-editor.org/info/rfc9728>>.
-:   
 
 [UNICODE]
 :   [The Unicode Consortium]{.refAuthor}, ["The Unicode Standard"]{.refTitle}, <<http://www.unicode.org/versions/latest/>>.
-:   
 
 [USA15]
 :   [Whistler, K.]{.refAuthor}, ["Unicode Normalization Forms"]{.refTitle}, [Unicode Standard Annex 15]{.seriesInfo}, 12 August 2023, <<https://www.unicode.org/reports/tr15/>>.
-:   
 
 
 
-### [21.2.](#section-21.2){.section-number .selfRef} [Informative References](#name-informative-references){.section-name .selfRef} {#name-informative-references}
+## Informative References
 
 [FAPI]
 :   [Sakimura, N.]{.refAuthor}, [Bradley, J.]{.refAuthor}, and [E. Jay]{.refAuthor}, ["Financial-grade API Security Profile 1.0 - Part 2: Advanced"]{.refTitle}, 12 March 2021, <<https://openid.net/specs/openid-financial-api-part-2-1_0.html>>.
-:   
 
 [IANA.JOSE]
 :   [IANA]{.refAuthor}, ["JSON Object Signing and Encryption (JOSE)"]{.refTitle}, <<https://www.iana.org/assignments/jose>>.
-:   
 
 [IANA.JWT.Claims]
 :   [IANA]{.refAuthor}, ["JSON Web Token Claims"]{.refTitle}, <<https://www.iana.org/assignments/jwt>>.
-:   
 
 [IANA.MediaTypes]
 :   [IANA]{.refAuthor}, ["Media Types"]{.refTitle}, <<https://www.iana.org/assignments/media-types>>.
-:   
 
 [IANA.OAuth.Parameters]
 :   [IANA]{.refAuthor}, ["OAuth Parameters"]{.refTitle}, <<https://www.iana.org/assignments/oauth-parameters>>.
-:   
 
 [IANA.well-known]
 :   [IANA]{.refAuthor}, ["Well-Known URIs"]{.refTitle}, <<https://www.iana.org/assignments/well-known-uris>>.
-:   
 
 [RFC2046]
 :   [Freed, N.]{.refAuthor} and [N. Borenstein]{.refAuthor}, ["Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types"]{.refTitle}, [RFC 2046]{.seriesInfo}, [DOI 10.17487/RFC2046]{.seriesInfo}, November 1996, <<https://www.rfc-editor.org/info/rfc2046>>.
-:   
 
 [RFC5785]
 :   [Nottingham, M.]{.refAuthor} and [E. Hammer-Lahav]{.refAuthor}, ["Defining Well-Known Uniform Resource Identifiers (URIs)"]{.refTitle}, [RFC 5785]{.seriesInfo}, [DOI 10.17487/RFC5785]{.seriesInfo}, April 2010, <<https://www.rfc-editor.org/info/rfc5785>>.
-:   
 
 [RFC6838]
 :   [Freed, N.]{.refAuthor}, [Klensin, J.]{.refAuthor}, and [T. Hansen]{.refAuthor}, ["Media Type Specifications and Registration Procedures"]{.refTitle}, [BCP 13]{.seriesInfo}, [RFC 6838]{.seriesInfo}, [DOI 10.17487/RFC6838]{.seriesInfo}, January 2013, <<https://www.rfc-editor.org/info/rfc6838>>.
-:   
 
 [RFC8725]
 :   [Sheffer, Y.]{.refAuthor}, [Hardt, D.]{.refAuthor}, and [M. Jones]{.refAuthor}, ["JSON Web Token Best Current Practices"]{.refTitle}, [BCP 225]{.seriesInfo}, [RFC 8725]{.seriesInfo}, [DOI 10.17487/RFC8725]{.seriesInfo}, February 2020, <<https://www.rfc-editor.org/info/rfc8725>>.
-:   
 
 
 
 
 
-## [Appendix A.](#appendix-A){.section-number .selfRef} [Example OpenID Provider Information Discovery and Client Registration](#name-example-openid-provider-inf){.section-name .selfRef} {#name-example-openid-provider-inf}
+# Example OpenID Provider Information Discovery and Client Registration
 
 Let us assume the following: The project LIGO would like to offer access to its wiki to all OPs in eduGAIN. LIGO is registered with the InCommon federation.
 
@@ -8251,9 +7112,10 @@ The following depicts a federation under the eduGAIN Trust Anchor:
 
 []{#name-participants-within-the-edu}
 
-<figure id="figure-54">
-<div id="appendix-A-3.1" class="alignLeft art-text artwork">
-<pre><code>                       eduGAIN
+
+
+``` figure
+                       eduGAIN
                           |
        +------------------+------------------+
        |                                     |
@@ -8261,10 +7123,10 @@ The following depicts a federation under the eduGAIN Trust Anchor:
        |                                     |
      umu.se                                  |
        |                                     |
-   op.umu.se                           wiki.ligo.org</code></pre>
-</div>
-<figcaption><a href="#figure-54" class="selfRef">Figure 54</a>: <a href="#name-participants-within-the-edu" class="selfRef">Participants Within the eduGAIN Federation</a></figcaption>
-</figure>
+   op.umu.se                           wiki.ligo.org
+```
+Figure 54: Participants Within the eduGAIN Federation
+
 
 Both SWAMID and InCommon are identity federations in their own right. They also have in common that they are both members of the eduGAIN federation.
 
@@ -8278,7 +7140,7 @@ Let us make a detour and start with what it takes to build a federation.
 
 
 
-### [A.1.](#appendix-A.1){.section-number .selfRef} [Setting Up a Federation](#name-setting-up-a-federation){.section-name .selfRef} {#name-setting-up-a-federation}
+## Setting Up a Federation
 
 These are the steps to set up a federation infrastructure:
 
@@ -8312,7 +7174,7 @@ With the federation in place, things can start happening.
 
 
 
-### [A.2.](#appendix-A.2){.section-number .selfRef} [The LIGO Wiki Discovers the OP's Metadata](#name-the-ligo-wiki-discovers-the){.section-name .selfRef} {#name-the-ligo-wiki-discovers-the}
+## The LIGO Wiki Discovers the OP's Metadata
 
 Federation Entity Discovery is a sequence of steps that starts with the RP fetching the Entity Configuration of the OP's Entity (in this case, https://op.umu.se) using the process defined in [Section 9](#federation_configuration){.auto .internal .xref}. What follows that is this sequence of steps:
 
@@ -8336,7 +7198,7 @@ The Entity Configurations of Intermediates are not part of the Trust Chain.
 
 
 
-#### [A.2.1.](#appendix-A.2.1){.section-number .selfRef} [Entity Configuration for https://op.umu.se](#name-entity-configuration-for-ht){.section-name .selfRef} {#name-entity-configuration-for-ht}
+### Entity Configuration for https://op.umu.se
 
 The LIGO WIKI RP fetches the Entity Configuration from the OP (op.umu.se) using the process defined in [Section 9](#federation_configuration){.auto .internal .xref}.
 
@@ -8344,73 +7206,74 @@ The result is this Entity Configuration:
 
 []{#name-entity-configuration-issued}
 
-<figure id="figure-55">
-<div id="appendix-A.2.1-3.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;authority_hints&quot;: [
-    &quot;https://umu.se&quot;
+
+
+``` figure
+{
+  "authority_hints": [
+    "https://umu.se"
   ],
-  &quot;exp&quot;: 1568397247,
-  &quot;iat&quot;: 1568310847,
-  &quot;iss&quot;: &quot;https://op.umu.se&quot;,
-  &quot;sub&quot;: &quot;https://op.umu.se&quot;,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+  "exp": 1568397247,
+  "iat": 1568310847,
+  "iss": "https://op.umu.se",
+  "sub": "https://op.umu.se",
+  "jwks": {
+    "keys": [
       {
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;dEEtRjlzY3djcENuT01wOGxrZlkxb3RIQVJlMTY0...&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;x97YKqc9Cs-DNtFrQ7_vhXoH9bwkDWW6En2jJ044yH...&quot;
+        "e": "AQAB",
+        "kid": "dEEtRjlzY3djcENuT01wOGxrZlkxb3RIQVJlMTY0...",
+        "kty": "RSA",
+        "n": "x97YKqc9Cs-DNtFrQ7_vhXoH9bwkDWW6En2jJ044yH..."
       }
     ]
   },
-  &quot;metadata&quot;: {
-    &quot;openid_provider&quot;: {
-      &quot;issuer&quot;: &quot;https://op.umu.se/openid&quot;,
-      &quot;signed_jwks_uri&quot;: &quot;https://op.umu.se/openid/jwks.jose&quot;,
-      &quot;authorization_endpoint&quot;:
-        &quot;https://op.umu.se/openid/authorization&quot;,
-      &quot;client_registration_types_supported&quot;: [
-        &quot;automatic&quot;,
-        &quot;explicit&quot;
+  "metadata": {
+    "openid_provider": {
+      "issuer": "https://op.umu.se/openid",
+      "signed_jwks_uri": "https://op.umu.se/openid/jwks.jose",
+      "authorization_endpoint":
+        "https://op.umu.se/openid/authorization",
+      "client_registration_types_supported": [
+        "automatic",
+        "explicit"
       ],
-      &quot;request_parameter_supported&quot;: true,
-      &quot;grant_types_supported&quot;: [
-        &quot;authorization_code&quot;,
-        &quot;implicit&quot;,
-        &quot;urn:ietf:params:oauth:grant-type:jwt-bearer&quot;
+      "request_parameter_supported": true,
+      "grant_types_supported": [
+        "authorization_code",
+        "implicit",
+        "urn:ietf:params:oauth:grant-type:jwt-bearer"
       ],
-      &quot;id_token_signing_alg_values_supported&quot;: [
-        &quot;ES256&quot;, &quot;RS256&quot;
+      "id_token_signing_alg_values_supported": [
+        "ES256", "RS256"
       ],
-      &quot;logo_uri&quot;:
-        &quot;https://www.umu.se/img/umu-logo-left-neg-SE.svg&quot;,
-      &quot;op_policy_uri&quot;:
-        &quot;https://www.umu.se/en/website/legal-information/&quot;,
-      &quot;response_types_supported&quot;: [
-        &quot;code&quot;,
-        &quot;code id_token&quot;,
-        &quot;token&quot;
+      "logo_uri":
+        "https://www.umu.se/img/umu-logo-left-neg-SE.svg",
+      "op_policy_uri":
+        "https://www.umu.se/en/website/legal-information/",
+      "response_types_supported": [
+        "code",
+        "code id_token",
+        "token"
       ],
-      &quot;subject_types_supported&quot;: [
-        &quot;pairwise&quot;,
-        &quot;public&quot;
+      "subject_types_supported": [
+        "pairwise",
+        "public"
       ],
-      &quot;token_endpoint&quot;: &quot;https://op.umu.se/openid/token&quot;,
-      &quot;federation_registration_endpoint&quot;:
-        &quot;https://op.umu.se/openid/fedreg&quot;,
-      &quot;token_endpoint_auth_methods_supported&quot;: [
-        &quot;client_secret_post&quot;,
-        &quot;client_secret_basic&quot;,
-        &quot;client_secret_jwt&quot;,
-        &quot;private_key_jwt&quot;
+      "token_endpoint": "https://op.umu.se/openid/token",
+      "federation_registration_endpoint":
+        "https://op.umu.se/openid/fedreg",
+      "token_endpoint_auth_methods_supported": [
+        "client_secret_post",
+        "client_secret_basic",
+        "client_secret_jwt",
+        "private_key_jwt"
       ]
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-55" class="selfRef">Figure 55</a>: <a href="#name-entity-configuration-issued" class="selfRef">Entity Configuration Issued by https://op.umu.se</a></figcaption>
-</figure>
+}
+```
+Figure 55: Entity Configuration Issued by https://op.umu.se
+
 
 The `authority_hints` points to the Intermediate Entity `https://umu.se`. So that is the next step.
 
@@ -8420,7 +7283,7 @@ This Entity Configuration is the first link in the Trust Chain.
 
 
 
-#### [A.2.2.](#appendix-A.2.2){.section-number .selfRef} [Entity Configuration for https://umu.se](#name-entity-configuration-for-htt){.section-name .selfRef} {#name-entity-configuration-for-htt}
+### Entity Configuration for https://umu.se
 
 The LIGO RP fetches the Entity Configuration from https://umu.se using the process defined in [Section 9](#federation_configuration){.auto .internal .xref}.
 
@@ -8428,50 +7291,52 @@ The request will look like this:
 
 []{#name-entity-configuration-issued-}
 
-<figure id="figure-56">
-<div id="appendix-A.2.2-3.1" class="alignLeft art-text artwork">
-<pre><code>GET /.well-known/openid-federation HTTP/1.1
-Host: umu.se</code></pre>
-</div>
-<figcaption><a href="#figure-56" class="selfRef">Figure 56</a>: <a href="#name-entity-configuration-issued-" class="selfRef">Entity Configuration Issued by https://umu.se</a></figcaption>
-</figure>
+
+
+``` figure
+GET /.well-known/openid-federation HTTP/1.1
+Host: umu.se
+```
+Figure 56: Entity Configuration Issued by https://umu.se
+
 
 And the GET will return:
 
 []{#name-entity-configuration-jwt-cl}
 
-<figure id="figure-57">
-<div id="appendix-A.2.2-5.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;authority_hints&quot;: [
-    &quot;https://swamid.se&quot;
+
+
+``` figure
+{
+  "authority_hints": [
+    "https://swamid.se"
   ],
-  &quot;exp&quot;: 1568397247,
-  &quot;iat&quot;: 1568310847,
-  &quot;iss&quot;: &quot;https://umu.se&quot;,
-  &quot;sub&quot;: &quot;https://umu.se&quot;,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+  "exp": 1568397247,
+  "iat": 1568310847,
+  "iss": "https://umu.se",
+  "sub": "https://umu.se",
+  "jwks": {
+    "keys": [
       {
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;endwNUZrNTJsX2NyQlp4bjhVcTFTTVltR2gxV2RV...&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;vXdXzZwQo0hxRSmZEcDIsnpg-CMEkor50SOG-1XUlM...&quot;
+        "e": "AQAB",
+        "kid": "endwNUZrNTJsX2NyQlp4bjhVcTFTTVltR2gxV2RV...",
+        "kty": "RSA",
+        "n": "vXdXzZwQo0hxRSmZEcDIsnpg-CMEkor50SOG-1XUlM..."
       }
     ]
   },
-  &quot;metadata&quot;: {
-    &quot;federation_entity&quot;: {
-      &quot;contacts&quot;: [&quot;ops@umu.se&quot;],
-      &quot;federation_fetch_endpoint&quot;: &quot;https://umu.se/oidc/fedapi&quot;,
-      &quot;organization_uri&quot;: &quot;https://www.umu.se&quot;,
-      &quot;organization_name&quot;: &quot;UmU&quot;
+  "metadata": {
+    "federation_entity": {
+      "contacts": ["ops@umu.se"],
+      "federation_fetch_endpoint": "https://umu.se/oidc/fedapi",
+      "organization_uri": "https://www.umu.se",
+      "organization_name": "UmU"
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-57" class="selfRef">Figure 57</a>: <a href="#name-entity-configuration-jwt-cl" class="selfRef">Entity Configuration JWT Claims Set</a></figcaption>
-</figure>
+}
+```
+Figure 57: Entity Configuration JWT Claims Set
+
 
 The only piece of information that is used from this Entity Configuration in this process is the `federation_fetch_endpoint`, which is used in the next step.
 
@@ -8479,7 +7344,7 @@ The only piece of information that is used from this Entity Configuration in thi
 
 
 
-#### [A.2.3.](#appendix-A.2.3){.section-number .selfRef} [Subordinate Statement Published by https://umu.se about https://op.umu.se](#name-subordinate-statement-publi){.section-name .selfRef} {#name-subordinate-statement-publi}
+### Subordinate Statement Published by https://umu.se about https://op.umu.se
 
 The RP uses the fetch endpoint provided by https://umu.se, as defined in [Section 8.1.1](#fetch_statement){.auto .internal .xref}, to fetch information about https://op.umu.se.
 
@@ -8487,70 +7352,72 @@ The request will look like this:
 
 []{#name-request-subordinate-stateme}
 
-<figure id="figure-58">
-<div id="appendix-A.2.3-3.1" class="alignLeft art-text artwork">
-<pre><code>GET /oidc/fedapi?sub=https%3A%2F%2Fop.umu.se&amp;
+
+
+``` figure
+GET /oidc/fedapi?sub=https%3A%2F%2Fop.umu.se&
 iss=https%3A%2F%2Fumu.se HTTP/1.1
-Host: umu.se</code></pre>
-</div>
-<figcaption><a href="#figure-58" class="selfRef">Figure 58</a>: <a href="#name-request-subordinate-stateme" class="selfRef">Request Subordinate Statement from https://umu.se about https://op.umu.se</a></figcaption>
-</figure>
+Host: umu.se
+```
+Figure 58: Request Subordinate Statement from https://umu.se about https://op.umu.se
+
 
 And the result is this:
 
 []{#name-subordinate-statement-issue}
 
-<figure id="figure-59">
-<div id="appendix-A.2.3-5.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;exp&quot;: 1568397247,
-  &quot;iat&quot;: 1568310847,
-  &quot;iss&quot;: &quot;https://umu.se&quot;,
-  &quot;sub&quot;: &quot;https://op.umu.se&quot;,
-  &quot;source_endpoint&quot;: &quot;https://umu.se/oidc/fedapi&quot;,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+
+
+``` figure
+{
+  "exp": 1568397247,
+  "iat": 1568310847,
+  "iss": "https://umu.se",
+  "sub": "https://op.umu.se",
+  "source_endpoint": "https://umu.se/oidc/fedapi",
+  "jwks": {
+    "keys": [
       {
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;dEEtRjlzY3djcENuT01wOGxrZlkxb3RIQVJlMTY0...&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;x97YKqc9Cs-DNtFrQ7_vhXoH9bwkDWW6En2jJ044yH...&quot;
+        "e": "AQAB",
+        "kid": "dEEtRjlzY3djcENuT01wOGxrZlkxb3RIQVJlMTY0...",
+        "kty": "RSA",
+        "n": "x97YKqc9Cs-DNtFrQ7_vhXoH9bwkDWW6En2jJ044yH..."
       }
     ]
   },
-  &quot;metadata_policy&quot;: {
-    &quot;openid_provider&quot;: {
-      &quot;contacts&quot;: {
-        &quot;add&quot;: [
-          &quot;ops@swamid.se&quot;
+  "metadata_policy": {
+    "openid_provider": {
+      "contacts": {
+        "add": [
+          "ops@swamid.se"
         ]
       },
-      &quot;organization_name&quot;: {
-        &quot;value&quot;: &quot;University of Umeå&quot;
+      "organization_name": {
+        "value": "University of Umeå"
       },
-      &quot;subject_types_supported&quot;: {
-        &quot;value&quot;: [
-          &quot;pairwise&quot;
+      "subject_types_supported": {
+        "value": [
+          "pairwise"
         ]
       },
-      &quot;token_endpoint_auth_methods_supported&quot;: {
-        &quot;default&quot;: [
-          &quot;private_key_jwt&quot;
+      "token_endpoint_auth_methods_supported": {
+        "default": [
+          "private_key_jwt"
         ],
-        &quot;subset_of&quot;: [
-          &quot;private_key_jwt&quot;,
-          &quot;client_secret_jwt&quot;
+        "subset_of": [
+          "private_key_jwt",
+          "client_secret_jwt"
         ],
-        &quot;superset_of&quot;: [
-          &quot;private_key_jwt&quot;
+        "superset_of": [
+          "private_key_jwt"
         ]
       }
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-59" class="selfRef">Figure 59</a>: <a href="#name-subordinate-statement-issue" class="selfRef">Subordinate Statement Issued by https://umu.se about https://op.umu.se</a></figcaption>
-</figure>
+}
+```
+Figure 59: Subordinate Statement Issued by https://umu.se about https://op.umu.se
+
 
 This Subordinate Statement is the second link in the Trust Chain.
 
@@ -8558,7 +7425,7 @@ This Subordinate Statement is the second link in the Trust Chain.
 
 
 
-#### [A.2.4.](#appendix-A.2.4){.section-number .selfRef} [Entity Configuration for https://swamid.se](#name-entity-configuration-for-http){.section-name .selfRef} {#name-entity-configuration-for-http}
+### Entity Configuration for https://swamid.se
 
 The LIGO Wiki RP fetches the Entity Configuration from https://swamid.se using the process defined in [Section 9](#federation_configuration){.auto .internal .xref}.
 
@@ -8566,51 +7433,53 @@ The request will look like this:
 
 []{#name-request-entity-configuratio}
 
-<figure id="figure-60">
-<div id="appendix-A.2.4-3.1" class="alignLeft art-text artwork">
-<pre><code>GET /.well-known/openid-federation HTTP/1.1
-Host: swamid.se</code></pre>
-</div>
-<figcaption><a href="#figure-60" class="selfRef">Figure 60</a>: <a href="#name-request-entity-configuratio" class="selfRef">Request Entity Configuration from https://swamid.se</a></figcaption>
-</figure>
+
+
+``` figure
+GET /.well-known/openid-federation HTTP/1.1
+Host: swamid.se
+```
+Figure 60: Request Entity Configuration from https://swamid.se
+
 
 And the GET will return:
 
 []{#name-entity-configuration-issued-b}
 
-<figure id="figure-61">
-<div id="appendix-A.2.4-5.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;authority_hints&quot;: [
-    &quot;https://edugain.geant.org&quot;
+
+
+``` figure
+{
+  "authority_hints": [
+    "https://edugain.geant.org"
   ],
-  &quot;exp&quot;: 1568397247,
-  &quot;iat&quot;: 1568310847,
-  &quot;iss&quot;: &quot;https://swamid.se&quot;,
-  &quot;sub&quot;: &quot;https://swamid.se&quot;,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+  "exp": 1568397247,
+  "iat": 1568310847,
+  "iss": "https://swamid.se",
+  "sub": "https://swamid.se",
+  "jwks": {
+    "keys": [
       {
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;N1pQTzFxUXZ1RXVsUkVuMG5uMnVDSURGRVdhUzdO...&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;3EQc6cR_GSBq9km9-WCHY_lWJZWkcn0M05TGtH6D9S...&quot;
+        "e": "AQAB",
+        "kid": "N1pQTzFxUXZ1RXVsUkVuMG5uMnVDSURGRVdhUzdO...",
+        "kty": "RSA",
+        "n": "3EQc6cR_GSBq9km9-WCHY_lWJZWkcn0M05TGtH6D9S..."
       }
     ]
   },
-  &quot;metadata&quot;: {
-    &quot;federation_entity&quot;: {
-      &quot;contacts&quot;: [&quot;ops@swamid.se&quot;],
-      &quot;federation_fetch_endpoint&quot;:
-        &quot;https://swamid.se/fedapi&quot;,
-      &quot;organization_uri&quot;: &quot;https://www.sunet.se/swamid/&quot;,
-      &quot;organization_name&quot;: &quot;SWAMID&quot;
+  "metadata": {
+    "federation_entity": {
+      "contacts": ["ops@swamid.se"],
+      "federation_fetch_endpoint":
+        "https://swamid.se/fedapi",
+      "organization_uri": "https://www.sunet.se/swamid/",
+      "organization_name": "SWAMID"
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-61" class="selfRef">Figure 61</a>: <a href="#name-entity-configuration-issued-b" class="selfRef">Entity Configuration Issued by https://swamid.se</a></figcaption>
-</figure>
+}
+```
+Figure 61: Entity Configuration Issued by https://swamid.se
+
 
 The only piece of information that is used from this Entity Configuration in this process is the `federation_fetch_endpoint`, which is used in the next step.
 
@@ -8618,7 +7487,7 @@ The only piece of information that is used from this Entity Configuration in thi
 
 
 
-#### [A.2.5.](#appendix-A.2.5){.section-number .selfRef} [Subordinate Statement Published by https://swamid.se about https://umu.se](#name-subordinate-statement-publis){.section-name .selfRef} {#name-subordinate-statement-publis}
+### Subordinate Statement Published by https://swamid.se about https://umu.se
 
 The LIGO Wiki RP uses the fetch endpoint provided by https://swamid.se as defined in [Section 8.1.1](#fetch_statement){.auto .internal .xref} to fetch information about https://umu.se.
 
@@ -8626,66 +7495,68 @@ The request will look like this:
 
 []{#name-request-to-https-swamidse-f}
 
-<figure id="figure-62">
-<div id="appendix-A.2.5-3.1" class="alignLeft art-text artwork">
-<pre><code>GET /fedapi?sub=https%3A%2F%2Fumu.se&amp;
+
+
+``` figure
+GET /fedapi?sub=https%3A%2F%2Fumu.se&
 iss=https%3A%2F%2Fswamid.se HTTP/1.1
-Host: swamid.se</code></pre>
-</div>
-<figcaption><a href="#figure-62" class="selfRef">Figure 62</a>: <a href="#name-request-to-https-swamidse-f" class="selfRef">Request to https://swamid.se for Subordinate Statement about https://umu.se</a></figcaption>
-</figure>
+Host: swamid.se
+```
+Figure 62: Request to https://swamid.se for Subordinate Statement about https://umu.se
+
 
 And the result is this:
 
 []{#name-subordinate-statement-issued}
 
-<figure id="figure-63">
-<div id="appendix-A.2.5-5.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;exp&quot;: 1568397247,
-  &quot;iat&quot;: 1568310847,
-  &quot;iss&quot;: &quot;https://swamid.se&quot;,
-  &quot;sub&quot;: &quot;https://umu.se&quot;,
-  &quot;source_endpoint&quot;: &quot;https://swamid.se/fedapi&quot;,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+
+
+``` figure
+{
+  "exp": 1568397247,
+  "iat": 1568310847,
+  "iss": "https://swamid.se",
+  "sub": "https://umu.se",
+  "source_endpoint": "https://swamid.se/fedapi",
+  "jwks": {
+    "keys": [
       {
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;endwNUZrNTJsX2NyQlp4bjhVcTFTTVltR2gxV2RV...&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;vXdXzZwQo0hxRSmZEcDIsnpg-CMEkor50SOG-1XUlM...&quot;
+        "e": "AQAB",
+        "kid": "endwNUZrNTJsX2NyQlp4bjhVcTFTTVltR2gxV2RV...",
+        "kty": "RSA",
+        "n": "vXdXzZwQo0hxRSmZEcDIsnpg-CMEkor50SOG-1XUlM..."
       }
     ]
   },
-  &quot;metadata_policy&quot;: {
-    &quot;openid_provider&quot;: {
-      &quot;id_token_signing_alg_values_supported&quot;: {
-        &quot;subset_of&quot;: [
-          &quot;RS256&quot;,
-          &quot;ES256&quot;,
-          &quot;ES384&quot;,
-          &quot;ES512&quot;
+  "metadata_policy": {
+    "openid_provider": {
+      "id_token_signing_alg_values_supported": {
+        "subset_of": [
+          "RS256",
+          "ES256",
+          "ES384",
+          "ES512"
         ]
       },
-      &quot;token_endpoint_auth_methods_supported&quot;: {
-        &quot;subset_of&quot;: [
-          &quot;client_secret_jwt&quot;,
-          &quot;private_key_jwt&quot;
+      "token_endpoint_auth_methods_supported": {
+        "subset_of": [
+          "client_secret_jwt",
+          "private_key_jwt"
         ]
       },
-      &quot;userinfo_signing_alg_values_supported&quot;: {
-        &quot;subset_of&quot;: [
-          &quot;ES256&quot;,
-          &quot;ES384&quot;,
-          &quot;ES512&quot;
+      "userinfo_signing_alg_values_supported": {
+        "subset_of": [
+          "ES256",
+          "ES384",
+          "ES512"
         ]
       }
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-63" class="selfRef">Figure 63</a>: <a href="#name-subordinate-statement-issued" class="selfRef">Subordinate Statement Issued by https://swamid.se about https://umu.se</a></figcaption>
-</figure>
+}
+```
+Figure 63: Subordinate Statement Issued by https://swamid.se about https://umu.se
+
 
 This Subordinate Statement is the third link in the Trust Chain.
 
@@ -8695,7 +7566,7 @@ If we assume that the issuer of this Subordinate Statement is not in the list of
 
 
 
-#### [A.2.6.](#appendix-A.2.6){.section-number .selfRef} [Entity Configuration for https://edugain.geant.org](#name-entity-configuration-for-https){.section-name .selfRef} {#name-entity-configuration-for-https}
+### Entity Configuration for https://edugain.geant.org
 
 The RP fetches the Entity Configuration from https://edugain.geant.org using the process defined in [Section 9](#federation_configuration){.auto .internal .xref}.
 
@@ -8703,44 +7574,46 @@ The request will look like this:
 
 []{#name-entity-configuration-reques}
 
-<figure id="figure-64">
-<div id="appendix-A.2.6-3.1" class="alignLeft art-text artwork">
-<pre><code>GET /.well-known/openid-federation HTTP/1.1
-Host: edugain.geant.org</code></pre>
-</div>
-<figcaption><a href="#figure-64" class="selfRef">Figure 64</a>: <a href="#name-entity-configuration-reques" class="selfRef">Entity Configuration Requested from https://edugain.geant.org</a></figcaption>
-</figure>
+
+
+``` figure
+GET /.well-known/openid-federation HTTP/1.1
+Host: edugain.geant.org
+```
+Figure 64: Entity Configuration Requested from https://edugain.geant.org
+
 
 And the GET will return:
 
 []{#name-entity-configuration-issued-by}
 
-<figure id="figure-65">
-<div id="appendix-A.2.6-5.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;exp&quot;: 1568397247,
-  &quot;iat&quot;: 1568310847,
-  &quot;iss&quot;: &quot;https://edugain.geant.org&quot;,
-  &quot;sub&quot;: &quot;https://edugain.geant.org&quot;,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+
+
+``` figure
+{
+  "exp": 1568397247,
+  "iat": 1568310847,
+  "iss": "https://edugain.geant.org",
+  "sub": "https://edugain.geant.org",
+  "jwks": {
+    "keys": [
       {
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;Sl9DcjFxR3hrRGdabUNIR21KT3dvdWMyc2VUM2Fr...&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;xKlwocDXUw-mrvDSO4oRrTRrVuTwotoBFpozvlq-1q...&quot;
+        "e": "AQAB",
+        "kid": "Sl9DcjFxR3hrRGdabUNIR21KT3dvdWMyc2VUM2Fr...",
+        "kty": "RSA",
+        "n": "xKlwocDXUw-mrvDSO4oRrTRrVuTwotoBFpozvlq-1q..."
       }
     ]
   },
-  &quot;metadata&quot;: {
-    &quot;federation_entity&quot;: {
-      &quot;federation_fetch_endpoint&quot;: &quot;https://geant.org/edugain/api&quot;
+  "metadata": {
+    "federation_entity": {
+      "federation_fetch_endpoint": "https://geant.org/edugain/api"
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-65" class="selfRef">Figure 65</a>: <a href="#name-entity-configuration-issued-by" class="selfRef">Entity Configuration issued by https://edugain.geant.org</a></figcaption>
-</figure>
+}
+```
+Figure 65: Entity Configuration issued by https://edugain.geant.org
+
 
 Within the Trust Anchor Entity Configuration, the Relying Party looks for the `federation_fetch_endpoint` and gets the updated Federation Entity Keys of the Trust Anchor. Each Entity within a Federation may change their Federation Entity Keys, or any other attributes, at any time. See [Section 11.2](#key_rollover_anchor){.auto .internal .xref} for further details.
 
@@ -8748,7 +7621,7 @@ Within the Trust Anchor Entity Configuration, the Relying Party looks for the `f
 
 
 
-#### [A.2.7.](#appendix-A.2.7){.section-number .selfRef} [Subordinate Statement Published by https://edugain.geant.org about https://swamid.se](#name-subordinate-statement-publish){.section-name .selfRef} {#name-subordinate-statement-publish}
+### Subordinate Statement Published by https://edugain.geant.org about https://swamid.se
 
 The LIGO Wiki RP uses the fetch endpoint of https://edugain.geant.org as defined in [Section 8.1.1](#fetch_statement){.auto .internal .xref} to fetch information about "https://swamid.se".
 
@@ -8756,53 +7629,55 @@ The request will look like this:
 
 []{#name-request-to-https-edugaingea}
 
-<figure id="figure-66">
-<div id="appendix-A.2.7-3.1" class="alignLeft art-text artwork">
-<pre><code>GET /edugain/api?sub=https%3A%2F%2Fswamid.se&amp;
+
+
+``` figure
+GET /edugain/api?sub=https%3A%2F%2Fswamid.se&
 iss=https%3A%2F%2Fedugain.geant.org HTTP/1.1
-Host: geant.org</code></pre>
-</div>
-<figcaption><a href="#figure-66" class="selfRef">Figure 66</a>: <a href="#name-request-to-https-edugaingea" class="selfRef">Request to https://edugain.geant.org for Subordinate Statement about https://swamid.se</a></figcaption>
-</figure>
+Host: geant.org
+```
+Figure 66: Request to https://edugain.geant.org for Subordinate Statement about https://swamid.se
+
 
 And the result is this:
 
 []{#name-subordinate-statement-issued-}
 
-<figure id="figure-67">
-<div id="appendix-A.2.7-5.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;exp&quot;: 1568397247,
-  &quot;iat&quot;: 1568310847,
-  &quot;iss&quot;: &quot;https://edugain.geant.org&quot;,
-  &quot;sub&quot;: &quot;https://swamid.se&quot;,
-  &quot;source_endpoint&quot;: &quot;https://edugain.geant.org/edugain/api&quot;,
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+
+
+``` figure
+{
+  "exp": 1568397247,
+  "iat": 1568310847,
+  "iss": "https://edugain.geant.org",
+  "sub": "https://swamid.se",
+  "source_endpoint": "https://edugain.geant.org/edugain/api",
+  "jwks": {
+    "keys": [
       {
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;kid&quot;: &quot;N1pQTzFxUXZ1RXVsUkVuMG5uMnVDSURGRVdhUzdO...&quot;,
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;n&quot;: &quot;3EQc6cR_GSBq9km9-WCHY_lWJZWkcn0M05TGtH6D9S...&quot;
+        "e": "AQAB",
+        "kid": "N1pQTzFxUXZ1RXVsUkVuMG5uMnVDSURGRVdhUzdO...",
+        "kty": "RSA",
+        "n": "3EQc6cR_GSBq9km9-WCHY_lWJZWkcn0M05TGtH6D9S..."
       }
     ]
   },
-  &quot;metadata_policy&quot;: {
-    &quot;openid_provider&quot;: {
-      &quot;contacts&quot;: {
-        &quot;add&quot;: [&quot;ops@edugain.geant.org&quot;]
+  "metadata_policy": {
+    "openid_provider": {
+      "contacts": {
+        "add": ["ops@edugain.geant.org"]
       }
     },
-    &quot;openid_relying_party&quot;: {
-      &quot;contacts&quot;: {
-        &quot;add&quot;: [&quot;ops@edugain.geant.org&quot;]
+    "openid_relying_party": {
+      "contacts": {
+        "add": ["ops@edugain.geant.org"]
       }
     }
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-67" class="selfRef">Figure 67</a>: <a href="#name-subordinate-statement-issued-" class="selfRef">Subordinate Statement issued by https://edugain.geant.org about https://swamid.se</a></figcaption>
-</figure>
+}
+```
+Figure 67: Subordinate Statement issued by https://edugain.geant.org about https://swamid.se
+
 
 If we assume that the issuer of this statement appears in the list of Trust Anchors the LIGO Wiki RP has access to, this Subordinate Statement would be the fourth link in the Trust Chain. The Trust Anchor's Entity Configuration MAY also be included in the Trust Chain; in this case, it would be the fifth and final link.
 
@@ -8842,7 +7717,7 @@ Using the public keys of the Trust Anchor that the LIGO Wiki RP has been provide
 
 
 
-#### [A.2.8.](#appendix-A.2.8){.section-number .selfRef} [Verified Metadata for https://op.umu.se](#name-verified-metadata-for-https){.section-name .selfRef} {#name-verified-metadata-for-https}
+### Verified Metadata for https://op.umu.se
 
 Having verified the chain, the LIGO Wiki RP can proceed with the next step.
 
@@ -8850,56 +7725,57 @@ Combining the metadata policies from the three Subordinate Statements we have by
 
 []{#name-resolved-metadata-derived-f}
 
-<figure id="figure-68">
-<div id="appendix-A.2.8-3.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;authorization_endpoint&quot;:
-    &quot;https://op.umu.se/openid/authorization&quot;,
-  &quot;contacts&quot;: [
-    &quot;ops@swamid.se&quot;,
-    &quot;ops@edugain.geant.org&quot;
+
+
+``` figure
+{
+  "authorization_endpoint":
+    "https://op.umu.se/openid/authorization",
+  "contacts": [
+    "ops@swamid.se",
+    "ops@edugain.geant.org"
   ],
-  &quot;federation_registration_endpoint&quot;:
-    &quot;https://op.umu.se/openid/fedreg&quot;,
-  &quot;client_registration_types_supported&quot;: [
-    &quot;automatic&quot;,
-    &quot;explicit&quot;
+  "federation_registration_endpoint":
+    "https://op.umu.se/openid/fedreg",
+  "client_registration_types_supported": [
+    "automatic",
+    "explicit"
   ],
-  &quot;grant_types_supported&quot;: [
-    &quot;authorization_code&quot;,
-    &quot;implicit&quot;,
-    &quot;urn:ietf:params:oauth:grant-type:jwt-bearer&quot;
+  "grant_types_supported": [
+    "authorization_code",
+    "implicit",
+    "urn:ietf:params:oauth:grant-type:jwt-bearer"
   ],
-  &quot;id_token_signing_alg_values_supported&quot;: [
-    &quot;RS256&quot;,
-    &quot;ES256&quot;
+  "id_token_signing_alg_values_supported": [
+    "RS256",
+    "ES256"
   ],
-  &quot;issuer&quot;: &quot;https://op.umu.se/openid&quot;,
-  &quot;signed_jwks_uri&quot;: &quot;https://op.umu.se/openid/jwks.jose&quot;,
-  &quot;logo_uri&quot;:
-    &quot;https://www.umu.se/img/umu-logo-left-neg-SE.svg&quot;,
-  &quot;organization_name&quot;: &quot;University of Umeå&quot;,
-  &quot;op_policy_uri&quot;:
-    &quot;https://www.umu.se/en/website/legal-information/&quot;,
-  &quot;request_parameter_supported&quot;: true,
-  &quot;response_types_supported&quot;: [
-    &quot;code&quot;,
-    &quot;code id_token&quot;,
-    &quot;token&quot;
+  "issuer": "https://op.umu.se/openid",
+  "signed_jwks_uri": "https://op.umu.se/openid/jwks.jose",
+  "logo_uri":
+    "https://www.umu.se/img/umu-logo-left-neg-SE.svg",
+  "organization_name": "University of Umeå",
+  "op_policy_uri":
+    "https://www.umu.se/en/website/legal-information/",
+  "request_parameter_supported": true,
+  "response_types_supported": [
+    "code",
+    "code id_token",
+    "token"
   ],
-  &quot;subject_types_supported&quot;: [
-    &quot;pairwise&quot;
+  "subject_types_supported": [
+    "pairwise"
   ],
-  &quot;token_endpoint&quot;: &quot;https://op.umu.se/openid/token&quot;,
-  &quot;token_endpoint_auth_methods_supported&quot;: [
-    &quot;private_key_jwt&quot;,
-    &quot;client_secret_jwt&quot;
+  "token_endpoint": "https://op.umu.se/openid/token",
+  "token_endpoint_auth_methods_supported": [
+    "private_key_jwt",
+    "client_secret_jwt"
   ]
 }
-</code></pre>
-</div>
-<figcaption><a href="#figure-68" class="selfRef">Figure 68</a>: <a href="#name-resolved-metadata-derived-f" class="selfRef">Resolved Metadata Derived from Trust Chain by Applying Metadata Policies</a></figcaption>
-</figure>
+
+```
+Figure 68: Resolved Metadata Derived from Trust Chain by Applying Metadata Policies
+
 
 We have now reached the end of the Provider Discovery process.
 
@@ -8909,7 +7785,7 @@ We have now reached the end of the Provider Discovery process.
 
 
 
-### [A.3.](#appendix-A.3){.section-number .selfRef} [Examples of the Two Ways of Doing Client Registration](#name-examples-of-the-two-ways-of){.section-name .selfRef} {#name-examples-of-the-two-ways-of}
+## Examples of the Two Ways of Doing Client Registration
 
 As described in [Section 12](#client_registration){.auto .internal .xref}, there are two ways that can be used to do client registration:
 
@@ -8917,15 +7793,13 @@ As described in [Section 12](#client_registration){.auto .internal .xref}, there
 
 Automatic
 :   No negotiation between the RP and the OP is made regarding what features the client SHOULD use in future communication occurs. The RP's published metadata filtered by the chosen Trust Chain's metadata policies defines the metadata that is to be used.
-:   
 
 Explicit
 :   The RP will access the `federation_registration_endpoint`, which provides the RP's metadata. The OP MAY return a metadata policy that adds restrictions over and above what the Trust Chain already has defined.
-:   
 
 
 
-#### [A.3.1.](#appendix-A.3.1){.section-number .selfRef} [RP Sends Authentication Request (Automatic Client Registration)](#name-rp-sends-authentication-req){.section-name .selfRef} {#name-rp-sends-authentication-req}
+### RP Sends Authentication Request (Automatic Client Registration)
 
 The LIGO Wiki RP does not do any registration but goes directly to sending an Authentication Request.
 
@@ -8933,9 +7807,10 @@ Here is an example of such an Authentication Request:
 
 []{#name-authentication-request-using}
 
-<figure id="figure-69">
-<div id="appendix-A.3.1-3.1" class="alignLeft art-text artwork">
-<pre><code>GET /openid/authorization?
+
+
+``` figure
+GET /openid/authorization?
   request=eyJ0eXAiOiJvYXV0aC1hdXRoei1yZXErand0IiwiYWxnIjoiU
     lMyNTYiLCJraWQiOiJkVU4yYTAxd1JraGtTV3BsUVRodmNWQklOVUl3
     VFVkT1VGVTJUbVZyU21oRVFYZ3paWGxwVHpkUU5BIn0.
@@ -8954,21 +7829,21 @@ Here is an example of such an Authentication Request:
     8QBNVTL1Ga0YPmMdT25wS26wug23IgpbZB20VUosmMGgGtS5yCI5AwK
     Bhozv-oBH5KxxHzH1Oss-RkIGiQnjRnaWwEOTITmfZWra1eHP254wFF
     2se-EnWtz1q2XwsD9NSsOEJwWJPirPPJaKso8ng6qrrOSgw
-  &amp;response_type=code
-  &amp;client_id=https%3A%2F%2Fwiki.ligo.org
-  &amp;redirect_uri=https%3A%2F%2Fwiki.ligo.org/openid/callback
-  &amp;scope=openid+profile+email
+  &response_type=code
+  &client_id=https%3A%2F%2Fwiki.ligo.org
+  &redirect_uri=https%3A%2F%2Fwiki.ligo.org/openid/callback
+  &scope=openid+profile+email
   HTTP/1.1
-Host: op.umu.se</code></pre>
-</div>
-<figcaption><a href="#figure-69" class="selfRef">Figure 69</a>: <a href="#name-authentication-request-using" class="selfRef">Authentication Request Using Automatic Client Registration</a></figcaption>
-</figure>
+Host: op.umu.se
+```
+Figure 69: Authentication Request Using Automatic Client Registration
+
 
 The OP receiving this Authentication Request will, unless the RP is already registered, start to dynamically fetch and establish trust with the RP.
 
 
 
-##### [A.3.1.1.](#appendix-A.3.1.1){.section-number .selfRef} [OP Fetches Entity Statements](#name-op-fetches-entity-statement){.section-name .selfRef} {#name-op-fetches-entity-statement}
+#### OP Fetches Entity Statements
 
 The OP needs to establish a Trust Chain for the RP (wiki.ligo.org). The OP in this example is configured with public keys of two federations:
 
@@ -9000,7 +7875,7 @@ The process is the same as described in [Appendix A.2](#op_discovery){.auto .int
 
 
 
-##### [A.3.1.2.](#appendix-A.3.1.2){.section-number .selfRef} [OP Evaluates the RP Metadata](#name-op-evaluates-the-rp-metadat){.section-name .selfRef} {#name-op-evaluates-the-rp-metadat}
+#### OP Evaluates the RP Metadata
 
 Using the public keys of the Trust Anchor that the LIGO Wiki RP has been provided within some secure out-of-band way, it can now verify the Trust Chain as described in [Section 10.2](#trust_chain_validation){.auto .internal .xref}.
 
@@ -9010,128 +7885,130 @@ We will not list the complete Entity Statements but only the `metadata` and `met
 
 edugain.geant.org:
 :   []{#name-metadata-policies-related-t}
-    <figure id="figure-70">
-    <div id="appendix-A.3.1.2-3.2.1.1" class="alignLeft art-text artwork">
-    <pre><code>&quot;metadata_policy&quot;: {
-      &quot;openid_provider&quot;: {
-        &quot;contacts&quot;: {
-          &quot;add&quot;: [&quot;ops@edugain.geant.org&quot;]
+    
+
+``` figure
+"metadata_policy": {
+      "openid_provider": {
+        "contacts": {
+          "add": ["ops@edugain.geant.org"]
         }
       },
-      &quot;openid_relying_party&quot;: {
-        &quot;contacts&quot;: {
-          &quot;add&quot;: [&quot;ops@edugain.geant.org&quot;]
+      "openid_relying_party": {
+        "contacts": {
+          "add": ["ops@edugain.geant.org"]
         }
       }
-    }</code></pre>
-    </div>
-    <figcaption><a href="#figure-70" class="selfRef">Figure 70</a>: <a href="#name-metadata-policies-related-t" class="selfRef">Metadata Policies Related to Multiple Metadata Types</a></figcaption>
-    </figure>
+    }
+```
+Figure 70: Metadata Policies Related to Multiple Metadata Types
+
 
     
-:   
 
 []{.break}
 
 incommon.org:
 :   []{#name-metadata-policy-related-to-}
-    <figure id="figure-71">
-    <div id="appendix-A.3.1.2-4.2.1.1" class="alignLeft art-text artwork">
-    <pre><code>&quot;metadata_policy&quot;: {
-      &quot;openid_relying_party&quot;: {
-        &quot;application_type&quot;: {
-          &quot;one_of&quot;: [
-            &quot;web&quot;,
-            &quot;native&quot;
+    
+
+``` figure
+"metadata_policy": {
+      "openid_relying_party": {
+        "application_type": {
+          "one_of": [
+            "web",
+            "native"
           ]
         },
-        &quot;contacts&quot;: {
-          &quot;add&quot;: [&quot;ops@incommon.org&quot;]
+        "contacts": {
+          "add": ["ops@incommon.org"]
         },
-        &quot;grant_types&quot;: {
-          &quot;subset_of&quot;: [
-            &quot;authorization_code&quot;,
-            &quot;refresh_token&quot;
+        "grant_types": {
+          "subset_of": [
+            "authorization_code",
+            "refresh_token"
           ]
         }
       }
-    }</code></pre>
-    </div>
-    <figcaption><a href="#figure-71" class="selfRef">Figure 71</a>: <a href="#name-metadata-policy-related-to-" class="selfRef">Metadata Policy Related to the RP</a></figcaption>
-    </figure>
+    }
+```
+Figure 71: Metadata Policy Related to the RP
+
 
     
-:   
 
 Next, combine these and apply them to the metadata for wiki.ligo.org:
 
 []{#name-combined-metadata-with-meta}
 
-<figure id="figure-72">
-<div id="appendix-A.3.1.2-6.1" class="alignLeft art-text artwork">
-<pre><code>&quot;metadata&quot;: {
-  &quot;openid_relying_party&quot;: {
-    &quot;application_type&quot;: &quot;web&quot;,
-    &quot;client_name&quot;: &quot;LIGO Wiki&quot;,
-    &quot;contacts&quot;: [
-      &quot;ops@ligo.org&quot;
+
+
+``` figure
+"metadata": {
+  "openid_relying_party": {
+    "application_type": "web",
+    "client_name": "LIGO Wiki",
+    "contacts": [
+      "ops@ligo.org"
     ],
-    &quot;grant_types&quot;: [
-      &quot;authorization_code&quot;,
-      &quot;refresh_token&quot;
+    "grant_types": [
+      "authorization_code",
+      "refresh_token"
     ],
-    &quot;id_token_signing_alg_values_supported&quot;:
-      [&quot;ES256&quot;, &quot;PS256&quot;, &quot;RS256&quot;],
-    &quot;signed_jwks_uri&quot;: &quot;https://wiki.ligo.org/jwks.jose&quot;,
-    &quot;redirect_uris&quot;: [
-      &quot;https://wiki.ligo.org/openid/callback&quot;
+    "id_token_signing_alg_values_supported":
+      ["ES256", "PS256", "RS256"],
+    "signed_jwks_uri": "https://wiki.ligo.org/jwks.jose",
+    "redirect_uris": [
+      "https://wiki.ligo.org/openid/callback"
     ],
-    &quot;response_types&quot;: [
-      &quot;code&quot;
+    "response_types": [
+      "code"
     ],
-    &quot;subject_type&quot;: &quot;public&quot;,
-    &quot;token_endpoint_auth_method&quot;: &quot;private_key_jwt&quot;
+    "subject_type": "public",
+    "token_endpoint_auth_method": "private_key_jwt"
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-72" class="selfRef">Figure 72</a>: <a href="#name-combined-metadata-with-meta" class="selfRef">Combined Metadata with Metadata Policy yet to be applied</a></figcaption>
-</figure>
+}
+```
+Figure 72: Combined Metadata with Metadata Policy yet to be applied
+
 
 The final result is:
 
 []{#name-resolved-metadata-after-met}
 
-<figure id="figure-73">
-<div id="appendix-A.3.1.2-8.1" class="alignLeft art-text artwork">
-<pre><code>&quot;metadata&quot;: {
-  &quot;openid_relying_party&quot;: {
-    &quot;application_type&quot;: &quot;web&quot;,
-    &quot;client_name&quot;: &quot;LIGO Wiki&quot;,
-    &quot;contacts&quot;: [
-      &quot;ops@ligo.org&quot;,
-      &quot;ops@edugain.geant.org&quot;,
-      &quot;ops@incommon.org&quot;
+
+
+``` figure
+"metadata": {
+  "openid_relying_party": {
+    "application_type": "web",
+    "client_name": "LIGO Wiki",
+    "contacts": [
+      "ops@ligo.org",
+      "ops@edugain.geant.org",
+      "ops@incommon.org"
     ],
-    &quot;grant_types&quot;: [
-      &quot;refresh_token&quot;,
-      &quot;authorization_code&quot;
+    "grant_types": [
+      "refresh_token",
+      "authorization_code"
     ],
-    &quot;id_token_signing_alg_values_supported&quot;:
-      [&quot;ES256&quot;, &quot;PS256&quot;, &quot;RS256&quot;],
-    &quot;signed_jwks_uri&quot;: &quot;https://wiki.ligo.org/jwks.jose&quot;,
-    &quot;redirect_uris&quot;: [
-      &quot;https://wiki.ligo.org/openid/callback&quot;
+    "id_token_signing_alg_values_supported":
+      ["ES256", "PS256", "RS256"],
+    "signed_jwks_uri": "https://wiki.ligo.org/jwks.jose",
+    "redirect_uris": [
+      "https://wiki.ligo.org/openid/callback"
     ],
-    &quot;response_types&quot;: [
-      &quot;code&quot;
+    "response_types": [
+      "code"
     ],
-    &quot;subject_type&quot;: &quot;public&quot;,
-    &quot;token_endpoint_auth_method&quot;: &quot;private_key_jwt&quot;
+    "subject_type": "public",
+    "token_endpoint_auth_method": "private_key_jwt"
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-73" class="selfRef">Figure 73</a>: <a href="#name-resolved-metadata-after-met" class="selfRef">Resolved Metadata After Metadata Policy has been Applied</a></figcaption>
-</figure>
+}
+```
+Figure 73: Resolved Metadata After Metadata Policy has been Applied
+
 
 Once the Trust Chain and the final Relying Party metadata have been obtained, the OpenID Provider has everything needed to validate the signature of the Request Object in the Authentication Request, using the public keys made available at the `signed_jwks_uri` endpoint.
 
@@ -9141,7 +8018,7 @@ Once the Trust Chain and the final Relying Party metadata have been obtained, th
 
 
 
-#### [A.3.2.](#appendix-A.3.2){.section-number .selfRef} [RP Starts with Client Registration (Explicit Client Registration)](#name-rp-starts-with-client-regis){.section-name .selfRef} {#name-rp-starts-with-client-regis}
+### RP Starts with Client Registration (Explicit Client Registration)
 
 Here the LIGO Wiki RP sends an Explicit Registration request to the `federation_registration_endpoint` of the OP (op.umu.se). The request contains the RP's Entity Configuration.
 
@@ -9149,47 +8026,48 @@ An example JWT Claims Set for the RP's Entity Configuration is:
 
 []{#name-rps-entity-configuration-jw}
 
-<figure id="figure-74">
-<div id="appendix-A.3.2-3.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://wiki.ligo.org&quot;,
-  &quot;sub&quot;: &quot;https://wiki.ligo.org&quot;,
-  &quot;iat&quot;: 1676045527,
-  &quot;exp&quot;: 1676063610,
-  &quot;aud&quot;: &quot;https://op.umu.se&quot;,
-  &quot;metadata&quot;: {
-    &quot;openid_relying_party&quot;: {
-      &quot;application_type&quot;: &quot;web&quot;,
-      &quot;client_name&quot;: &quot;LIGO Wiki&quot;,
-      &quot;contacts&quot;: [&quot;ops@ligo.org&quot;],
-      &quot;grant_types&quot;: [&quot;authorization_code&quot;],
-      &quot;id_token_signed_response_alg&quot;: &quot;RS256&quot;,
-      &quot;signed_jwks_uri&quot;: &quot;https://wiki.ligo.org/jwks.jose&quot;,
-      &quot;redirect_uris&quot;: [
-        &quot;https://wiki.ligo.org/openid/callback&quot;
+
+
+``` figure
+{
+  "iss": "https://wiki.ligo.org",
+  "sub": "https://wiki.ligo.org",
+  "iat": 1676045527,
+  "exp": 1676063610,
+  "aud": "https://op.umu.se",
+  "metadata": {
+    "openid_relying_party": {
+      "application_type": "web",
+      "client_name": "LIGO Wiki",
+      "contacts": ["ops@ligo.org"],
+      "grant_types": ["authorization_code"],
+      "id_token_signed_response_alg": "RS256",
+      "signed_jwks_uri": "https://wiki.ligo.org/jwks.jose",
+      "redirect_uris": [
+        "https://wiki.ligo.org/openid/callback"
       ],
-      &quot;response_types&quot;: [&quot;code&quot;],
-      &quot;subject_type&quot;: &quot;public&quot;
+      "response_types": ["code"],
+      "subject_type": "public"
     }
   },
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+  "jwks": {
+    "keys": [
       {
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;use&quot;: &quot;sig&quot;,
-        &quot;kid&quot;:
-          &quot;U2JTWHY0VFg0a2FEVVdTaHptVDJsNDNiSDk5MXRBVEtNSFVkeXZwb&quot;,
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;n&quot;:
-          &quot;4AZjgqFwMhTVSLrpzzNcwaCyVD88C_Hb3Bmor97vH-2AzldhuVb8K...&quot;
+        "kty": "RSA",
+        "use": "sig",
+        "kid":
+          "U2JTWHY0VFg0a2FEVVdTaHptVDJsNDNiSDk5MXRBVEtNSFVkeXZwb",
+        "e": "AQAB",
+        "n":
+          "4AZjgqFwMhTVSLrpzzNcwaCyVD88C_Hb3Bmor97vH-2AzldhuVb8K..."
       }
     ]
   },
-  &quot;authority_hints&quot;: [&quot;https://incommon.org&quot;]
-}</code></pre>
-</div>
-<figcaption><a href="#figure-74" class="selfRef">Figure 74</a>: <a href="#name-rps-entity-configuration-jw" class="selfRef">RP's Entity Configuration JWT Claims Set</a></figcaption>
-</figure>
+  "authority_hints": ["https://incommon.org"]
+}
+```
+Figure 74: RP's Entity Configuration JWT Claims Set
+
 
 The OP receives the RP's Entity Configuration and proceeds with the sequence of steps laid out in [Appendix A.2](#op_discovery){.auto .internal .xref}.
 
@@ -9203,81 +8081,79 @@ Here is an example JWT Claims Set of the registration Entity Statement returned 
 
 []{#name-jwt-claims-set-of-registrat}
 
-<figure id="figure-75">
-<div id="appendix-A.3.2-9.1" class="alignLeft art-text artwork">
-<pre><code>{
-  &quot;iss&quot;: &quot;https://op.umu.se&quot;,
-  &quot;sub&quot;: &quot;https://wiki.ligo.org&quot;,
-  &quot;aud&quot;: &quot;https://wiki.ligo.org&quot;,
-  &quot;iat&quot;: 1601457619,
-  &quot;exp&quot;: 1601544019,
-  &quot;trust_anchor&quot;: &quot;https://edugain.geant.org&quot;,
-  &quot;metadata&quot;: {
-    &quot;openid_relying_party&quot;: {
-      &quot;client_id&quot;: &quot;m3GyHw&quot;,
-      &quot;client_secret_expires_at&quot;: 1604049619,
-      &quot;client_secret&quot;:
-        &quot;cb44eed577f3b5edf3e08362d47a0dc44630b3dc6ea99f7a79205&quot;,
-      &quot;client_id_issued_at&quot;: 1601457619,
-      &quot;application_type&quot;: &quot;web&quot;,
-      &quot;client_name&quot;: &quot;LIGO Wiki&quot;,
-      &quot;contacts&quot;: [
-        &quot;ops@edugain.geant.org&quot;,
-        &quot;ops@incommon.org&quot;,
-        &quot;ops@ligo.org&quot;
+
+
+``` figure
+{
+  "iss": "https://op.umu.se",
+  "sub": "https://wiki.ligo.org",
+  "aud": "https://wiki.ligo.org",
+  "iat": 1601457619,
+  "exp": 1601544019,
+  "trust_anchor": "https://edugain.geant.org",
+  "metadata": {
+    "openid_relying_party": {
+      "client_id": "m3GyHw",
+      "client_secret_expires_at": 1604049619,
+      "client_secret":
+        "cb44eed577f3b5edf3e08362d47a0dc44630b3dc6ea99f7a79205",
+      "client_id_issued_at": 1601457619,
+      "application_type": "web",
+      "client_name": "LIGO Wiki",
+      "contacts": [
+        "ops@edugain.geant.org",
+        "ops@incommon.org",
+        "ops@ligo.org"
       ],
-      &quot;grant_types&quot;: [
-        &quot;authorization_code&quot;
+      "grant_types": [
+        "authorization_code"
       ],
-      &quot;id_token_signed_response_alg&quot;: &quot;RS256&quot;,
-      &quot;signed_jwks_uri&quot;: &quot;https://wiki.ligo.org/jwks.jose&quot;,
-      &quot;redirect_uris&quot;: [
-        &quot;https://wiki.ligo.org/openid/callback&quot;
+      "id_token_signed_response_alg": "RS256",
+      "signed_jwks_uri": "https://wiki.ligo.org/jwks.jose",
+      "redirect_uris": [
+        "https://wiki.ligo.org/openid/callback"
       ],
-      &quot;response_types&quot;: [
-        &quot;code&quot;
+      "response_types": [
+        "code"
       ],
-      &quot;subject_type&quot;: &quot;public&quot;
+      "subject_type": "public"
     }
   },
-  &quot;authority_hints&quot;: [
-    &quot;https://incommon.org&quot;
+  "authority_hints": [
+    "https://incommon.org"
   ],
-  &quot;jwks&quot;: {
-    &quot;keys&quot;: [
+  "jwks": {
+    "keys": [
       {
-        &quot;kty&quot;: &quot;RSA&quot;,
-        &quot;use&quot;: &quot;sig&quot;,
-        &quot;kid&quot;:
-          &quot;U2JTWHY0VFg0a2FEVVdTaHptVDJsNDNiSDk5MXRBVEtNSFVkeXZwb&quot;,
-        &quot;e&quot;: &quot;AQAB&quot;,
-        &quot;n&quot;:
-          &quot;4AZjgqFwMhTVSLrpzzNcwaCyVD88C_Hb3Bmor97vH-2AzldhuVb8K...&quot;
+        "kty": "RSA",
+        "use": "sig",
+        "kid":
+          "U2JTWHY0VFg0a2FEVVdTaHptVDJsNDNiSDk5MXRBVEtNSFVkeXZwb",
+        "e": "AQAB",
+        "n":
+          "4AZjgqFwMhTVSLrpzzNcwaCyVD88C_Hb3Bmor97vH-2AzldhuVb8K..."
       },
       {
-        &quot;kty&quot;: &quot;EC&quot;,
-        &quot;use&quot;: &quot;sig&quot;,
-        &quot;kid&quot;: &quot;LWtFcklLOGdrW&quot;,
-        &quot;crv&quot;: &quot;P-256&quot;,
-        &quot;x&quot;: &quot;X2S1dFE7zokQDST0bfHdlOWxOc8FC1l4_sG1Kwa4l4s&quot;,
-        &quot;y&quot;: &quot;812nU6OCKxgc2ZgSPt_dkXbYldG_smHJi4wXByDHc6g&quot;
+        "kty": "EC",
+        "use": "sig",
+        "kid": "LWtFcklLOGdrW",
+        "crv": "P-256",
+        "x": "X2S1dFE7zokQDST0bfHdlOWxOc8FC1l4_sG1Kwa4l4s",
+        "y": "812nU6OCKxgc2ZgSPt_dkXbYldG_smHJi4wXByDHc6g"
       }
     ]
   }
-}</code></pre>
-</div>
-<figcaption><a href="#figure-75" class="selfRef">Figure 75</a>: <a href="#name-jwt-claims-set-of-registrat" class="selfRef">JWT Claims Set of Registration Entity Statement Returned by OP to RP after Explicit Client Registration</a></figcaption>
-</figure>
+}
+```
+Figure 75: JWT Claims Set of Registration Entity Statement Returned by OP to RP after Explicit Client Registration
 
+# Acknowledgements
 
+The authors wish to acknowledge the contributions of the following individuals and organizations to this specification: Marcus Almgren, Pasquale Barbaro, Brian Campbell, David Chadwick, Michele D'Amico, Andrii Deinega, Erick Domingues, Heather Flanagan, Michael Fraser, Samuel Gulliksson, Joseph Heenan, Pedram Hosseyni, Marko Ivančić, Łukasz Jaromin, Takahiko Kawasaki, Torsten Lodderstedt, Francesco Marino, John Melati, Alexey Melnikov, Eduardo Perottoni, Roberto Polli, Justin Richer, Jouke Roorda, Nat Sakimura, Mischa Sallé, Stefan Santesson, Marcos Sanz, Peter Brand, Michael Schwartz, Giada Sciarretta, Amir Sharif, Sean Turner, Niels van Dijk, Tim Würtele, Kristina Yasuda, Gabriel Zachmann, and the JRA3T3 task force of GEANT4-2.
 
+{backmatter}
 
-
-
-
-
-
-## [Appendix B.](#appendix-B){.section-number .selfRef} [Notices](#name-notices){.section-name .selfRef} {#name-notices}
+# Notices
 
 Copyright (c) 2025 The OpenID Foundation.
 
@@ -9289,9 +8165,7 @@ The technology described in this specification was made available from contribut
 
 
 
-## [Appendix C.](#appendix-C){.section-number .selfRef} [Document History](#name-document-history){.section-name .selfRef} {#name-document-history}
-
-[[ To be removed from the final specification ]]
+# Document History
 
 -45
 
@@ -10821,15 +9695,7 @@ The technology described in this specification was made available from contribut
 
 
 
-## [Acknowledgements](#name-acknowledgements){.section-name .selfRef} {#name-acknowledgements}
-
-The authors wish to acknowledge the contributions of the following individuals and organizations to this specification: Marcus Almgren, Pasquale Barbaro, Brian Campbell, David Chadwick, Michele D'Amico, Andrii Deinega, Erick Domingues, Heather Flanagan, Michael Fraser, Samuel Gulliksson, Joseph Heenan, Pedram Hosseyni, Marko Ivančić, Łukasz Jaromin, Takahiko Kawasaki, Torsten Lodderstedt, Francesco Marino, John Melati, Alexey Melnikov, Eduardo Perottoni, Roberto Polli, Justin Richer, Jouke Roorda, Nat Sakimura, Mischa Sallé, Stefan Santesson, Marcos Sanz, Peter Brand, Michael Schwartz, Giada Sciarretta, Amir Sharif, Sean Turner, Niels van Dijk, Tim Würtele, Kristina Yasuda, Gabriel Zachmann, and the JRA3T3 task force of GEANT4-2.
-
-
-
-
-
-## [Authors' Addresses](#name-authors-addresses){.section-name .selfRef} {#name-authors-addresses}
+# Authors' Addresses
 
 
 [Roland Hedberg ([editor]{.role})]{.fn .nameRole}
@@ -10921,6 +9787,3 @@ Email: <vladimir@connect2id.com>
 
 
 URI: [https://www.linkedin.com/in/vladimirdzhuvinov/](https://www.linkedin.com/in/vladimirdzhuvinov/){.url}
-
-
-
