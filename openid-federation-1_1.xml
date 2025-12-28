@@ -77,7 +77,7 @@
       </address>
     </author>
 
-    <date day="22" month="December" year="2025"/>
+    <date day="28" month="December" year="2025"/>
 
     <workgroup>OpenID Connect Working Group</workgroup>
 
@@ -122,11 +122,11 @@
     <section anchor="Introduction" title="Introduction">
       <t>
 	NOTE:  This specification is starting life as a copy of
-	OpenID Federation 1.0 <xref target="OpenID.Federation-1.0"/>
+	<xref target="OpenID.Federation-1.0">OpenID Federation 1.0</xref>
 	as of December 10, 2025.
 	The protocol-specific parts will be removed shortly,
 	and will live on in the
-	OpenID Connect Federation 1.1 <xref target="OpenID.Connect.Federation-1.1"/>
+	<xref target="OpenID.Connect.Federation-1.1">OpenID Connect Federation 1.1</xref>
 	specification.
       </t>
       <t>
@@ -139,10 +139,20 @@
         one or more levels of authorities.
         Examples of authorities are federation operators, organizations,
         departments within organizations, and individual sites.
+      </t>
+      <t>
         This
         specification provides the basic technical trust infrastructure building
         blocks needed to create a dynamic and distributed trust network, such as a
         federation.
+	This trust infrastructure can be used with any application protocol.
+	Protocol-specific bindings to the functionality defined by this specification
+	are defined in other specifications, such as the
+	<xref target="OpenID.Connect.Federation-1.1">OpenID Connect Federation 1.1</xref>
+	specification, which defines protocol-specific functionality for use with
+	<xref target="OpenID.Core">OpenID Connect Core 1.0</xref> and
+	<xref target="RFC6749">OAuth 2.0</xref> deployments.
+	<!-- TBD Add reference to Federation Wallet Profile? -->
       </t>
       <t>
         Note that this specification only concerns itself with how Entities
@@ -244,7 +254,6 @@
 	  "Grant Type", "Protected Resource", "Redirection URI", "Refresh Token",
 	  "Resource Server (RS)", and "Token Endpoint"
 	  defined by <xref target="RFC6749">OAuth 2.0</xref>.
-
         </t>
         <t>
           This specification also defines the following terms:
@@ -442,14 +451,13 @@
       </t>
       <t>
         This specification deals with trust operations;
-        it does not cover or touch protocol operations
-        other than metadata derivation and exchange.
-        In OpenID Connect terms, these are the protocol operations specified in
-        <xref target="OpenID.Discovery">OpenID Connect Discovery 1.0</xref>
-        and
-        <xref target="OpenID.Registration">OpenID Connect Dynamic Client Registration 1.0</xref>.
+        it does not cover or touch operations of specific protocols
+	using the trust operations,
+        other than enabling metadata derivation and exchange for use by those protocols.
       </t>
       <t>
+	<!-- TBD See whether Connect is used in examples once this is further along
+	     and delete if not -->
         OpenID Connect is used in many of the examples in this
         specification, however this does not mean that this specification can only be used
         with OpenID Connect. On the contrary, it can also be
@@ -518,6 +526,9 @@
 	  <spanx style="verb">kid</spanx> (Key ID) header parameter
 	  with its value being the Key ID of the signing key used.
 	</t>
+
+	<section anchor="ESClaims" title="Entity Statement Claims">
+
         <t>
           The Claims in an Entity Statement are listed below.
           Applications and protocols utilizing Entity Statements MAY specify
@@ -526,7 +537,6 @@
 
 	<section title="Claims that MUST or MAY Appear in both Entity Configurations and Subordinate Statements"
 		 anchor="common-claims">
-
         <t>
           <list style="hanging">
             <t hangText="iss">
@@ -557,7 +567,11 @@
             </t>
             <t hangText="jwks">
               <vspace/>
-              REQUIRED. A <xref target="RFC7517">JSON Web Key Set (JWKS)</xref>
+	      REQUIRED for all Subordinate Statements,
+	      REQUIRED for all Entity Configurations of Trust Anchors and Intermediate Entities,
+	      and also REQUIRED for all Entity Configurations of Leaf Entities
+	      not using a profile permitting it to be absent.
+	      Its value is a <xref target="RFC7517">JSON Web Key Set (JWKS)</xref>
               representing the public part of the subject's Federation Entity
               signing keys. The corresponding private key is
               used by the Entity to sign the Entity Configuration about itself,
@@ -565,9 +579,6 @@
 	      to sign Subordinate Statements about their Immediate Subordinates,
 	      and for other signatures made by Federation Entities,
 	      such as Trust Mark signatures.
-              However, this claim is OPTIONAL for the Entity Statement returned
-              as an Explicit Registration Response, as defined in <xref target="cliregresp"/>;
-              in all other cases, it is REQUIRED.
               Every JWK in the JWK Set MUST have a unique <spanx style="verb">kid</spanx> (Key ID) value.
               It is RECOMMENDED that the Key ID be the JWK Thumbprint <xref target="RFC7638"/>
               using the SHA-256 hash function of the key.
@@ -579,7 +590,8 @@
 	      such as the metadata under the
 	      <spanx style="verb">openid_provider</spanx> and
 	      <spanx style="verb">openid_relying_party</spanx>
-	      Entity Type Identifiers.)
+	      Entity Type Identifiers,
+	      which are defined in <xref target="OpenID.Connect.Federation-1.1"/>.)
             </t>
             <t hangText="metadata">
               <vspace/>
@@ -783,39 +795,21 @@
 
 	<section title="Claims Used in Explicit Registration Requests"
 		 anchor="explicit-reg-request-specific">
-	  <list style="hanging">
-	    <t hangText="aud">
-	      <vspace/>
-	      OPTIONAL.
-	      The "aud" (audience) value MUST be the Entity Identifier of the OP
-	      and MUST NOT include any other values.
-	      This Claim is used in Explicit Registration requests;
-	      it is not a general Entity Statement Claim.
-	    </t>
-	  </list>
+	  <!-- DELETE? -->
+	  <t>
+	    This specification defines no Claims of this kind.
+	  </t>
 	</section>
 
 	<section title="Claims Used in Explicit Registration Responses"
 		 anchor="explicit-reg-response-specific">
-	  <list style="hanging">
-	    <t hangText="aud">
-	      <vspace/>
-	      OPTIONAL.
-	      The "aud" (audience) value MUST be the Entity Identifier of the RP
-	      and MUST NOT include any other values.
-	      This Claim is used in Explicit Registration responses;
-	      it is not a general Entity Statement Claim.
-	    </t>
-            <t hangText="trust_anchor">
-              <vspace/>
-              OPTIONAL.  Its value MUST be the Entity Identifier of the Trust Anchor
-                that the OP selected to process the Explicit Registration request,
-		as specified in <xref target="trust_anchor-claim"/>.
-		This Claim is specific to Explicit Registration responses;
-		it is not a general Entity Statement Claim.
-            </t>
-          </list>
+	  <!-- DELETE? -->
+	  <t>
+	    This specification defines no Claims of this kind.
+	  </t>
         </section>
+
+	</section>
 
 	<section anchor="ESValidation" title="Entity Statement Validation">
 	  <t>
@@ -990,30 +984,6 @@
 		Implementations MAY also make a fetch call to the URL
 		to validate that this is the fetch endpoint
 		from which the Entity Statement was issued.
-	      </t>
-	      <t>
-		If the <spanx style="verb">aud</spanx> Claim is present,
-		if the Entity Statement is an Explicit Registration request,
-		validate that the value is the Entity Identifier for an OP,
-		or if the Entity Statement is an Explicit Registration request,
-		validate that the value is the Entity Identifier for an RP.
-		This Claim MUST NOT be present in Entity Statements that are not
-		Explicit Registration requests or responses
-		unless its use is otherwise specified in an extension being employed.
-	      </t>
-	      <t>
-		If the <spanx style="verb">trust_anchor</spanx> Claim is present,
-		validate that its value is a URL
-		using the <spanx style="verb">https</spanx> scheme.
-		Implementations SHOULD validate that the Entity Identifier matches
-		one of the Trust Anchors configured for the deployment.
-		Furthermore, implementations SHOULD validate that the
-		Entity Configuration for the Entity Identifier contains
-		information compatible with the configured Trust Anchor information
-		- especially the keys.
-		This Claim MUST NOT be present in Entity Statements that are not
-		Explicit Registration responses
-		unless its use is otherwise specified in an extension being employed.
 	      </t>
 	      <t>
 		If the <spanx style="verb">trust_chain</spanx> header parameter is present,
@@ -10277,7 +10247,7 @@ HTTP/1.1 302 Found
 	    </address>
 	  </author>
 
-          <date day="13" month="December" year="2025"/>
+          <date day="28" month="December" year="2025"/>
         </front>
       </reference>
 
