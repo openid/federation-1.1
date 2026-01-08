@@ -1,19 +1,10 @@
 # OpenID Federation 1.1
 
-The OpenID Federation specification defines protocols and guidelines for implementing federated infrastructures among different domains and services.
-
-## Overview
-
-OpenID Federation 1.1 is:
-
-- a technical specification that defines how to evaluate Trust from a technical perspective,
-- a technology that defines how to build trust infrastructures,
-- a system for securely establishing the interoperability of participants.
-
-## Releases
-
-The latest released draft of the specification is available at [https://openid.net/specs/openid-federation-1_0.html](https://openid.net/specs/openid-federation-1_0.html).
-The most recent Implementer's Draft is [https://openid.net/specs/openid-federation-1_0-ID4.html](https://openid.net/specs/openid-federation-1_0-ID4.html).
+The OpenID Federation 1.1 specification contains the protocol-independent functionality defined in [OpenID Federation 1.0](https://openid.net/specs/openid-federation-1_0.html).
+This includes Entity Statements, Trust Chains, Metadata, Policies, Trust Marks, and Federation Endpoints.
+These can be used in multilateral federations for the purpose of establishing trust,
+in combination the protocol-specific functionality defined by specifications such as OpenID Connect Federation 1.1.
+This specification introduces no new functionality not present in OpenID Federation 1.0.
 
 ## Current Builds
 
@@ -28,7 +19,7 @@ News about OpenID Federation is available at the OpenID Foundation website [here
 
 ## Working on the Specification
 
-To get started working on the OpenID Federation specification, clone this repository and review the documentation provided in the root directory.
+To get started working on the specification, clone this repository and review the documentation provided in the root directory.
 
 ````bash
 git clone https://github.com/openid/federation-1.1.git
