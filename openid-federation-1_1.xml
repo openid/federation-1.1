@@ -6601,7 +6601,7 @@ Content-Type: application/json
         <t>
           Some of the interfaces defined in this specification could be used for
           Denial-of-Service attacks (DoS), most notably, the resolve endpoint
-          (<xref target="entity_listing"/>) can
+          (<xref target="resolve"/>) can
           be exploited as a vector of HTTP propagation attacks.
           Below is an explanation of how such an attack can occur and
           the countermeasures to prevent it.
