@@ -77,7 +77,7 @@
       </address>
     </author>
 
-    <date day="7" month="January" year="2026"/>
+    <date day="11" month="January" year="2026"/>
 
     <workgroup>OpenID Connect Working Group</workgroup>
 
@@ -6882,7 +6882,7 @@ Content-Type: application/json
         </front>
       </reference>
 
-      <reference anchor="OpenID.Connect.Federation-1.1" target="https://openid.github.io/connect-federation-1.1/main.html">
+      <reference anchor="OpenID.Connect.Federation-1.1" target="https://openid.net/specs/openid-connect-federation-1_1.html">
         <front>
           <title>OpenID Connect Federation 1.1</title>
 
@@ -7067,6 +7067,9 @@ Content-Type: application/json
 	  </t>
 	  <t>
 	    Merged in changes made to OpenID Federation 1.0 as of January 7, 2026.
+	  </t>
+	  <t>
+	    Appled corrections identified by Andreas Solberg.
 	  </t>
 	</list>
       </t>
