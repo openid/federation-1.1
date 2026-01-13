@@ -6,6 +6,10 @@ These can be used in multilateral federations for the purpose of establishing tr
 in combination the protocol-specific functionality defined by specifications such as OpenID Connect Federation 1.1.
 This specification introduces no new functionality not present in OpenID Federation 1.0.
 
+## Releases
+
+The latest released draft of the specification is https://openid.net/specs/openid-federation-1_1.html.
+
 ## Current Builds
 
 The latest editors' draft is [https://openid.github.io/federation-1.1/main.html](https://openid.github.io/federation-1.1/main.html).
