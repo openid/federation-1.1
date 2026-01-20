@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>OpenID Federation 1.1 - draft 00</title>
+<title>OpenID Federation 1.1 - draft 01</title>
 <meta content="Roland Hedberg" name="author">
 <meta content="Michael B. Jones" name="author">
 <meta content="Giuseppe De Marco" name="author">
@@ -31,7 +31,7 @@
  This specification contains the protocol-independent functionality defined in OpenID Federation 1.0.
  This includes Entity Statements, Trust Chains, Metadata, Policies, Trust Marks, and Federation Endpoints.
  These can be used in multilateral federations for the purpose of establishing trust,
- in combination with the protocol-specific functionality defined by specifications such as OpenID Connect Federation 1.1.
+ in combination with the protocol-specific functionality defined by specifications such as OpenID Federation for OpenID Connect 1.1.
  This specification introduces no new functionality not present in OpenID Federation 1.0.
        
     " name="description">
@@ -1265,7 +1265,7 @@ li > p:last-of-type:only-child {
 <dd class="workgroup">OpenID Connect Working Group</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2026-01-11" class="published">11 January 2026</time>
+<time datetime="2026-01-19" class="published">19 January 2026</time>
     </dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
@@ -1297,7 +1297,7 @@ li > p:last-of-type:only-child {
 </dd>
 </dl>
 </div>
-<h1 id="title">OpenID Federation 1.1 - draft 00</h1>
+<h1 id="title">OpenID Federation 1.1 - draft 01</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">
@@ -1317,7 +1317,7 @@ li > p:last-of-type:only-child {
  This specification contains the protocol-independent functionality defined in OpenID Federation 1.0.
  This includes Entity Statements, Trust Chains, Metadata, Policies, Trust Marks, and Federation Endpoints.
  These can be used in multilateral federations for the purpose of establishing trust,
- in combination with the protocol-specific functionality defined by specifications such as OpenID Connect Federation 1.1.
+ in combination with the protocol-specific functionality defined by specifications such as OpenID Federation for OpenID Connect 1.1.
  This specification introduces no new functionality not present in OpenID Federation 1.0.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
 </section>
 <div id="toc">
@@ -1859,7 +1859,7 @@ li > p:last-of-type:only-child {
  This trust infrastructure can be used with any application protocol.
  Protocol-specific bindings to the functionality defined by this specification
  are defined in other specifications, such as the
- <span><a href="#OpenID.Connect.Federation-1.1" class="internal xref">OpenID Connect Federation 1.1</a> [<a href="#OpenID.Connect.Federation-1.1" class="cite xref">OpenID.Connect.Federation-1.1</a>]</span>
+ <span><a href="#OpenID.Federation.Connect-1.1" class="internal xref">OpenID Federation for OpenID Connect 1.1</a> [<a href="#OpenID.Federation.Connect-1.1" class="cite xref">OpenID.Federation.Connect-1.1</a>]</span>
  specification, which defines protocol-specific functionality for use with
  <span><a href="#OpenID.Core" class="internal xref">OpenID Connect Core 1.0</a> [<a href="#OpenID.Core" class="cite xref">OpenID.Core</a>]</span> and
  <span><a href="#RFC6749" class="internal xref">OAuth 2.0</a> [<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> deployments.<a href="#section-1-2" class="pilcrow">¶</a></p>
@@ -2332,7 +2332,7 @@ li > p:last-of-type:only-child {
        <code>openid_provider</code> and
        <code>openid_relying_party</code>
        Entity Type Identifiers,
-       which are defined in <span>[<a href="#OpenID.Connect.Federation-1.1" class="cite xref">OpenID.Connect.Federation-1.1</a>]</span>.)<a href="#section-3.1.1-1.10.2" class="pilcrow">¶</a></p>
+       which are defined in <span>[<a href="#OpenID.Federation.Connect-1.1" class="cite xref">OpenID.Federation.Connect-1.1</a>]</span>.)<a href="#section-3.1.1-1.10.2" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-3.1.1-1.11">metadata</dt>
@@ -3189,7 +3189,7 @@ li > p:last-of-type:only-child {
       Type Identifier, which is protocol-independent.
       Use of metadata for OpenID Connect and OAuth 2.0
       Federation Entities is defined in
-      <span><a href="https://openid.net/specs/openid-connect-federation-1_1.html#metadata" class="relref">Section 5</a> of [<a href="#OpenID.Connect.Federation-1.1" class="cite xref">OpenID.Connect.Federation-1.1</a>]</span>.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+      <span><a href="https://openid.net/specs/openid-federation-connect-1_1.html#metadata" class="relref">Section 5</a> of [<a href="#OpenID.Federation.Connect-1.1" class="cite xref">OpenID.Federation.Connect-1.1</a>]</span>.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
 <p id="section-5.1-2">
    Additional Entity Type Identifiers MAY be defined to
    support use cases for other protocols.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
@@ -7957,7 +7957,7 @@ Content-Type: application/json
 <p id="section-12-1">
  Protocol-specific means of performing client registration for
  OpenID Connect and OAuth 2.0 are defined in
- <span><a href="https://openid.net/specs/openid-connect-federation-1_1.html#client_registration" class="relref">Section 12</a> of [<a href="#OpenID.Connect.Federation-1.1" class="cite xref">OpenID.Connect.Federation-1.1</a>]</span>.<a href="#section-12-1" class="pilcrow">¶</a></p>
+ <span><a href="https://openid.net/specs/openid-federation-connect-1_1.html#client_registration" class="relref">Section 12</a> of [<a href="#OpenID.Federation.Connect-1.1" class="cite xref">OpenID.Federation.Connect-1.1</a>]</span>.<a href="#section-12-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="GeneralPurposeClaims">
@@ -8899,13 +8899,13 @@ Content-Type: application/json
         <dd>
 <span class="refAuthor">IANA</span>, <span class="refTitle">"OAuth Parameters"</span>, <span>&lt;<a href="https://www.iana.org/assignments/oauth-parameters">https://www.iana.org/assignments/oauth-parameters</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="OpenID.Connect.Federation-1.1">[OpenID.Connect.Federation-1.1]</dt>
-        <dd>
-<span class="refAuthor">Hedberg, R.</span>, <span class="refAuthor">Jones, M.B., Ed.</span>, <span class="refAuthor">De Marco, G.</span>, <span class="refAuthor">Solberg, A.Å.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">V. Dzhuvinov</span>, <span class="refTitle">"OpenID Connect Federation 1.1"</span>, <time datetime="2025-12-31" class="refDate">31 December 2025</time>, <span>&lt;<a href="https://openid.net/specs/openid-connect-federation-1_1.html">https://openid.net/specs/openid-connect-federation-1_1.html</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="OpenID.Federation-1.0">[OpenID.Federation-1.0]</dt>
         <dd>
-<span class="refAuthor">Hedberg, R., Ed.</span>, <span class="refAuthor">Jones, M.B.</span>, <span class="refAuthor">Solberg, A.Å.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">De Marco, G.</span>, and <span class="refAuthor">V. Dzhuvinov</span>, <span class="refTitle">"OpenID Federation 1.0"</span>, <time datetime="2025-12-04" class="refDate">4 December 2025</time>, <span>&lt;<a href="https://openid.net/specs/openid-federation-1_0.html">https://openid.net/specs/openid-federation-1_0.html</a>&gt;</span>. </dd>
+<span class="refAuthor">Hedberg, R., Ed.</span>, <span class="refAuthor">Jones, M.B.</span>, <span class="refAuthor">Solberg, A.Å.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">De Marco, G.</span>, and <span class="refAuthor">V. Dzhuvinov</span>, <span class="refTitle">"OpenID Federation 1.0"</span>, <time datetime="2026-01-19" class="refDate">19 January 2026</time>, <span>&lt;<a href="https://openid.net/specs/openid-federation-1_0.html">https://openid.net/specs/openid-federation-1_0.html</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="OpenID.Federation.Connect-1.1">[OpenID.Federation.Connect-1.1]</dt>
+        <dd>
+<span class="refAuthor">Hedberg, R.</span>, <span class="refAuthor">Jones, M.B., Ed.</span>, <span class="refAuthor">De Marco, G.</span>, <span class="refAuthor">Solberg, A.Å.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">V. Dzhuvinov</span>, <span class="refTitle">"OpenID Federation for OpenID Connect 1.1"</span>, <time datetime="2026-01-19" class="refDate">19 January 2026</time>, <span>&lt;<a href="https://openid.net/specs/openid-federation-connect-1_1.html">https://openid.net/specs/openid-federation-connect-1_1.html</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC2046">[RFC2046]</dt>
         <dd>
@@ -8928,7 +8928,7 @@ Content-Type: application/json
 <a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-examples-building-and-using" class="section-name selfRef">Examples Building and Using Trust Chains</a>
       </h2>
 <p id="appendix-A-1">
- <span><a href="https://openid.net/specs/openid-connect-federation-1_1.html#FederationExamples" class="relref">Appendix A</a> of [<a href="#OpenID.Connect.Federation-1.1" class="cite xref">OpenID.Connect.Federation-1.1</a>]</span>
+ <span><a href="https://openid.net/specs/openid-federation-connect-1_1.html#FederationExamples" class="relref">Appendix A</a> of [<a href="#OpenID.Federation.Connect-1.1" class="cite xref">OpenID.Federation.Connect-1.1</a>]</span>
  contains examples building and using Trust Chains for trust establishment
  between parties wanting to cooperate within a federation.
  The examples are there because some of the operations depicted
@@ -8992,23 +8992,32 @@ Content-Type: application/json
       </h2>
 <p id="appendix-C-1">[[ To be removed from the final specification ]]<a href="#appendix-C-1" class="pilcrow">¶</a></p>
 <p id="appendix-C-2">
- -00<a href="#appendix-C-2" class="pilcrow">¶</a></p>
+ -01<a href="#appendix-C-2" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="appendix-C-3.1">
           <p id="appendix-C-3.1.1">
-     Began life as a copy of OpenID Federation 1.0 as of December 10, 2025.<a href="#appendix-C-3.1.1" class="pilcrow">¶</a></p>
+     Use the new specification name OpenID Federation for OpenID Connect 1.1,
+     which was previously named OpenID Connect Federation 1.1.<a href="#appendix-C-3.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-C-3.2">
-          <p id="appendix-C-3.2.1">
-     Removed protocol-specific functionality.<a href="#appendix-C-3.2.1" class="pilcrow">¶</a></p>
+      </ul>
+<p id="appendix-C-4">
+ -00<a href="#appendix-C-4" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-C-5.1">
+          <p id="appendix-C-5.1.1">
+     Began life as a copy of OpenID Federation 1.0 as of December 10, 2025.<a href="#appendix-C-5.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-C-3.3">
-          <p id="appendix-C-3.3.1">
-     Merged in changes made to OpenID Federation 1.0 as of January 7, 2026.<a href="#appendix-C-3.3.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-5.2">
+          <p id="appendix-C-5.2.1">
+     Removed protocol-specific functionality.<a href="#appendix-C-5.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="appendix-C-3.4">
-          <p id="appendix-C-3.4.1">
-     Appled corrections identified by Andreas Solberg.<a href="#appendix-C-3.4.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="appendix-C-5.3">
+          <p id="appendix-C-5.3.1">
+     Merged in changes made to OpenID Federation 1.0 as of January 7, 2026.<a href="#appendix-C-5.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="appendix-C-5.4">
+          <p id="appendix-C-5.4.1">
+     Appled corrections identified by Andreas Solberg.<a href="#appendix-C-5.4.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
 </section>
