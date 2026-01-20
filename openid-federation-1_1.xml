@@ -143,7 +143,6 @@
 	specification, which defines protocol-specific functionality for use with
 	<xref target="OpenID.Core">OpenID Connect Core 1.0</xref> and
 	<xref target="RFC6749">OAuth 2.0</xref> deployments.
-	<!-- TBD Add reference to Federation Wallet Profile? -->
       </t>
       <t>
         Note that this specification only concerns itself with how Entities
@@ -447,9 +446,7 @@
         other than enabling metadata derivation and exchange for use by those protocols.
       </t>
       <t>
-	<!-- TBD See whether Connect is used in examples once this is further along
-	     and delete if not -->
-        OpenID Connect is used in many of the examples in this
+        OpenID Connect constructs are used in many of the examples in this
         specification, however this does not mean that this specification can only be used
         with OpenID Connect. On the contrary, it can also be
         used to build federations for other protocols.
