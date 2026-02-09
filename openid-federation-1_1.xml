@@ -26,7 +26,7 @@
 
   <front>
     <title abbrev="OpenID Federation 1.1">OpenID Federation 1.1 -
-      draft 02
+      draft 03
     </title>
 
     <author fullname="Roland Hedberg" initials="R." surname="Hedberg">
@@ -77,7 +77,7 @@
       </address>
     </author>
 
-    <date day="1" month="February" year="2026"/>
+    <date day="9" month="February" year="2026"/>
 
     <workgroup>OpenID Connect Working Group</workgroup>
 
@@ -7089,6 +7089,15 @@ Content-Type: application/json
       <t>[[ To be removed from the final specification ]]</t>
 
       <t>
+	-03
+	<list style="symbols">
+	  <t>
+	    Synced acknowledgements with OpenID Federation 1.0.
+	  </t>
+	</list>
+      </t>
+
+      <t>
 	-02
 	<list style="symbols">
 	  <t>
@@ -7190,6 +7199,7 @@ Content-Type: application/json
 	Sean Turner,
 	Davide Vaghetti,
 	Niels van Dijk,
+	Luiky Vasconcelos,
 	Tim Würtele,
 	Kristina Yasuda,
 	Gabriel Zachmann,
