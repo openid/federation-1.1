@@ -7096,6 +7096,9 @@ Content-Type: application/json
 	-03
 	<list style="symbols">
 	  <t>
+	    Synced acknowledgements with OpenID Federation 1.0.
+      </t>
+	  <t>
 	    Reference, rather than define, the existing error values
 	    invalid_request, server_error, and temporarily_unavailable.
 	  </t>
@@ -7204,6 +7207,7 @@ Content-Type: application/json
 	Sean Turner,
 	Davide Vaghetti,
 	Niels van Dijk,
+	Luiky Vasconcelos,
 	Tim Würtele,
 	Kristina Yasuda,
 	Gabriel Zachmann,
