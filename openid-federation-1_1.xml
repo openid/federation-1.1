@@ -4577,11 +4577,6 @@ Host: sunet.se
               </t>
             </list>
           </t>
-	  <t>
-	    When client authentication is used,
-	    the request MUST be an HTTP request using the POST method,
-	    with the parameters passed in the POST body.
-	  </t>
             <figure>
               <preamble>
                 The following is a non-normative example of a Trust Mark Status request:
